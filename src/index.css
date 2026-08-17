@@ -9,6 +9,9 @@
   --font-body: "Plus Jakarta Sans", "Helvetica Neue", sans-serif;
   --intensity: 3;
   --warmth: calc(var(--intensity) / 5);
+  --stanford-tint: 0;
+  --stanford-shift: calc(var(--stanford-tint) * (0.05 + var(--warmth) * 0.18));
+  --cardinal: oklch(0.58 0.08 25);
   color: var(--ink);
   font-family: var(--font-body);
   background: var(--paper);
@@ -43,11 +46,9 @@ a {
 .page {
   position: relative;
   min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
 }
 
-/* —— Backdrop (Part 3) —— */
+/* —— Backdrop —— */
 .intensity-backdrop {
   position: fixed;
   inset: 0;
@@ -69,27 +70,31 @@ a {
   z-index: 0;
   background:
     radial-gradient(
-      ellipse at 18% 12%,
-      color-mix(in oklch, var(--flame) calc(var(--warmth) * 22%), transparent),
-      transparent 54%
+      ellipse 130% 95% at 20% 14%,
+      color-mix(in oklch, var(--cardinal) calc(var(--stanford-shift) * 100%), transparent),
+      transparent 66%
     ),
     radial-gradient(
-      ellipse at 82% 78%,
-      color-mix(in oklch, var(--cobalt) calc(var(--warmth) * 18%), transparent),
-      transparent 56%
+      ellipse 120% 90% at 14% 8%,
+      color-mix(in oklch, var(--flame) calc(var(--warmth) * 28%), transparent),
+      transparent 62%
     ),
-    var(--paper);
-  transition: background 600ms ease-out;
-}
-
-.contour-canvas {
-  z-index: 1;
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  display: block;
+    radial-gradient(
+      ellipse 100% 80% at 88% 22%,
+      color-mix(in oklch, var(--cobalt) calc(var(--warmth) * 14%), transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      ellipse 110% 70% at 50% 100%,
+      color-mix(in oklch, var(--flame) calc(var(--warmth) * 18%), transparent),
+      transparent 64%
+    ),
+    color-mix(
+      in oklch,
+      var(--paper) calc(100% - var(--warmth) * 6%),
+      color-mix(in oklch, var(--flame) 12%, var(--paper))
+    );
+  transition: background 400ms ease-out;
 }
 
 .grain-overlay {
@@ -100,11 +105,27 @@ a {
   background-size: 256px 256px;
 }
 
-/* —— Header (Part 5) —— */
+/* —— Hero —— */
+.hero {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-block: 4vh 6vh;
+  padding-inline: 2.4vw calc(48px + 168px);
+}
+
+.hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-shrink: 0;
+  margin: 0;
+}
+
 .meta {
-  position: fixed;
-  z-index: 20;
-  top: 2.6vh;
   display: flex;
   gap: 1rem;
   margin: 0;
@@ -112,43 +133,30 @@ a {
   font-weight: 500;
   letter-spacing: 0.01em;
   color: var(--mute);
-  pointer-events: auto;
-}
-
-.meta-left {
-  left: 2.4vw;
-}
-
-.meta-right {
-  right: 2.4vw;
 }
 
 .meta a {
   text-decoration: none;
 }
 
-/* —— Hero section —— */
-.hero-section {
-  position: relative;
-  z-index: 2;
-  flex: none;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 2rem;
-  padding: 12vh 7vw 6vh;
-  min-height: auto;
+.hero-sentence {
+  margin-top: 10vh;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 
-.mast {
-  width: min(820px, 100%);
-  align-self: start;
-  padding-top: 6vh;
+.hero-objects {
+  margin-top: auto;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: clamp(72px, 13vh, 120px);
 }
 
 .hero-wrap {
-  min-height: 4.1em;
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
 }
 
@@ -160,7 +168,7 @@ a {
   letter-spacing: -0.038em;
   line-height: 1.28;
   color: var(--ink);
-  max-width: 13.5em;
+  max-width: 18ch;
 }
 
 .hero-name {
@@ -221,49 +229,166 @@ span.mark.squiggle:focus-visible {
   border-radius: 2px;
 }
 
-.def-card {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 10px);
-  transform: translateX(-50%);
-  min-width: 108px;
-  padding: 8px 12px 7px;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 12px 28px rgba(34, 34, 34, 0.1);
-  display: grid;
-  gap: 1px;
-  white-space: nowrap;
-  z-index: 12;
-  pointer-events: none;
+.def-reveal {
+  width: 100%;
+  min-height: 64px;
+  margin: 0;
+  padding-top: 0.35rem;
 }
 
-.def-card strong {
+.def-reveal__line {
+  margin: 0;
+  min-height: 64px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35em;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.def-reveal__line.is-visible {
+  opacity: 1;
+}
+
+.def-reveal__line strong {
   font-family: var(--font-hand);
   font-weight: 700;
   font-size: 18px;
 }
 
-.def-card em {
-  font-style: normal;
+.def-reveal__line span {
   font-size: 11px;
   color: var(--mute);
+  padding-top: 0.35em;
+}
+
+/* —— Slack hover mark —— */
+.slack-mark__box {
+  display: inline-block;
+  position: relative;
+  vertical-align: baseline;
+  overflow: visible;
+}
+
+.slack-mark__word {
+  display: inline-block;
+  transition:
+    transform 320ms ease-out,
+    opacity 240ms ease;
+}
+
+.slack-mark__word.is-active.can-slide {
+  transform: translateX(calc(100% + 12px));
+}
+
+.slack-mark__word.is-active.use-above {
+  opacity: 0.7;
+}
+
+.slack-mark__logo {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 0.8em;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transform: translateY(-50%) scale(0.9);
+  transition:
+    opacity 320ms ease-out,
+    transform 320ms ease-out;
+  pointer-events: none;
+}
+
+.slack-mark__logo.is-visible {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.slack-mark__logo.is-above {
+  top: 0;
+  left: 50%;
+  width: auto;
+  height: 0.8em;
+  transform: translate(-50%, calc(-100% - 0.12em)) scale(0.6);
+}
+
+.slack-mark__logo.is-above.is-visible {
+  opacity: 1;
+  transform: translate(-50%, calc(-100% - 0.12em)) scale(0.6);
+}
+
+.slack-mark__logo-svg {
+  width: auto;
+  height: 100%;
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slack-mark__word,
+  .slack-mark__logo {
+    transition: none !important;
+  }
+
+  .slack-mark__word.is-active.can-slide {
+    transform: translateX(calc(100% + 12px));
+  }
+
+  .slack-mark__word.is-active.use-above {
+    opacity: 0.7;
+  }
+
+  .slack-mark__logo.is-visible {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+
+  .slack-mark__logo.is-above.is-visible {
+    transform: translate(-50%, calc(-100% - 0.12em)) scale(0.6);
+  }
 }
 
 /* —— Intensity axis —— */
 .intensity-axis {
-  position: relative;
-  align-self: start;
-  padding-top: 6vh;
+  position: fixed;
+  z-index: 20;
+  right: 48px;
+  top: 50%;
+  transform: translateY(-50%);
   flex-shrink: 0;
+  overflow: visible;
 }
 
 .intensity-track {
   position: relative;
-  width: 148px;
+  width: 120px;
   touch-action: none;
   cursor: ns-resize;
   outline: none;
+  overflow: visible;
+}
+
+.intensity-pole {
+  position: absolute;
+  right: 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  font-variant: all-small-caps;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: var(--mute);
+  opacity: 0.45;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.intensity-pole--top {
+  top: -1.55rem;
+}
+
+.intensity-pole--bottom {
+  bottom: -1.55rem;
 }
 
 .intensity-track:focus-visible {
@@ -274,7 +399,7 @@ span.mark.squiggle:focus-visible {
 
 .intensity-rail {
   position: absolute;
-  right: 18px;
+  right: 0;
   top: 0;
   bottom: 0;
   width: 4px;
@@ -314,121 +439,101 @@ span.mark.squiggle:focus-visible {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
-  text-align: right;
 }
 
-.intensity-notch:hover .intensity-notch__label {
-  color: var(--ink);
-}
-
-.intensity-notch.is-on .intensity-notch__label {
-  color: var(--ink);
-  font-weight: 600;
-  opacity: 1 !important;
-}
-
-.intensity-notch__label {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--mute);
-  min-width: 72px;
-  text-align: right;
-}
-
-.intensity-notch__dot {
-  border-radius: 50%;
-  background: color-mix(in oklch, var(--ink) 22%, transparent);
+.intensity-tick {
+  display: block;
+  width: 6px;
+  height: 1px;
+  background: var(--ink);
+  opacity: 0.2;
   flex-shrink: 0;
 }
 
-.intensity-notch.is-on .intensity-notch__dot {
-  background: var(--ink);
+.intensity-notch__dot {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  flex-shrink: 0;
 }
 
-.simba-thumb {
+.intensity-thumb-group {
   position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
   transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
   pointer-events: none;
   z-index: 3;
   transition: top 120ms ease, left 120ms ease;
 }
 
-.simba-thumb__frame {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 120ms ease;
+.intensity-travel-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  white-space: nowrap;
+  text-align: right;
 }
 
-.simba-thumb__frame.is-visible {
-  opacity: 1;
-}
-
-.simba-thumb__img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-.simba-thumb__placeholder {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-}
-
-.simba-thumb__placeholder-dot {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: color-mix(in oklch, var(--ink) 10%, white);
-  box-shadow:
-    0 0 0 2px color-mix(in oklch, var(--ink) 12%, transparent),
-    0 6px 14px rgba(28, 36, 32, 0.1);
-}
-
-/* —— Scene section —— */
-.scene-section {
+.intensity-thumb {
   position: relative;
-  z-index: 2;
-  overflow: visible;
-  min-height: 460px;
-  padding: 4vh 4vw 12vh;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 2px color-mix(in oklch, white 88%, var(--paper));
 }
 
-.scene-section__inner {
-  max-width: 920px;
-  margin: 0 auto;
+/* —— Nav objects —— */
+.nav-row {
+  width: 70%;
+  max-width: 720px;
 }
 
 .nav-dock {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-end;
-  gap: clamp(2rem, 8vw, 5.5rem);
+  gap: clamp(1.5rem, 4vw, 3rem);
   width: 100%;
-  padding: 2rem 0 1rem;
+  padding: 0;
   --px: 0;
   --py: 0;
+}
+
+.nav-item-shell {
+  flex: 1 1 0;
+  min-width: 0;
+  opacity: 0;
+  transform: translateY(var(--enter-y, 16px));
+  transition:
+    opacity 420ms ease,
+    transform 420ms ease;
+}
+
+.nav-item-shell.is-entered {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .nav-item {
   display: grid;
   justify-items: center;
-  gap: 0.55rem;
+  align-content: end;
+  gap: 0.65rem;
   text-decoration: none;
-  width: min(220px, 28vw);
+  width: 100%;
   cursor: pointer;
   transform: translate(
     calc(var(--px, 0) * var(--parallax, 10px) * -1),
@@ -445,50 +550,50 @@ span.mark.squiggle:focus-visible {
 
 .orb {
   position: relative;
-  width: 148px;
-  height: 148px;
+  width: 140px;
+  height: 140px;
   overflow: visible;
   transition:
-    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 0.35s ease;
+    transform 0.2s ease,
+    filter 0.2s ease;
 }
 
-.nav-item.is-focus .orb,
-.nav-item:focus-visible .orb {
-  transform: translateY(-8px);
+.nav-item:hover .orb,
+.nav-item:focus-visible .orb,
+.nav-item.is-focus .orb {
+  transform: translateY(-6px);
   filter: drop-shadow(14px 22px 18px rgba(28, 40, 36, 0.18));
 }
 
 .icon3d {
   position: absolute;
   left: 50%;
-  top: 50%;
-  width: 320px;
-  height: 320px;
-  transform: translate(-50%, -50%);
+  bottom: 0;
+  width: 300px;
+  height: 300px;
+  transform: translate(-50%, 8%);
   display: block;
   pointer-events: none;
   filter: drop-shadow(10px 14px 10px rgba(28, 40, 36, 0.14));
 }
 
 .nav-item__label {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
   letter-spacing: -0.02em;
-  color: var(--mute);
-  opacity: 0;
-  transform: translateY(4px);
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
+  color: var(--ink);
+  opacity: 0.7;
   text-align: center;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
-.nav-item.is-focus .nav-item__label,
-.nav-item:focus-visible .nav-item__label {
+.nav-item:hover .nav-item__label,
+.nav-item:focus-visible .nav-item__label,
+.nav-item.is-focus .nav-item__label {
   opacity: 1;
-  transform: none;
-  color: var(--ink);
+  transform: translateY(-6px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -499,72 +604,97 @@ span.mark.squiggle:focus-visible {
     transition: none !important;
   }
 
+  .nav-item {
+    transform: none !important;
+  }
+
+  .nav-item-shell {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
   .hero-token--swap {
     opacity: 1;
     filter: none;
   }
 
-  .nav-item {
-    transform: none !important;
-  }
-
-  .simba-thumb,
-  .simba-thumb__frame,
-  .intensity-rail__fill {
+  .intensity-thumb-group,
+  .intensity-rail__fill,
+  .def-reveal__line,
+  .paper-wash {
     transition: none !important;
   }
 }
 
 @media (max-width: 767px) {
-  .hero-section {
-    grid-template-columns: 1fr;
-    grid-template-rows: 1fr auto;
-    padding: 10vh 6vw 2vh;
-    min-height: auto;
+  .hero {
+    padding-inline: 6vw;
+    padding-block: 4vh 5vh;
   }
 
-  .mast {
-    padding-top: 4vh;
-    padding-bottom: 1rem;
+  .hero-sentence {
+    margin-top: 8vh;
+    width: 100%;
   }
 
   .hero-line {
-    max-width: none;
-  }
-
-  .hero-wrap {
-    min-height: 5.2em;
+    max-width: min(18ch, 92vw);
   }
 
   .intensity-axis {
-    width: 100%;
-    order: 2;
-    padding-bottom: 1vh;
+    position: fixed;
+    right: 16px;
+    top: auto;
+    bottom: 4vh;
+    transform: none;
   }
 
   .orb {
-    width: 112px;
-    height: 112px;
+    width: 108px;
+    height: 108px;
   }
 
   .icon3d {
-    width: 240px;
-    height: 240px;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1280px) {
-  .hero-section {
-    padding-right: 5vw;
+    width: 230px;
+    height: 230px;
   }
 
-  .intensity-axis {
-    width: 128px;
+  .nav-row {
+    width: 88%;
+  }
+
+  .nav-dock {
+    gap: 2vw;
   }
 }
 
 @media (max-height: 760px) {
   .hero-line {
     font-size: clamp(26px, 4vw, 44px);
+  }
+}
+
+@media (max-height: 700px) {
+  .hero-sentence {
+    margin-top: 6vh;
+  }
+
+  .hero {
+    padding-block: 3vh 4vh;
+  }
+
+  .orb {
+    width: 116px;
+    height: 116px;
+  }
+
+  .icon3d {
+    width: 250px;
+    height: 250px;
+  }
+
+  .hero-objects {
+    padding-bottom: clamp(56px, 10vh, 96px);
   }
 }

@@ -21,7 +21,7 @@ export function CornerMeta() {
   }, []);
 
   return (
-    <>
+    <header className="hero-header">
       <p className="meta meta-left">
         <span>Stanford</span>
         <span>{now}</span>
@@ -29,6 +29,6 @@ export function CornerMeta() {
       <p className="meta meta-right">
         <a href="mailto:snimbali@stanford.edu">snimbali@stanford.edu</a>
       </p>
-    </>
+    </header>
   );
 }
