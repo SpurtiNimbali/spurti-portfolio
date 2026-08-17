@@ -1,13 +1,11 @@
 import {
   PROJECT_SECTION_ORDER,
-  RESEARCH_BLOCKS,
   projectsForSection,
   type ProjectSection,
 } from "../projects";
 import { tierFromIntensity } from "../lib/projectTier";
 import { useIntensity } from "./IntensityContext";
 import { ProjectRow } from "./ProjectRow";
-import { ResearchBlock } from "./ResearchBlock";
 import { BasesBlock } from "./BasesBlock";
 import { BeforeStanfordGroup } from "./BeforeStanfordGroup";
 
@@ -23,19 +21,6 @@ export function ProjectsIndex() {
   return (
     <div className="projects-index__sections">
       {PROJECT_SECTION_ORDER.map((section) => {
-        if (section === "research") {
-          return (
-            <section key={section} className="project-section project-section--research">
-              <SectionHeading label={section} />
-              <div className="project-section__research-list">
-                {RESEARCH_BLOCKS.map((block) => (
-                  <ResearchBlock key={block.id} block={block} />
-                ))}
-              </div>
-            </section>
-          );
-        }
-
         if (section === "bases") {
           return (
             <section key={section} className="project-section project-section--bases">
