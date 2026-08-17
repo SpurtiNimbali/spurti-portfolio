@@ -18,10 +18,10 @@
 
 import { ENTITY_DEFS } from "./aboutEntities";
 import spurtiAvatar from "../assets/spurti.png";
-import simbaPhoto from "../assets/sticker-simba-2.png";
-import simbaAlt from "../assets/sticker-simba-4.png";
-import stanfordPhoto from "../assets/sticker-stanford.png";
-import slackPhoto from "../assets/sticker-slack.png";
+import simbaPhoto from "../assets/sticker-simba-2.webp";
+import simbaAlt from "../assets/sticker-simba-4.webp";
+import stanfordPhoto from "../assets/sticker-stanford.webp";
+import slackPhoto from "../assets/sticker-slack.webp";
 
 export type AboutSection = {
   id: string;
