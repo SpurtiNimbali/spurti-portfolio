@@ -3,6 +3,8 @@ import { NAV } from "../content";
 import { startIcon, type IconHandle, type IconKind } from "../lib/icon3d";
 
 const PARALLAX_PX = [6, 10, 14];
+const ENTER_STAGGER_MS = 80;
+const ENTER_OFFSET_PX = 16;
 
 function Icon3D({ kind, hovered }: { kind: IconKind; hovered: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -27,12 +29,55 @@ function Icon3D({ kind, hovered }: { kind: IconKind; hovered: boolean }) {
 }
 
 export function NavDeck() {
+  const rowRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLElement>(null);
   const [focus, setFocus] = useState<string | null>(null);
+  const [entered, setEntered] = useState<boolean[]>(() => NAV.map(() => false));
   const pointer = useRef({ x: 0, y: 0, tx: 0, ty: 0 });
+  const enterStarted = useRef(false);
   const reduced =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  useEffect(() => {
+    if (reduced) {
+      setEntered(NAV.map(() => true));
+      return;
+    }
+
+    const row = rowRef.current;
+    if (!row) return;
+
+    const runEnter = () => {
+      if (enterStarted.current) return;
+      enterStarted.current = true;
+      NAV.forEach((_, i) => {
+        window.setTimeout(() => {
+          setEntered((prev) => {
+            const next = [...prev];
+            next[i] = true;
+            return next;
+          });
+        }, i * ENTER_STAGGER_MS);
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) runEnter();
+      },
+      { threshold: 0.12 },
+    );
+
+    observer.observe(row);
+
+    const rect = row.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      runEnter();
+    }
+
+    return () => observer.disconnect();
+  }, [reduced]);
 
   useEffect(() => {
     if (reduced) return;
@@ -63,30 +108,37 @@ export function NavDeck() {
   }, [reduced]);
 
   return (
-    <nav ref={dockRef} className="nav nav-dock" aria-label="Primary">
-      {NAV.map((item, i) => (
-        <a
-          key={item.id}
-          href={item.href}
-          className={`nav-item${focus === item.id ? " is-focus" : ""}`}
-          aria-label={item.title}
-          style={
-            {
-              "--i": String(i),
-              "--parallax": `${PARALLAX_PX[i] ?? 10}px`,
-            } as CSSProperties
-          }
-          onPointerEnter={() => setFocus(item.id)}
-          onPointerLeave={() => setFocus(null)}
-          onFocus={() => setFocus(item.id)}
-          onBlur={() => setFocus(null)}
-        >
-          <div className="orb">
-            <Icon3D kind={item.id} hovered={focus === item.id} />
+    <div ref={rowRef} className="nav-row">
+      <nav ref={dockRef} className="nav nav-dock" aria-label="Primary">
+        {NAV.map((item, i) => (
+          <div
+            key={item.id}
+            className={`nav-item-shell${entered[i] ? " is-entered" : ""}`}
+            style={{ "--enter-y": `${ENTER_OFFSET_PX}px` } as CSSProperties}
+          >
+            <a
+              href={item.href}
+              className={`nav-item${focus === item.id ? " is-focus" : ""}`}
+              aria-label={item.title}
+              style={
+                {
+                  "--i": String(i),
+                  "--parallax": `${PARALLAX_PX[i] ?? 10}px`,
+                } as CSSProperties
+              }
+              onPointerEnter={() => setFocus(item.id)}
+              onPointerLeave={() => setFocus(null)}
+              onFocus={() => setFocus(item.id)}
+              onBlur={() => setFocus(null)}
+            >
+              <div className="orb">
+                <Icon3D kind={item.id} hovered={focus === item.id} />
+              </div>
+              <span className="nav-item__label">{item.title}</span>
+            </a>
           </div>
-          <span className="nav-item__label">{item.file}</span>
-        </a>
-      ))}
-    </nav>
+        ))}
+      </nav>
+    </div>
   );
 }

@@ -4,6 +4,13 @@ import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.j
 export type IconKind = "projects" | "research" | "readme";
 export const ICON_REV = 9;
 
+/** Per-kind display scale to normalize visual footprint on the shared baseline. */
+const KIND_DISPLAY_SCALE: Record<IconKind, number> = {
+  projects: 1.02,
+  research: 1.18,
+  readme: 1.06,
+};
+
 export type IconHandle = {
   destroy: () => void;
   setHover: (v: boolean) => void;
@@ -255,7 +262,7 @@ export function startIcon(
   scene.add(fill);
 
   const object = build(kind);
-  object.scale.setScalar(0.2);
+  object.scale.setScalar(0.2 * KIND_DISPLAY_SCALE[kind]);
   scene.add(object);
   scene.add(groundShadow());
   const pieces = (object.userData.pieces as Piece[]) ?? [];
@@ -301,7 +308,7 @@ export function startIcon(
   resize();
 
   if (ambient) {
-    object.scale.setScalar(1.05);
+    object.scale.setScalar(1.05 * KIND_DISPLAY_SCALE[kind]);
   }
 
   const tmpE = new THREE.Euler();
@@ -316,7 +323,7 @@ export function startIcon(
     const h = stepSpring(hover, hoverV, hovered && live ? 1 : 0, dt, 8.8, 0.5);
     hover = h.value;
     hoverV = h.velocity;
-    const targetScale = ambient ? 1.05 : live ? 1.05 : 0.2;
+    const targetScale = ambient ? 1.05 * KIND_DISPLAY_SCALE[kind] : live ? 1.05 * KIND_DISPLAY_SCALE[kind] : 0.2 * KIND_DISPLAY_SCALE[kind];
     const s = stepSpring(scale, scaleV, targetScale, dt, 10, 0.56);
     scale = s.value;
     scaleV = s.velocity;
