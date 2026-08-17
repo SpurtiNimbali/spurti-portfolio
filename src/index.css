@@ -666,6 +666,12 @@ a {
   initial-value: 32px;
 }
 
+@property --name-w {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 7ch;
+}
+
 .hero-line {
   --hero-fs-cap: clamp(32px, 4.6vw, 56px);
   --hero-fs: var(--hero-fs-cap);
@@ -691,34 +697,31 @@ a {
   transition: none;
 }
 
+/*
+ * A tone change rewrites the copy, which re-wraps the lines and refits the size
+ * — both discrete jumps that no easing can smooth, and until the size lands the
+ * longer copy overflows its three-line box. So the sentence clears itself first
+ * and the swap happens while it is invisible: what reads is one gesture, not a
+ * flash of clipped text followed by a size settling.
+ */
 .hero-line__fit {
   display: block;
   width: 100%;
+  transition:
+    opacity calc(var(--hero-shift) * 0.42) var(--hero-ease),
+    filter calc(var(--hero-shift) * 0.42) var(--hero-ease),
+    transform calc(var(--hero-shift) * 0.42) var(--hero-ease);
 }
 
-/*
- * A tone change rewrites the copy, which re-wraps the lines — a discrete jump no
- * easing can smooth. Softening the whole sentence across the same beat as the
- * size and the word crossfades hides the re-wrap inside one gesture.
- */
-.hero-line[data-rewriting] .hero-line__fit {
-  animation: heroRewrite var(--hero-shift) var(--hero-ease) both;
+.hero-line[data-phase="out"] .hero-line__fit {
+  opacity: 0;
+  filter: blur(3px);
+  transform: translateY(-5px);
 }
 
-@keyframes heroRewrite {
-  from {
-    opacity: 0.45;
-    filter: blur(1.6px);
-    transform: translateY(-3px);
-  }
-  60% {
-    opacity: 1;
-  }
-  to {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateY(0);
-  }
+/* Coming back takes longer than leaving, so the rewrite settles rather than pops. */
+.hero-line[data-phase="in"] .hero-line__fit {
+  transition-duration: calc(var(--hero-shift) * 0.58);
 }
 
 .hero-nowrap {
@@ -726,46 +729,61 @@ a {
 }
 
 /*
- * "Spurti" stays in flow so the sentence never refits on hover. The handle is
- * an overlay: it may briefly overlap the next words, and those words stay
- * sharp — no blur, no dim, no recede.
+ * At rest the box is only as wide as "Spurti" — the handle is collapsed, so
+ * nothing is reserved. On hover the handle takes what it needs and the
+ * following words slide. No blur, no dim, no overlay.
  */
 .hero-name {
-  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  width: auto;
+  min-width: max-content;
+  overflow: visible;
+  vertical-align: baseline;
   font-weight: 800;
   white-space: nowrap;
   color: inherit;
   text-decoration: none;
+  interpolate-size: allow-keywords;
+  transition: width var(--hero-shift) var(--hero-ease);
 }
 
 .hero-name__word,
 .hero-name__handle {
+  flex: 0 0 auto;
+  white-space: nowrap;
   transition: opacity var(--hero-shift) var(--hero-ease);
 }
 
 .hero-name__word {
-  display: inline-block;
+  overflow: visible;
 }
 
 .hero-name__handle {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 1;
-  font-size: inherit;
-  font-weight: inherit;
-  letter-spacing: inherit;
+  width: 0;
+  flex-basis: 0;
+  overflow: hidden;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* Fixed 15px: a username, not a headline. Keeps the width delta vs "Spurti"
+     small enough that the following words shift without a refit or re-wrap. */
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   color: var(--git-ink);
-  white-space: nowrap;
   opacity: 0;
   pointer-events: none;
 }
 
 .hero-name[data-swapped="true"] .hero-name__word {
+  width: 0;
+  flex-basis: 0;
+  overflow: hidden;
   opacity: 0;
 }
 
 .hero-name[data-swapped="true"] .hero-name__handle {
+  width: auto;
+  flex-basis: auto;
   opacity: 1;
 }
 
@@ -840,6 +858,20 @@ span.mark.squiggle:focus-visible {
   z-index: 40;
   overflow: hidden;
   pointer-events: none;
+  transition:
+    filter 420ms ease,
+    opacity 420ms ease;
+}
+
+/*
+ * The board lives outside .hero-sentence, so the nav recede would otherwise
+ * leave shoo and the prints sharp. They are page furniture, not the mark —
+ * they recede with the sentence. Same filter, same timing.
+ */
+body:has(.nav-item:hover) .sticker-layer,
+body:has(.nav-item:focus-visible) .sticker-layer {
+  filter: blur(5px);
+  opacity: 0.5;
 }
 
 .sticker {
@@ -987,6 +1019,12 @@ span.mark.squiggle:focus-visible {
   .sticker-shoo,
   .sticker-shoo[data-leaving] {
     animation: none;
+    opacity: 1;
+  }
+
+  body:has(.nav-item:hover) .sticker-layer,
+  body:has(.nav-item:focus-visible) .sticker-layer {
+    filter: none;
     opacity: 1;
   }
 }

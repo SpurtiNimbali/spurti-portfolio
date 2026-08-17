@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import {
   GITHUB_URL,
   GITHUB_USER,
@@ -102,7 +102,8 @@ const FIT_PASSES = 11;
 const FIT_MARGIN_PX = 3;
 
 /** The shared gesture length, read from CSS so there is one source of truth. */
-function shiftMs(el: HTMLElement) {
+function shiftMs(el: HTMLElement | null) {
+  if (!el) return 300;
   const raw = getComputedStyle(el).getPropertyValue("--hero-shift").trim();
   const ms = raw.endsWith("ms") ? parseFloat(raw) : parseFloat(raw) * 1000;
   return Number.isFinite(ms) ? ms : 300;
@@ -116,7 +117,9 @@ function useFitToBox(deps: unknown[]) {
   const boxRef = useRef<HTMLHeadingElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => {
+  // Before paint, not after: an effect here would let the browser show the new
+  // copy at the old size for a frame or two first.
+  useLayoutEffect(() => {
     const box = boxRef.current;
     const text = textRef.current;
     if (!box || !text) return;
@@ -130,8 +133,19 @@ function useFitToBox(deps: unknown[]) {
       text.scrollHeight > box.clientHeight - margin + 0.5 ||
       text.scrollWidth > box.clientWidth + 0.5;
 
-    /** Settle the size with the transition suppressed, then let it ease there. */
-    const commit = (from: number, target: number) => {
+    /**
+     * Settle the size with the transition suppressed, then either let it ease to
+     * the target or land on it outright. Landing outright is right when the copy
+     * has just changed, because the sentence is cleared at that moment — easing
+     * there would mean easing down from a size the new copy overflows.
+     */
+    const commit = (from: number, target: number, animate: boolean) => {
+      if (!animate) {
+        box.style.setProperty("--hero-fs", `${target}px`);
+        void box.offsetHeight;
+        delete box.dataset.fitting;
+        return;
+      }
       box.style.setProperty("--hero-fs", `${from}px`);
       void box.offsetHeight;
       delete box.dataset.fitting;
@@ -139,7 +153,7 @@ function useFitToBox(deps: unknown[]) {
       box.style.setProperty("--hero-fs", `${target}px`);
     };
 
-    const fit = () => {
+    const fit = (animate = true) => {
       const before = parseFloat(getComputedStyle(box).fontSize);
       // Every probe below reads layout, so the size must not be mid-flight.
       box.dataset.fitting = "on";
@@ -174,7 +188,7 @@ function useFitToBox(deps: unknown[]) {
         box.style.setProperty("--hero-fs", `${size}px`);
       }
 
-      commit(Number.isFinite(before) ? before : cap, size);
+      commit(Number.isFinite(before) ? before : cap, size, animate);
     };
 
     /**
@@ -196,11 +210,14 @@ function useFitToBox(deps: unknown[]) {
         delete box.dataset.fitting;
         return;
       }
-      commit(from, size);
+      commit(from, size, true);
     };
 
-    fit();
-    const raf = requestAnimationFrame(fit);
+    // Before paint and without easing: the copy has just changed, so the size
+    // must be right the first time it is drawn or the new line renders at the
+    // old size and spills out of the box.
+    fit(false);
+    const raf = requestAnimationFrame(() => fit(true));
     // Verify only once the size has finished easing, so these read a settled
     // layout rather than a frame partway through the transition.
     const settled = shiftMs(box);
@@ -208,15 +225,16 @@ function useFitToBox(deps: unknown[]) {
       setTimeout(verify, ms),
     );
 
-    window.addEventListener("resize", fit);
+    const onReflow = () => fit(true);
+    window.addEventListener("resize", onReflow);
     const fonts = (document as Document & { fonts?: FontFaceSet }).fonts;
-    fonts?.addEventListener("loadingdone", fit);
+    fonts?.addEventListener("loadingdone", onReflow);
 
     return () => {
       cancelAnimationFrame(raf);
       checks.forEach(clearTimeout);
-      window.removeEventListener("resize", fit);
-      fonts?.removeEventListener("loadingdone", fit);
+      window.removeEventListener("resize", onReflow);
+      fonts?.removeEventListener("loadingdone", onReflow);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
@@ -228,18 +246,78 @@ export function HeroLine() {
   const { intensity } = useIntensity();
   const level = INTENSITY_LEVELS[intensity];
   const [nameHover, setNameHover] = useState(false);
-  // The handle is an overlay now, so the swap costs no layout and needs no refit.
+  // Fit only on tone, never on the name swap: the handle takes real space and
+  // the following words slide. A font-size jump on hover is the thing to avoid.
   const { boxRef, textRef } = useFitToBox([intensity]);
   const prevPartsRef = useRef<PredicatePart[]>(level.parts);
   const prevIntensityRef = useRef<number | null>(null);
   const [pinned, setPinned] = useState<Pinned[]>([]);
   const nameRef = useRef<HTMLAnchorElement>(null);
+  const wordRef = useRef<HTMLSpanElement>(null);
+  const handleRef = useRef<HTMLSpanElement>(null);
   const nextId = useRef(1);
 
   /**
-   * A click dumps every photo in that word's list (same rule for Simba,
-   * Stanford, Slack — capped at four). Hover never spawns. Further clicks
-   * wiggle what's already out.
+   * At rest the box is `width: auto` — just "Spurti", no reserved slot. On
+   * hover we lock a pixel width so the following words can ease over by the
+   * handle's real size. Measuring inside the sentence keeps em / letter-spacing
+   * honest; locking at rest was clipping the name after a refit.
+   */
+  useLayoutEffect(() => {
+    const name = nameRef.current;
+    const word = wordRef.current;
+    const handle = handleRef.current;
+    const host = boxRef.current;
+    if (!name || !word || !handle || !host) return;
+
+    const measure = (el: HTMLElement) => {
+      const probe = el.cloneNode(true) as HTMLElement;
+      probe.setAttribute("aria-hidden", "true");
+      probe.style.cssText = [
+        "position:absolute",
+        "left:0",
+        "top:0",
+        "visibility:hidden",
+        "pointer-events:none",
+        "display:inline-block",
+        "width:max-content",
+        "max-width:none",
+        "min-width:0",
+        "flex:none",
+        "overflow:visible",
+        "opacity:1",
+      ].join(";");
+      host.appendChild(probe);
+      const w = probe.getBoundingClientRect().width;
+      probe.remove();
+      return Math.ceil(w);
+    };
+
+    if (!nameHover) {
+      if (!name.style.width) return;
+      const from = name.getBoundingClientRect().width;
+      name.style.width = `${from}px`;
+      void name.offsetWidth;
+      name.style.width = `${measure(word)}px`;
+      const timer = window.setTimeout(() => {
+        const live = nameRef.current;
+        if (live && live.getAttribute("data-swapped") !== "true") {
+          live.style.width = "";
+        }
+      }, shiftMs(name) + 24);
+      return () => window.clearTimeout(timer);
+    }
+
+    const from = name.getBoundingClientRect().width;
+    const to = measure(handle);
+    name.style.width = `${from > 1 ? from : measure(word)}px`;
+    void name.offsetWidth;
+    name.style.width = `${to}px`;
+  }, [nameHover, intensity, boxRef]);
+
+  /**
+   * One photo per click, same rule for every word. The list is capped at four;
+   * further clicks wiggle what's already out.
    */
   const handleSpawn = (definition: Definition, at: HTMLElement | null) => {
     const key = definition.sticker;
@@ -247,19 +325,11 @@ export function HeroLine() {
     const from = at.getBoundingClientRect();
     const queue = printsFor(key);
     setPinned((prev) => {
-      const existing = prev.filter((p) => p.key === key);
-      if (existing.length >= queue.length) {
+      const count = prev.filter((p) => p.key === key).length;
+      if (count >= queue.length) {
         return prev.map((p) => (p.key === key ? { ...p, nudge: p.nudge + 1 } : p));
       }
-      const start = existing.length;
-      const added = queue.slice(start).map((_, i) => ({
-        id: nextId.current++,
-        key,
-        printIndex: start + i,
-        from,
-        nudge: 0,
-      }));
-      return [...prev, ...added];
+      return [...prev, { id: nextId.current++, key, printIndex: count, from, nudge: 0 }];
     });
   };
 
@@ -324,10 +394,10 @@ export function HeroLine() {
             onFocus={() => setNameHover(true)}
             onBlur={() => setNameHover(false)}
           >
-            {/* In flow, so it keeps defining the sentence's geometry. */}
-            <span className="hero-name__word">Spurti</span>
-            {/* Out of flow, so showing it costs nothing and refits nothing. */}
-            <span className="hero-name__handle" aria-hidden="true">
+            <span ref={wordRef} className="hero-name__word">
+              Spurti
+            </span>
+            <span ref={handleRef} className="hero-name__handle" aria-hidden="true">
               @{GITHUB_USER}
               <span className="hero-name__wink"> :&#125;</span>
             </span>

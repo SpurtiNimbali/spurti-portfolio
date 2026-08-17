@@ -31,6 +31,9 @@ const LEAVE_MS = 420;
 const WIGGLE_MS = 520;
 const EDGE = 12;
 const CLEARANCE = 16;
+/** The marks are the page's other clickable objects, so give them a wider berth
+ *  than the rest of the furniture — a sticker parked beside one crowds it. */
+const NAV_CLEARANCE = 46;
 const GRID_STEP = 20;
 const COLUMN_COST = 320;
 
@@ -68,7 +71,9 @@ function blockedBoxes(taken: Spot[]): Box[] {
   for (const selector of FURNITURE) {
     for (const el of document.querySelectorAll(selector)) {
       const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) boxes.push(grow(r, CLEARANCE));
+      if (r.width > 0 && r.height > 0) {
+        boxes.push(grow(r, selector === ".nav-row" ? NAV_CLEARANCE : CLEARANCE));
+      }
     }
   }
 
@@ -332,9 +337,9 @@ export function StickerBoard({ pinned, onClear }: { pinned: Pinned[]; onClear: (
 }
 
 /**
- * The handwritten "github ↗" that trails the swapped handle. Fixed-positioned
- * for the same reason as the stickers, and re-measured while it is open because
- * the sentence refits its font size around the longer label.
+ * The handwritten "github ↗" that trails the swapped handle. The handle itself
+ * lives in the sentence so the following words make room; this tag is fixed
+ * so it can sit above the line without changing the fit.
  */
 export function GitTag({ target }: { target: HTMLElement | null }) {
   const [rect, setRect] = useState<DOMRect | null>(null);

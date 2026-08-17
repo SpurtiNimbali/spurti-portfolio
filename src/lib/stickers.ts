@@ -3,12 +3,19 @@ import simbaBowtie from "../assets/sticker-simba-2.png";
 import simbaSweater from "../assets/sticker-simba-3.png";
 import simbaSock from "../assets/sticker-simba-4.png";
 import slackEvent from "../assets/sticker-slack.png";
+import slackLobby from "../assets/sticker-slack-2.JPG";
+import slackEntry from "../assets/sticker-slack-3.JPG";
+import slackTower from "../assets/sticker-slack-4.JPG";
 import stanfordRainbow from "../assets/sticker-stanford.png";
+import stanfordStadium from "../assets/sticker-stanford-2.JPG";
+import stanfordWins from "../assets/sticker-stanford-3.JPG";
+import stanfordPalms from "../assets/sticker-stanford-4.JPG";
 
 /**
- * Photos that peel off an underlined word in one click, after ky.fyi's
- * Samwise. Every word uses the same list: add a file, push one entry, cap at
- * four. A click dumps however many are actually there, mixed sizes.
+ * Photos that peel off an underlined word, one click at a time, after
+ * ky.fyi's Samwise. Every word uses the same list: add a file, push one
+ * entry, cap at four. A click places the next unplaced photo; further
+ * clicks wiggle once the list is out.
  *
  * `cutout` frames are die-cut (run the photo through `tools/make-sticker.py`).
  * Polaroid / tape / torn / ink are cropped rectangles with CSS chrome.
@@ -92,6 +99,27 @@ export const PRINTS: Record<StickerKey, Print[]> = {
       tilt: 6,
       frame: "ink",
     },
+    {
+      src: slackLobby,
+      width: 148,
+      photoAspect: 4284 / 5712,
+      tilt: -5,
+      frame: "polaroid",
+    },
+    {
+      src: slackEntry,
+      width: 186,
+      photoAspect: 4284 / 5712,
+      tilt: 4,
+      frame: "tape",
+    },
+    {
+      src: slackTower,
+      width: 132,
+      photoAspect: 4284 / 5712,
+      tilt: -7,
+      frame: "torn",
+    },
   ],
   stanford: [
     {
@@ -100,6 +128,27 @@ export const PRINTS: Record<StickerKey, Print[]> = {
       photoAspect: 900 / 720,
       tilt: -8,
       frame: "polaroid",
+    },
+    {
+      src: stanfordStadium,
+      width: 198,
+      photoAspect: 2164 / 3848,
+      tilt: 5,
+      frame: "tape",
+    },
+    {
+      src: stanfordWins,
+      width: 128,
+      photoAspect: 5712 / 4284,
+      tilt: -4,
+      frame: "torn",
+    },
+    {
+      src: stanfordPalms,
+      width: 156,
+      photoAspect: 5540 / 4154,
+      tilt: 7,
+      frame: "ink",
     },
   ],
 };
