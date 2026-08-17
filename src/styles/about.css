@@ -1,0 +1,1167 @@
+/* ==========================================================================
+   /about
+   --------------------------------------------------------------------------
+   Loaded by AboutPage.
+
+   LAYOUT is marco.fyi/about: a copy card on the left holding every section, a
+   widget grid on the right where each card carries an eyebrow, a rounded icon
+   tile in its corner, and media or an action below it.
+
+   SURFACE is ours: cream paper, dot grid and liquid backdrop come from
+   IntensityBackdrop; type, palette, squiggle marks and mono pills from
+   index.css. Cards are the one structural import — the reference separates by
+   fill alone (grey on white), so ours go the other way (near-white on cream),
+   no border and no shadow.
+
+   Type scale measured off the reference:
+     label  12px / w500 / uppercase / normal tracking
+     body   18px / w400 / lh 1.8      <- ours runs 16 / 1.7 to hold one screen
+     h1     31px / w500 / ls -0.4px
+
+   HARD CONSTRAINT: one viewport, no scrolling, and nothing ever clipped. When
+   width runs out, whole cards and whole sections are dropped — the type never
+   shrinks. See the responsive block for the budget.
+   ========================================================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ab {
+  position: relative;
+  z-index: 2;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 2.2vh clamp(1rem, 2.4vw, 2.2rem);
+  overflow: hidden;
+  --ab-card: oklch(0.988 0.004 88);
+  --ab-line: color-mix(in oklch, var(--ink) 9%, transparent);
+  --ab-gap: clamp(0.55rem, 0.9vw, 0.95rem);
+}
+
+/* ---------- top bar ---------- */
+
+/* BackLink over CornerMeta, exactly as the other content pages do it. */
+.ab-top {
+  flex: none;
+}
+
+.ab-top .back-link {
+  margin-bottom: 0.5rem;
+}
+
+.ab-top .hero-header {
+  width: 100%;
+}
+
+.ab-hint {
+  flex: none;
+  margin: 0.5rem 0;
+  text-align: right;
+  font-size: 13px;
+  color: color-mix(in oklch, var(--ink) 42%, transparent);
+}
+
+.ab-hint span {
+  display: inline-block;
+  transform: rotate(-45deg);
+  font-size: 10px;
+  margin-right: 0.25rem;
+}
+
+/* ---------- grid ---------- */
+
+.ab-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+  gap: var(--ab-gap);
+}
+
+/* Two media rows over a full-width strip. */
+.ab-widgets {
+  display: grid;
+  /* Photos takes the wider column; the music card only needs room for a sleeve
+     and two lines. */
+  grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+  /* The thread is the tallest thing here now that it has the poem card's
+     space — it earns it, being the only interactive block. */
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: var(--ab-gap);
+  min-height: 0;
+}
+
+.ab-card--thread {
+  grid-column: 1 / -1;
+}
+
+/* ---------- cards ---------- */
+
+.ab-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: clamp(0.8rem, 1.25vw, 1.3rem);
+  border-radius: 22px;
+  background: var(--ab-card);
+  min-height: 0;
+  /* No border, no shadow — the reference separates by fill alone. */
+}
+
+/* Eyebrow left, icon tile right. */
+.ab-cardhead {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ab-icon {
+  flex: none;
+  width: clamp(34px, 2.9vw, 46px);
+  height: clamp(34px, 2.9vw, 46px);
+  border-radius: 12px;
+  overflow: hidden;
+  background: color-mix(in oklch, var(--ink) 5%, transparent);
+}
+
+.ab-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 12px, uppercase, normal tracking. Measured, not invented. */
+.ab-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: normal;
+  color: color-mix(in oklch, var(--ink) 50%, transparent);
+}
+
+.ab-card__meta {
+  flex: none;
+  display: grid;
+  gap: 0.1rem;
+  margin: 0;
+}
+
+.ab-card__meta strong {
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+}
+
+.ab-card__meta span {
+  font-size: 12px;
+  line-height: 1.35;
+  color: color-mix(in oklch, var(--ink) 55%, transparent);
+}
+
+/* App-style tiles. Original marks in each service's colour family — see
+   AppTiles.tsx for why these are not the official logos. */
+.ab-tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: clamp(34px, 2.9vw, 46px);
+  height: clamp(34px, 2.9vw, 46px);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgb(40 36 32 / 0.16);
+}
+
+.ab-tile svg {
+  width: 62%;
+  height: 62%;
+}
+
+.ab-tile--music {
+  background: linear-gradient(160deg, #1fd664, #12a04a);
+}
+
+.ab-tile--music svg {
+  fill: #fff;
+}
+
+.ab-tile--photos {
+  background: #fff;
+}
+
+.ab-tile--messages {
+  background: linear-gradient(160deg, #5cf07a, #16c13c);
+}
+
+.ab-tile--messages svg {
+  fill: #fff;
+}
+
+.ab-tile--books {
+  background: linear-gradient(160deg, #ff9f45, #f4691f);
+}
+
+.ab-tile--books svg {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+/* A supplied logo is already a finished app icon: no tile background, no
+   padding, just the artwork at tile size. */
+.ab-tile--bare {
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.ab-tile--bare img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 12px;
+  display: block;
+}
+
+/* The Photos tile overlays a photograph, so it keeps a ground of its own. */
+.ab-icon--float .ab-tile {
+  box-shadow: 0 2px 6px rgb(40 36 32 / 0.24);
+}
+
+/* ---------- copy card ---------- */
+
+.ab-card--copy {
+  overflow: hidden;
+  gap: 0;
+}
+
+.ab-h1 {
+  margin: 0;
+  font-size: clamp(22px, 2.1vw, 31px);
+  font-weight: 700;
+  letter-spacing: -0.032em;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.ab-rule {
+  flex: none;
+  width: 100%;
+  margin: 0.7rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--ab-line);
+}
+
+/* A fixed rhythm, not space-between — stretching six sections apart read as
+   six unrelated blocks. */
+.ab-secs {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: clamp(1rem, 3vh, 2.05rem);
+  padding-block: clamp(0.7rem, 1.8vh, 1.1rem);
+}
+
+.ab-sec .ab-label {
+  margin-bottom: 0.3rem;
+}
+
+.ab-body {
+  margin: 0;
+  font-size: clamp(14px, 1.12vw, 16px);
+  font-weight: 400;
+  line-height: 1.7;
+  color: color-mix(in oklch, var(--ink) 82%, transparent);
+  text-wrap: pretty;
+}
+
+/* Entities: weight bump, no underline — the reference bolds rather than
+   underlines. The squiggle comes from .mark.squiggle in index.css. */
+.ab-ent {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.ab-body span.mark.squiggle::after {
+  height: 0.26em;
+  background-size: 16px 6px;
+}
+
+/* ---------- photos card ---------- */
+
+/* The photograph fills the card completely — any inset left visible gaps at
+   some widths, and the image is the whole point of this card. Icon and tab bar
+   float over it. */
+.ab-card--photos {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+.ab-photo {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: color-mix(in oklch, var(--ink) 4%, transparent);
+  cursor: pointer;
+}
+
+.ab-photo img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  /* His head sits at the top of the frame — anchor there so a short card crops
+     the body rather than decapitating him. */
+  object-position: center top;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ab-photo:hover img,
+.ab-photo:focus-visible img {
+  transform: scale(1.035);
+}
+
+/* Overlaid icon needs its own ground to stay legible on any photo. */
+.ab-icon--float {
+  position: absolute;
+  top: clamp(0.7rem, 1.1vw, 1.1rem);
+  right: clamp(0.7rem, 1.1vw, 1.1rem);
+  width: auto;
+  height: auto;
+  background: none;
+  box-shadow: none;
+}
+
+/* Floating segmented bar over the photo, as on the reference. */
+.ab-phototabs {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(0.6rem, 1.1vw, 1rem);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 30px;
+  background: rgb(255 255 255 / 0.34);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 2px 10px rgb(40 36 32 / 0.16);
+}
+
+.ab-phototab {
+  display: grid;
+  place-items: center;
+  width: clamp(34px, 3.2vw, 44px);
+  height: clamp(28px, 2.6vw, 34px);
+  padding: 0;
+  border: 0;
+  border-radius: 30px;
+  background: none;
+  color: rgb(30 26 22 / 0.72);
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.ab-phototab svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+.ab-phototab:hover:not(.is-active) {
+  background: rgb(255 255 255 / 0.45);
+  color: rgb(20 18 16 / 0.9);
+}
+
+/* Active tab is a solid white pill, as on the reference. */
+.ab-phototab.is-active {
+  background: #fff;
+  color: rgb(20 18 16 / 0.9);
+  box-shadow: 0 1px 3px rgb(40 36 32 / 0.18);
+}
+
+/* ---------- now playing card ---------- */
+
+/* Yellow, per the brief. */
+.ab-card--listen {
+  background: color-mix(in oklch, var(--butter) 16%, var(--ab-card));
+  gap: 0.3rem;
+}
+
+.ab-card--listen .ab-cardhead {
+  margin-bottom: 0.35rem;
+}
+
+/* Up next. This is what closes the gap that used to sit under the subtitle. */
+.ab-uplist {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.05rem;
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ab-uplist li {
+  border-top: 1px solid color-mix(in oklch, var(--ink) 8%, transparent);
+}
+
+.ab-uplist a {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 0.4rem;
+  /* Negative inline margin lets the hover ground extend past the text without
+     widening the list or pushing the row heights around. */
+  margin-inline: -0.4rem;
+  padding: 0.06rem 0.4rem;
+  border-radius: 7px;
+  line-height: 1.28;
+  text-decoration: none;
+  transition: background-color 140ms ease;
+}
+
+.ab-uplist a:hover,
+.ab-uplist a:focus-visible {
+  background: color-mix(in oklch, var(--butter) 42%, transparent);
+}
+
+.ab-uplist a:hover span {
+  color: var(--ink);
+}
+
+.ab-uplist span,
+.ab-uplist em {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ab-uplist span {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: color-mix(in oklch, var(--ink) 84%, transparent);
+}
+
+.ab-uplist em {
+  font-style: normal;
+  font-size: 11.5px;
+  text-align: right;
+  color: color-mix(in oklch, var(--ink) 48%, transparent);
+}
+
+/* Art tile, in the reference's white-framed sleeve. A colour rather than a
+   cover image — shipping label artwork would mean bundling a copyrighted
+   asset. */
+.ab-art {
+  flex: none;
+  width: clamp(50px, 4.6vw, 66px);
+  height: clamp(50px, 4.6vw, 66px);
+  padding: 4px;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 2px 7px rgb(40 36 32 / 0.16);
+}
+
+.ab-art {
+  position: relative;
+}
+
+.ab-art__fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(150deg, oklch(0.93 0.16 96), oklch(0.82 0.16 84));
+}
+
+/* Layered over the fallback so a missing cover file just reveals the tile. */
+.ab-art__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.ab-listen__note {
+  flex: none;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: color-mix(in oklch, var(--ink) 66%, transparent);
+}
+
+.ab-now {
+  flex: none;
+  display: grid;
+  gap: 0.1rem;
+  margin: 0;
+}
+
+.ab-now strong {
+  font-size: clamp(15px, 1.3vw, 18px);
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  color: var(--ink);
+}
+
+.ab-now span {
+  font-size: clamp(13px, 1.1vw, 15px);
+  color: color-mix(in oklch, var(--ink) 52%, transparent);
+}
+
+/* Transport pill, as on the reference: five evenly spaced controls in a
+   rounded outline that spans the card. */
+.ab-transport {
+  flex: none;
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  padding: 0.35rem;
+  border: 0;
+  border-radius: 30px;
+  /* Filled ground, not an outline — the reference's transport is a solid pill. */
+  background: color-mix(in oklch, var(--ink) 6%, transparent);
+}
+
+.ab-transport button,
+.ab-transport a {
+  display: grid;
+  place-items: center;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 30px;
+  background: none;
+  color: color-mix(in oklch, var(--ink) 62%, transparent);
+}
+
+.ab-transport svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* Play reads as the primary control, as it does on the reference. */
+.ab-transport__play svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* Only play does anything — it opens the track. The rest are inert and say so
+   on hover rather than pretending to be a player. */
+.ab-transport button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.ab-transport__play {
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.ab-transport__play:hover {
+  background: color-mix(in oklch, var(--ink) 8%, transparent);
+}
+
+/* ---------- poem card ---------- */
+
+.ab-poem {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  margin: 0;
+  padding: 0;
+}
+
+.ab-poem cite {
+  margin-bottom: 0.4rem;
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+}
+
+/* One line per span, so line breaks are the poet's rather than the layout's. */
+.ab-poem span {
+  display: block;
+  font-size: clamp(12.5px, 1vw, 14px);
+  line-height: 1.62;
+  color: color-mix(in oklch, var(--ink) 80%, transparent);
+  text-wrap: balance;
+}
+
+/* Visible pending state, same convention as the unset CV link. */
+.ab-poem__pending {
+  flex: 1 1 auto;
+  display: grid;
+  place-content: center;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  color: color-mix(in oklch, var(--ink) 42%, transparent);
+}
+
+.ab-poem__pending code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+}
+
+.ab-poem__from {
+  flex: none;
+  margin: 0;
+  font-size: 11.5px;
+  color: color-mix(in oklch, var(--ink) 52%, transparent);
+}
+
+.ab-poem__from a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.ab-poem__from a:hover,
+.ab-poem__from a:focus-visible {
+  color: var(--ink);
+}
+
+.ab-poem__from span {
+  font-size: 9px;
+}
+
+/* ---------- message thread ---------- */
+
+/* Card sits a shade off the others so the bubbles read against a ground,
+   the way the reference's message panel does. */
+.ab-card--thread {
+  background: color-mix(in oklch, var(--ink) 3%, var(--ab-card));
+}
+
+.ab-thread {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin: 0;
+  /* Breathing room at the scroll edge so a sender name is never sheared. */
+  padding: 0.35rem 0 0;
+  list-style: none;
+  scrollbar-width: none;
+}
+
+.ab-thread::-webkit-scrollbar {
+  display: none;
+}
+
+.ab-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
+
+.ab-row--you {
+  justify-content: flex-end;
+}
+
+.ab-row--you .ab-bubble {
+  max-width: min(78%, 34rem);
+}
+
+.ab-avatar {
+  flex: none;
+  visibility: hidden;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: color-mix(in oklch, var(--ink) 8%, transparent);
+}
+
+.ab-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  display: block;
+}
+
+.ab-row.ends-run .ab-avatar {
+  visibility: visible;
+}
+
+/* Measure lives here, on the flex child, so a short bubble stays on one line —
+   a percentage max-width on the bubble itself resolved against this box and
+   wrapped two-word messages. */
+.ab-said {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+  max-width: min(78%, 34rem);
+}
+
+.ab-who {
+  margin-left: 0.9rem;
+  font-size: 12.5px;
+  color: color-mix(in oklch, var(--ink) 48%, transparent);
+}
+
+.ab-bubble {
+  position: relative;
+  max-width: 100%;
+  width: fit-content;
+  padding: 0.62rem 1rem;
+  border-radius: 20px;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+/*
+ * Bubble tails. Two pseudo-elements: one draws a rounded corner in the bubble's
+ * own colour just outside its edge, the second masks the outer half of that
+ * shape in the card colour. Without these the bubbles read as generic chips —
+ * the tail is most of what makes the reference look like a real thread.
+ */
+.ab-bubble::before,
+.ab-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.ab-bubble--her {
+  background: color-mix(in oklch, var(--ink) 9%, transparent);
+  color: color-mix(in oklch, var(--ink) 92%, transparent);
+}
+
+.ab-row:not(.ends-run) .ab-bubble::before,
+.ab-row:not(.ends-run) .ab-bubble::after {
+  display: none;
+}
+
+.ab-bubble--her::before {
+  left: -7px;
+  background: color-mix(in oklch, var(--ink) 9%, transparent);
+  border-bottom-right-radius: 16px;
+}
+
+.ab-bubble--her::after {
+  left: -20px;
+  background: color-mix(in oklch, var(--ink) 3%, var(--ab-card));
+  border-bottom-right-radius: 12px;
+}
+
+.ab-bubble--you {
+  background: oklch(0.6 0.2 258);
+  color: #fff;
+}
+
+.ab-bubble--you::before {
+  right: -7px;
+  background: oklch(0.6 0.2 258);
+  border-bottom-left-radius: 16px;
+}
+
+.ab-bubble--you::after {
+  right: -20px;
+  background: color-mix(in oklch, var(--ink) 3%, var(--ab-card));
+  border-bottom-left-radius: 12px;
+}
+
+/* Typing indicator — her side, three dots, while a scripted reply is pending. */
+.ab-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.72rem 0.95rem;
+}
+
+.ab-typing i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--ink) 38%, transparent);
+  animation: ab-typing 1.25s ease-in-out infinite;
+}
+
+.ab-typing i:nth-child(2) { animation-delay: 0.16s; }
+.ab-typing i:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes ab-typing {
+  0%, 60%, 100% { opacity: 0.32; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+/* New messages rise in, the way a thread does. */
+.ab-row {
+  animation: ab-pop 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes ab-pop {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+/* ---------- composer ---------- */
+
+.ab-composer {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.85rem;
+}
+
+.ab-composer__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  color: color-mix(in oklch, var(--ink) 62%, transparent);
+  transition: color 140ms ease;
+}
+
+.ab-composer__icon svg {
+  width: 21px;
+  height: 21px;
+  fill: currentColor;
+}
+
+.ab-composer__icon:hover {
+  color: var(--ink);
+}
+
+.ab-composer__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 40px;
+  padding: 0 2.9rem 0 1.05rem;
+  border: 1px solid color-mix(in oklch, var(--ink) 17%, transparent);
+  border-radius: 30px;
+  background: color-mix(in oklch, white 72%, transparent);
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.ab-composer__input::placeholder {
+  color: color-mix(in oklch, var(--ink) 38%, transparent);
+}
+
+.ab-composer__input:focus {
+  outline: none;
+  border-color: oklch(0.6 0.2 258);
+}
+
+.ab-composer__send {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: -2.55rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--ink) 26%, transparent);
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+
+.ab-composer__send svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* Fills in once there is something to send. */
+.ab-composer__send:not(:disabled) {
+  background: oklch(0.6 0.2 258);
+}
+
+.ab-composer__send:disabled {
+  cursor: default;
+}
+
+.ab-composer__done {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 40px;
+  border-radius: 30px;
+  background: oklch(0.6 0.2 258);
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+}
+
+.ab-composer__done span {
+  font-size: 11px;
+}
+
+.ab-composer__note {
+  flex: none;
+  margin: 0.5rem 0 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: color-mix(in oklch, var(--ink) 42%, transparent);
+}
+
+/* ---------- book strip ---------- */
+
+.ab-card--book {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: clamp(0.8rem, 1.6vw, 1.6rem);
+}
+
+.ab-card--book > .ab-label {
+  flex: none;
+}
+
+.ab-book {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 0.5rem;
+  margin: 0;
+}
+
+.ab-book strong {
+  font-size: clamp(13px, 1.05vw, 15px);
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.ab-book em {
+  font-style: italic;
+  font-size: 12.5px;
+  color: color-mix(in oklch, var(--ink) 62%, transparent);
+  white-space: nowrap;
+}
+
+.ab-book span {
+  font-size: 11.5px;
+  color: color-mix(in oklch, var(--ink) 48%, transparent);
+  white-space: nowrap;
+}
+
+.ab-booklinks {
+  flex: none;
+  display: flex;
+  gap: 0.85rem;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.ab-booklinks a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: color-mix(in oklch, var(--ink) 62%, transparent);
+  text-decoration: none;
+  transition: color 140ms ease;
+}
+
+.ab-booklinks a:hover,
+.ab-booklinks a:focus-visible {
+  color: var(--ink);
+}
+
+.ab-booklinks span {
+  font-size: 9px;
+}
+
+/* ---------- focus ---------- */
+
+.ab-contact a:focus-visible,
+.ab-poem__from a:focus-visible,
+.ab-booklinks a:focus-visible,
+.ab-composer__input:focus-visible,
+.ab-composer__send:focus-visible,
+.ab-composer__done:focus-visible,
+.ab-composer__icon:focus-visible,
+.ab-phototab:focus-visible,
+.ab-uplist a:focus-visible,
+.ab-photo:focus-visible,
+.ab-transport__play:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--ink) 40%, transparent);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+/* ---------- responsive ---------- */
+
+/*
+ * The page cannot scroll, so narrowing is a hard budget: type never shrinks and
+ * nothing is ever clipped, which means whole cards and whole sections get
+ * dropped instead.
+ *
+ * The trap here was `grid-template-rows: 1fr auto` — `auto` let the widget
+ * stack claim 536 of 709px and starve the copy card to 163px while its content
+ * needed ~355. Below 1180 the widget column is therefore cut to the two things
+ * that can't live anywhere else on the site: the contact thread and the book.
+ * Photos, listening and papers are all reachable elsewhere.
+ */
+
+@media (max-width: 1180px) {
+  .ab-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .ab-widgets {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+  }
+
+  .ab-card--photos,
+  .ab-card--listen {
+    display: none;
+  }
+
+  /* Measured: 3 sections need ~311px and the copy card gets ~393 here. A
+     fourth overflowed by 192. */
+  .ab-sec:nth-child(n + 4) {
+    display: none;
+  }
+
+  .ab-thread {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 767px) {
+  .ab {
+    padding-inline: 4vw;
+  }
+
+  /* The two visible sections landed 1px past the card floor at 390 — the
+     rhythm gives that back rather than letting anything clip. */
+  .ab-secs {
+    gap: clamp(0.75rem, 2.2vh, 1.4rem);
+    padding-block: 0.5rem;
+  }
+
+  .ab-hint {
+    display: none;
+  }
+
+  /* Lines wrap further at 390, so a third section overflowed by 67. Two fit. */
+  .ab-sec:nth-child(n + 3) {
+    display: none;
+  }
+
+  .ab-card--book {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .ab-book strong,
+  .ab-book em,
+  .ab-book span {
+    white-space: normal;
+  }
+}
+
+/* Very short viewports (320x568 and similar): the enlarged thread leaves the
+   copy card 114px for a section that needs 195. Trim the thread to its latest
+   message and drop its footnote — the conversation still works, and the copy
+   keeps its room. */
+@media (max-width: 767px) and (max-height: 640px) {
+  .ab-thread li:not(:last-child) {
+    display: none;
+  }
+
+  .ab-composer__note {
+    display: none;
+  }
+
+  .ab-bubble {
+    font-size: 14px;
+    padding: 0.5rem 0.8rem;
+  }
+
+  .ab-composer__input,
+  .ab-composer__done {
+    height: 34px;
+    font-size: 14px;
+  }
+}
+
+/* Small phones (360x740 and under) have ~48px less than two sections need.
+   One section, and the book strip goes. */
+@media (max-width: 767px) and (max-height: 800px) {
+  .ab-sec:nth-child(n + 2) {
+    display: none;
+  }
+
+  .ab-card--book {
+    display: none;
+  }
+}
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ab-photo img,
+  .ab-compose {
+    transition: none !important;
+  }
+
+  .is-playing .ab-eq i {
+    animation: none;
+    height: 7px;
+  }
+
+  .ab-typing i,
+  .ab-row {
+    animation: none;
+  }
+}
