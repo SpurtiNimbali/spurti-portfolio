@@ -1,13 +1,17 @@
 export type ProjectSection =
   | "selected"
   | "also built"
-  | "research"
   | "bases"
   | "before stanford";
 
 export type ProjectLink = {
   label: string;
   href: string;
+};
+
+export type ProjectCrossRef = {
+  href: string;
+  label: string;
 };
 
 export type ProjectEntry = {
@@ -22,20 +26,12 @@ export type ProjectEntry = {
   note?: string;
   links?: ProjectLink[];
   awards?: string[];
-};
-
-export type ResearchBlock = {
-  id: string;
-  title: string;
-  period: string;
-  advisors?: string;
-  line: string;
+  crossRef?: ProjectCrossRef;
 };
 
 export const PROJECT_SECTION_ORDER: ProjectSection[] = [
   "selected",
   "also built",
-  "research",
   "bases",
   "before stanford",
 ];
@@ -57,16 +53,12 @@ export const PROJECTS: ProjectEntry[] = [
     ],
   },
   {
-    id: "mindbridge",
+    id: "mindbridge-ref",
     year: 2026,
     name: "MindBridge",
     section: "selected",
-    line: "Reconstructs imagined images from brain scans.",
-    detail:
-      "Most fMRI decoders work on perception — what you are looking at. MindBridge targets imagery: what you are picturing with your eyes closed, where the signal is weaker, noisier, and state-of-the-art perception models fail outright.",
-    full: "A contrastive brain encoder maps fMRI voxels into CLIP space, a residual beta adapter realigns imagery activity to the perception distribution, and a DDPM diffusion prior lands the embeddings back on the manifold the generator expects. 65.7% two-way classification on reconstructed imagery against a 50% chance baseline — 59.0% on abstract cues, 72.3% on natural scenes. The adapter alone was worth 20.5 points, the single largest contributor. It is a semantic decoder, not a full reconstruction system: it recovers the right category, not the specific image.",
-    stack: "PyTorch · CLIP · Versatile Diffusion · Modal / A100",
-    note: "CS 231N final project, with Ahan Devgun and Anya Pinto.",
+    line: "MindBridge — see",
+    crossRef: { href: "/research#mindbridge", label: "research" },
   },
   {
     id: "sayso",
@@ -118,7 +110,7 @@ export const PROJECTS: ProjectEntry[] = [
     line: "First intern hire at a pre-seed startup.",
     detail:
       "Product and growth at Second Time Founders, building the Quantum AI Institute — an invitation-only fellowship for executives. Ran competitive landscape analysis, partnered on product strategy and positioning, and supported early-stage fundraising alongside leadership.",
-    full: "Supported a $500K raise as the first intern on the team. ⚠️ confirm she is comfortable with this line — it is the company's raise, not hers.",
+    full: "Supported a $500K raise as the first intern on the team. Confirm she is comfortable with this line — it is the company's raise, not hers.",
     stack: "TODO",
     links: [{ label: "joinquantum.ai", href: "https://joinquantum.ai" }],
   },
@@ -137,20 +129,23 @@ export const PROJECTS: ProjectEntry[] = [
   {
     id: "nyc-taxi-trips",
     year: "TODO: year",
-    name: "NYC taxi trips",
+    name: "Tricks for Tips",
     section: "also built",
-    line: "TODO",
-    detail: "TODO",
-    full: "TODO: Which class, and what question was she answering?",
+    line: "Supervised ML model on NYC taxi data.",
+    detail:
+      "Developed a supervised learning model to predict tipping outcomes in NYC taxi data; constructed a dataset of 500K+ observations with engineered temporal, spatial, and transactional features.",
+    stack: "Pandas · Scikit-Learn · BeautifulSoup",
   },
   {
     id: "tag-team-reader",
     year: "TODO: year",
     name: "Tag Team Reader",
     section: "also built",
-    line: "TODO",
-    detail: "TODO",
-    full: "TODO: No source material available for this one.",
+    line: "Collaborative AI-powered reading app.",
+    detail:
+      "Built a full-stack MERN web app that uses Anthropic's API to generate reading content, with custom backend routes and session-based storage using TTL-indexed MongoDB.",
+    full: "Rendered a responsive React frontend with dynamic routing and state management to support multi-user reading sessions in real time.",
+    stack: "React.js · Node.js · MongoDB",
   },
   {
     id: "cs-278",
@@ -204,35 +199,6 @@ export const PROJECTS: ProjectEntry[] = [
     line: "Arduino navigation device for the visually impaired.",
     detail:
       "Ultrasonic, flame, and water sensors driving real-time audio and haptic feedback for obstacle detection and hazard alerts.",
-  },
-];
-
-export const RESEARCH_BLOCKS: ResearchBlock[] = [
-  {
-    id: "sail",
-    title: "Stanford Artificial Intelligence Laboratory (SAIL) — Translational AI Lab",
-    period: "Apr 2026–present",
-    advisors: "Advised by Prof. Ehsan Adeli and Fangrui Huang.",
-    line: "TODO: one line on the work.",
-  },
-  {
-    id: "snyder-lab",
-    title: "Stanford Snyder Lab",
-    period: "Jun 2026–present",
-    line: "TODO: one line on the work.",
-  },
-  {
-    id: "language-cognition-lab",
-    title: "Stanford Language and Cognition Lab",
-    period: "Dec 2024–Dec 2025",
-    advisors: "Advised by Prof. Michael Frank and Veronica Boyce.",
-    line: "Built SQL/Redivis pipelines standardizing cross-study datasets for NLP analysis of child language, plus an SBERT embedding pipeline to model communicative structure across interactions.",
-  },
-  {
-    id: "csir-india",
-    title: "CSIR India — independent researcher",
-    period: "2023–24",
-    line: "Multimodal ML screening for early detection of learning disorders in children, combining handwriting classification, facial modeling, and behavioural vectorization. F1 of 0.96. First-authored paper published in IJAARIT.",
   },
 ];
 

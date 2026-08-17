@@ -2,6 +2,9 @@ import { useId, useState } from "react";
 import type { ProjectEntry } from "../projects";
 import { effectiveTier, tierAtLeast } from "../lib/projectTier";
 import type { ProjectTier } from "../lib/projectTier";
+import { withIntensityPath } from "../lib/intensityUrl";
+import { navigate } from "../lib/navigate";
+import { useIntensity } from "./IntensityContext";
 import { ProjectTierBlock } from "./ProjectTierBlock";
 
 type Props = {
@@ -31,6 +34,35 @@ function renderLinks(links: ProjectEntry["links"]) {
 }
 
 export function ProjectRow({ entry, axisTier }: Props) {
+  const { intensity } = useIntensity();
+
+  if (entry.crossRef) {
+    const href = withIntensityPath(entry.crossRef.href, intensity);
+    return (
+      <article className="project-row project-row--cross-ref">
+        <div className="project-row__head project-row__head--static">
+          <span className="project-row__year">{entry.year}</span>
+          <span className="project-row__main">
+            <span className="project-row__name">{entry.name}</span>
+            <span className="project-row__line">
+              {entry.line}{" "}
+              <a
+                href={href}
+                onClick={(e) => {
+                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                  e.preventDefault();
+                  navigate(href);
+                }}
+              >
+                {entry.crossRef.label}
+              </a>
+            </span>
+          </span>
+        </div>
+      </article>
+    );
+  }
+
   const [expanded, setExpanded] = useState(false);
   const panelId = useId();
   const tier = effectiveTier(axisTier, expanded);

@@ -1,6 +1,6 @@
 export const LINKS = {
   projects: "/projects",
-  research: "#research",
+  research: "/research",
   readme: "#readme",
 } as const;
 

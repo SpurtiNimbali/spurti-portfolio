@@ -5,6 +5,7 @@ import { HoverEffectsProvider } from "./components/HoverEffectsContext";
 import { IntensityBackdrop } from "./components/IntensityBackdrop";
 import { HeroPage } from "./pages/HeroPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
+import { ResearchPage } from "./pages/ResearchPage";
 import { normalizePath, ROUTES } from "./lib/routes";
 
 function usePathname() {
@@ -28,6 +29,10 @@ function AppRoutes() {
 
   if (pathname === ROUTES.projects) {
     return <ProjectsPage />;
+  }
+
+  if (pathname === ROUTES.research) {
+    return <ResearchPage />;
   }
 
   return <HeroPage />;

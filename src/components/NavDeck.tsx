@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { NAV } from "../content";
-import { withIntensity } from "../lib/intensityUrl";
+import { withIntensityPath } from "../lib/intensityUrl";
 import { navigate } from "../lib/navigate";
 import { startIcon, type IconHandle, type IconKind } from "../lib/icon3d";
 import { useIntensity } from "./IntensityContext";
@@ -121,7 +121,7 @@ export function NavDeck() {
             style={{ "--enter-y": `${ENTER_OFFSET_PX}px` } as CSSProperties}
           >
             <a
-              href={withIntensity(item.href, intensity)}
+              href={withIntensityPath(item.href, intensity)}
               className={`nav-item${focus === item.id ? " is-focus" : ""}`}
               aria-label={item.title}
               style={
@@ -138,7 +138,7 @@ export function NavDeck() {
                 if (!item.href.startsWith("/")) return;
                 if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
                 e.preventDefault();
-                navigate(withIntensity(item.href, intensity));
+                navigate(withIntensityPath(item.href, intensity));
               }}
             >
               <div className="orb">
