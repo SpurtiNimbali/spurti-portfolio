@@ -4,7 +4,10 @@ export const LINKS = {
   readme: "#readme",
 } as const;
 
-export type MarkKind = "line" | "squiggle";
+/** Flip to false to use alternate level 4/5 copy without SAIL. */
+export const SAIL_IS_REAL = true;
+
+export type MarkKind = "squiggle";
 
 export type Definition = {
   entity: string;
@@ -14,7 +17,6 @@ export type Definition = {
 export type PredicatePart = {
   text: string;
   mark?: MarkKind;
-  href?: string;
   definition?: Definition;
 };
 
@@ -23,146 +25,102 @@ export type IntensityLevel = {
   parts: PredicatePart[];
 };
 
+const ENTITY: Record<"Stanford" | "Slack" | "SAIL", Definition> = {
+  Stanford: { entity: "Stanford CS", role: "building in public" },
+  Slack: { entity: "Slack", role: "software intern" },
+  SAIL: { entity: "SAIL", role: "translational AI" },
+};
+
+function sq(word: keyof typeof ENTITY): PredicatePart {
+  return { text: word, mark: "squiggle", definition: ENTITY[word] };
+}
+
+const LEVEL_4_BOLD: IntensityLevel = SAIL_IS_REAL
+  ? {
+      label: "bold",
+      parts: [
+        { text: "builds AI at " },
+        sq("Stanford"),
+        { text: ", " },
+        sq("Slack"),
+        { text: ", and " },
+        sq("SAIL"),
+        { text: "." },
+      ],
+    }
+  : {
+      label: "bold",
+      parts: [
+        { text: "builds AI at " },
+        sq("Stanford"),
+        { text: " and ships software at " },
+        sq("Slack"),
+        { text: "." },
+      ],
+    };
+
+const LEVEL_5_UNDENIABLE: IntensityLevel = SAIL_IS_REAL
+  ? {
+      label: "undeniable",
+      parts: [
+        { text: "builds AI at " },
+        sq("Stanford"),
+        { text: ", ships it at " },
+        sq("Slack"),
+        { text: ", does the research at " },
+        sq("SAIL"),
+        { text: ", and is not especially humble about any of it." },
+      ],
+    }
+  : {
+      label: "undeniable",
+      parts: [
+        { text: "builds AI at " },
+        sq("Stanford"),
+        { text: ", ships it at " },
+        sq("Slack"),
+        { text: ", and you dragged this all the way up, so." },
+      ],
+    };
+
 /** Single source of truth for axis copy. Edit text here, not in components. */
 export const INTENSITY_LEVELS: IntensityLevel[] = [
   {
     label: "quiet",
     parts: [
-      { text: "writes " },
-      { text: "software", mark: "line", href: LINKS.projects },
-      { text: " at " },
-      {
-        text: "Stanford",
-        mark: "squiggle",
-        definition: { entity: "Stanford CS", role: "building in public" },
-      },
+      { text: "writes software at " },
+      sq("Stanford"),
       { text: "." },
     ],
   },
   {
     label: "modest",
     parts: [
-      { text: "studies " },
-      {
-        text: "CS",
-        mark: "squiggle",
-        definition: { entity: "Stanford CS", role: "undergraduate" },
-      },
-      { text: " at " },
-      {
-        text: "Stanford",
-        mark: "squiggle",
-        definition: { entity: "Stanford CS", role: "building in public" },
-      },
-      { text: " and writes " },
-      { text: "software", mark: "line", href: LINKS.projects },
-      { text: "." },
+      { text: "studies CS at " },
+      sq("Stanford"),
+      { text: " and writes software." },
     ],
   },
   {
     label: "warm",
     parts: [
-      { text: "builds small " },
-      {
-        text: "AI",
-        mark: "squiggle",
-        definition: { entity: "AI × product", role: "human systems" },
-      },
-      { text: " things at " },
-      {
-        text: "Stanford",
-        mark: "squiggle",
-        definition: { entity: "Stanford CS", role: "building in public" },
-      },
+      { text: "builds small AI things at " },
+      sq("Stanford"),
       { text: " and likes it when they work." },
     ],
   },
   {
     label: "confident",
     parts: [
-      { text: "builds " },
-      {
-        text: "AI",
-        mark: "squiggle",
-        definition: { entity: "AI × product", role: "human systems" },
-      },
-      { text: " and writes " },
-      { text: "software", mark: "line", href: LINKS.projects },
-      { text: " at " },
-      {
-        text: "Stanford",
-        mark: "squiggle",
-        definition: { entity: "Stanford CS", role: "building in public" },
-      },
+      { text: "builds AI and writes software at " },
+      sq("Stanford"),
       { text: " with " },
-      {
-        text: "Slack",
-        mark: "squiggle",
-        definition: { entity: "Slack", role: "software intern" },
-      },
+      sq("Slack"),
       { text: "." },
     ],
   },
-  {
-    label: "bold",
-    parts: [
-      { text: "builds " },
-      {
-        text: "AI",
-        mark: "squiggle",
-        definition: { entity: "AI × product", role: "human systems" },
-      },
-      { text: " at " },
-      {
-        text: "Stanford",
-        mark: "squiggle",
-        definition: { entity: "Stanford CS", role: "building in public" },
-      },
-      { text: ", " },
-      {
-        text: "Slack",
-        mark: "squiggle",
-        definition: { entity: "Slack", role: "software intern" },
-      },
-      { text: ", and " },
-      {
-        text: "SAIL",
-        mark: "squiggle",
-        definition: { entity: "SAIL", role: "translational AI" },
-      },
-      { text: "." },
-    ],
-  },
-  {
-    label: "undeniable",
-    parts: [
-      { text: "builds " },
-      {
-        text: "AI",
-        mark: "squiggle",
-        definition: { entity: "AI × product", role: "human systems" },
-      },
-      { text: " at " },
-      {
-        text: "Stanford",
-        mark: "squiggle",
-        definition: { entity: "Stanford CS", role: "building in public" },
-      },
-      { text: ", ships it at " },
-      {
-        text: "Slack",
-        mark: "squiggle",
-        definition: { entity: "Slack", role: "software intern" },
-      },
-      { text: ", and researches it at " },
-      {
-        text: "SAIL",
-        mark: "squiggle",
-        definition: { entity: "SAIL", role: "translational AI" },
-      },
-      { text: "." },
-    ],
-  },
+  LEVEL_4_BOLD,
+  LEVEL_5_UNDENIABLE,
 ];
 
 export const DEFAULT_INTENSITY = 3;

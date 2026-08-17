@@ -180,25 +180,6 @@ a {
   }
 }
 
-a.mark.line,
-span.mark.squiggle {
-  cursor: pointer;
-  padding-bottom: 0.12em;
-}
-
-a.mark.line {
-  text-decoration: underline;
-  text-decoration-color: rgba(28, 25, 22, 0.28);
-  text-decoration-thickness: 3px;
-  text-underline-offset: 0.16em;
-  text-decoration-skip-ink: none;
-}
-
-a.mark.line:hover {
-  text-decoration-color: rgba(28, 25, 22, 0.55);
-}
-
-span.mark.squiggle {
   position: relative;
   text-decoration: none;
 }

@@ -4,7 +4,7 @@ import { useIntensity } from "./IntensityContext";
 import { DefinitionMark } from "./DefinitionMark";
 
 function partKey(part: PredicatePart) {
-  return `${part.text}|${part.mark ?? ""}|${part.href ?? ""}|${part.definition?.entity ?? ""}`;
+  return `${part.text}|${part.mark ?? ""}|${part.definition?.entity ?? ""}`;
 }
 
 function partsChanged(prev: PredicatePart[], next: PredicatePart[]) {
@@ -14,14 +14,6 @@ function partsChanged(prev: PredicatePart[], next: PredicatePart[]) {
 
 function renderPart(part: PredicatePart, animate: boolean, index: number) {
   const swapClass = animate ? " hero-token--swap" : "";
-
-  if (part.mark === "line" && part.href) {
-    return (
-      <a key={index} href={part.href} className={`mark line hero-token${swapClass}`}>
-        {part.text}
-      </a>
-    );
-  }
 
   if (part.mark === "squiggle" && part.definition) {
     return (
