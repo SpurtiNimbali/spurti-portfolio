@@ -1,18 +1,24 @@
 import type { CSSProperties } from "react";
-import { ContourCanvas } from "./ContourCanvas";
+import { useHoverEffects } from "./HoverEffectsContext";
 import { useIntensity } from "./IntensityContext";
 
 export function IntensityBackdrop() {
   const { intensity } = useIntensity();
+  const { stanfordHover } = useHoverEffects();
 
   return (
     <div
       className="intensity-backdrop"
       aria-hidden="true"
-      style={{ "--intensity": String(intensity) } as CSSProperties}
+      style={
+        {
+          "--intensity": String(intensity),
+          "--stanford-tint": stanfordHover ? "1" : "0",
+        } as CSSProperties
+      }
     >
       <div className="paper-wash" />
-      <ContourCanvas />
+      {/* TODO: re-enable ContourCanvas when terrain read is intentional */}
       <div className="grain-overlay" />
     </div>
   );
