@@ -265,20 +265,9 @@ span.mark.squiggle:focus-visible {
 }
 
 .intensity-axis__inner {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  display: flex;
   align-items: stretch;
-  gap: 10px;
   height: min(420px, 52vh);
-}
-
-.intensity-pole {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--mute);
-  text-align: center;
 }
 
 .intensity-track {
@@ -311,17 +300,16 @@ span.mark.squiggle:focus-visible {
 
 .intensity-track__thumb {
   position: absolute;
-  left: 50%;
   width: 16px;
   height: 16px;
-  transform: translate(-50%, 50%);
+  transform: translate(-50%, -50%);
   border-radius: 50%;
   background: #fff;
   box-shadow:
     0 0 0 2px color-mix(in oklch, var(--ink) 12%, transparent),
     0 8px 16px rgba(28, 36, 32, 0.12);
   pointer-events: none;
-  transition: bottom 120ms ease, left 120ms ease;
+  transition: top 120ms ease, left 120ms ease;
 }
 
 .intensity-notches {
@@ -476,27 +464,15 @@ span.mark.squiggle:focus-visible {
   }
 
   .intensity-axis__inner.is-mobile {
-    grid-template-rows: none;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
     height: auto;
-    gap: 12px;
-  }
-
-  .intensity-axis__inner.is-mobile .intensity-pole--top {
-    order: 1;
+    width: 100%;
   }
 
   .intensity-axis__inner.is-mobile .intensity-track {
-    order: 2;
     min-height: 0;
-    min-width: 200px;
+    min-width: min(100%, 320px);
     height: 56px;
     cursor: ew-resize;
-  }
-
-  .intensity-axis__inner.is-mobile .intensity-pole--bottom {
-    order: 3;
   }
 
   .intensity-axis__inner.is-mobile .intensity-track__rail {
@@ -509,28 +485,13 @@ span.mark.squiggle:focus-visible {
     transform: translateY(-50%);
   }
 
-  .intensity-axis__inner.is-mobile .intensity-track__thumb {
-    bottom: auto;
-    top: 50%;
-    transform: translate(-50%, -50%);
-  }
-
   .intensity-axis__inner.is-mobile .intensity-notches {
     flex-direction: row;
     align-items: center;
   }
 
   .intensity-notch__label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-  }
-
-  .intensity-notch {
-    justify-content: center;
-    padding: 8px;
+    font-size: 10px;
   }
 
   .orb {

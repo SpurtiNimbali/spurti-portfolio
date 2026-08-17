@@ -1,9 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { INTENSITY_LEVELS, INTENSITY_MAX, INTENSITY_MIN } from "../content";
 import { useIntensity } from "./IntensityContext";
-
-const POLE_TOP = INTENSITY_LEVELS[INTENSITY_MAX].label;
-const POLE_BOTTOM = INTENSITY_LEVELS[INTENSITY_MIN].label;
 
 function useMobileAxis() {
   const [mobile, setMobile] = useState(() => window.matchMedia("(max-width: 767px)").matches);
@@ -18,11 +15,37 @@ function useMobileAxis() {
   return mobile;
 }
 
+/** Visual order: undeniable at top, quiet at bottom. */
+const NOTCH_ORDER = [...INTENSITY_LEVELS].reverse();
+
 export function IntensityAxis() {
   const { intensity, setIntensity, label } = useIntensity();
   const trackRef = useRef<HTMLDivElement>(null);
+  const notchRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const dragging = useRef(false);
   const mobile = useMobileAxis();
+  const [thumbStyle, setThumbStyle] = useState<CSSProperties>({});
+
+  const syncThumb = useCallback(() => {
+    const track = trackRef.current;
+    const notch = notchRefs.current[intensity];
+    if (!track || !notch) return;
+    const tr = track.getBoundingClientRect();
+    const nr = notch.getBoundingClientRect();
+    if (mobile) {
+      const x = nr.left + nr.width / 2 - tr.left;
+      setThumbStyle({ left: `${x}px`, top: "50%" });
+    } else {
+      const y = nr.top + nr.height / 2 - tr.top;
+      setThumbStyle({ top: `${y}px`, left: "50%" });
+    }
+  }, [intensity, mobile]);
+
+  useEffect(() => {
+    syncThumb();
+    window.addEventListener("resize", syncThumb);
+    return () => window.removeEventListener("resize", syncThumb);
+  }, [syncThumb]);
 
   const snapFromPointer = useCallback(
     (clientX: number, clientY: number) => {
@@ -54,13 +77,9 @@ export function IntensityAxis() {
     }
   };
 
-  const thumbPct = (intensity / INTENSITY_MAX) * 100;
-
   return (
     <aside className="intensity-axis" aria-label="Intensity from quiet to undeniable">
       <div className={`intensity-axis__inner${mobile ? " is-mobile" : ""}`}>
-        <span className="intensity-pole intensity-pole--top">{POLE_TOP}</span>
-
         <div
           ref={trackRef}
           className="intensity-track"
@@ -90,33 +109,32 @@ export function IntensityAxis() {
           }}
         >
           <div className="intensity-track__rail" aria-hidden="true">
-            <div
-              className="intensity-track__thumb"
-              style={
-                mobile ? { left: `${thumbPct}%` } : { bottom: `${thumbPct}%` }
-              }
-            />
+            <div className="intensity-track__thumb" style={thumbStyle} />
           </div>
 
           <ol className="intensity-notches">
-            {INTENSITY_LEVELS.map((level, i) => (
-              <li key={level.label}>
-                <button
-                  type="button"
-                  className={`intensity-notch${i === intensity ? " is-on" : ""}`}
-                  aria-label={level.label}
-                  aria-current={i === intensity ? "true" : undefined}
-                  onClick={() => setIntensity(i)}
-                >
-                  <span className="intensity-notch__dot" aria-hidden="true" />
-                  <span className="intensity-notch__label">{level.label}</span>
-                </button>
-              </li>
-            ))}
+            {NOTCH_ORDER.map((level, vi) => {
+              const i = INTENSITY_MAX - vi;
+              return (
+                <li key={level.label}>
+                  <button
+                    ref={(el) => {
+                      notchRefs.current[i] = el;
+                    }}
+                    type="button"
+                    className={`intensity-notch${i === intensity ? " is-on" : ""}`}
+                    aria-label={level.label}
+                    aria-current={i === intensity ? "true" : undefined}
+                    onClick={() => setIntensity(i)}
+                  >
+                    <span className="intensity-notch__dot" aria-hidden="true" />
+                    <span className="intensity-notch__label">{level.label}</span>
+                  </button>
+                </li>
+              );
+            })}
           </ol>
         </div>
-
-        <span className="intensity-pole intensity-pole--bottom">{POLE_BOTTOM}</span>
       </div>
     </aside>
   );
