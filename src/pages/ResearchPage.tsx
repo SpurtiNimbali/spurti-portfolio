@@ -1,5 +1,6 @@
 import { BackLink } from "../components/BackLink";
 import { CornerMeta } from "../components/CornerMeta";
+import { ResearchIndex } from "../components/ResearchIndex";
 
 export function ResearchPage() {
   return (
@@ -7,7 +8,7 @@ export function ResearchPage() {
       <BackLink />
       <CornerMeta />
       <main className="research-index" aria-label="Research">
-        {/* ResearchIndex wired in commit 4 */}
+        <ResearchIndex />
       </main>
     </div>
   );
