@@ -1,47 +1,72 @@
-import { LINES, STICKERS } from "../content";
-import type { StickerEvent } from "./AboutPanel";
+import { useMemo, useRef } from "react";
+import { INTENSITY_LEVELS, type PredicatePart } from "../content";
+import { useIntensity } from "./IntensityContext";
+import { DefinitionMark } from "./DefinitionMark";
 
-type Props = {
-  sell: number;
-  onSticker: (s: StickerEvent) => void;
-};
+function partKey(part: PredicatePart) {
+  return `${part.text}|${part.mark ?? ""}|${part.href ?? ""}|${part.definition?.entity ?? ""}`;
+}
 
-export function HeroLine({ sell, onSticker }: Props) {
-  const index = Math.min(LINES.length - 1, Math.round(sell * (LINES.length - 1)));
-  const line = LINES[index];
+function partsChanged(prev: PredicatePart[], next: PredicatePart[]) {
+  if (prev.length !== next.length) return next.map(() => true);
+  return next.map((part, i) => partKey(part) !== partKey(prev[i]));
+}
+
+function renderPart(part: PredicatePart, animate: boolean, index: number) {
+  const swapClass = animate ? " hero-token--swap" : "";
+
+  if (part.mark === "line" && part.href) {
+    return (
+      <a key={index} href={part.href} className={`mark line hero-token${swapClass}`}>
+        {part.text}
+      </a>
+    );
+  }
+
+  if (part.mark === "squiggle" && part.definition) {
+    return (
+      <DefinitionMark key={index} definition={part.definition}>
+        <span className={`hero-token${swapClass}`}>{part.text}</span>
+      </DefinitionMark>
+    );
+  }
 
   return (
-    <h1 className="hero-line" key={line.mode}>
-      {line.parts.map((part, j) => {
-        if (!part.mark || !part.href) {
-          return <span key={j}>{part.text}</span>;
-        }
-        const meta = part.sticker ? STICKERS[part.sticker] : null;
-        const external = part.href.startsWith("http");
-        return (
-          <a
-            key={`${line.mode}-${j}`}
-            className={`mark ${part.mark}`}
-            href={part.href}
-            target={external ? "_blank" : undefined}
-            rel={external ? "noreferrer" : undefined}
-            onPointerEnter={(e) => {
-              if (!meta) return;
-              const r = e.currentTarget.getBoundingClientRect();
-              onSticker({
-                id: `${part.sticker}-${Date.now()}`,
-                label: meta.label,
-                note: meta.note,
-                tone: meta.tone,
-                x: r.left + r.width / 2 + (Math.random() - 0.5) * 70,
-                y: r.top - 16,
-              });
-            }}
-          >
-            {part.text}
-          </a>
-        );
-      })}
-    </h1>
+    <span key={index} className={`hero-token${swapClass}`}>
+      {part.text}
+    </span>
+  );
+}
+
+export function HeroLine() {
+  const { intensity } = useIntensity();
+  const level = INTENSITY_LEVELS[intensity];
+  const prevPartsRef = useRef<PredicatePart[]>(level.parts);
+  const prevIntensityRef = useRef<number | null>(null);
+
+  const animateFlags = useMemo(() => {
+    if (prevIntensityRef.current === null) {
+      prevIntensityRef.current = intensity;
+      prevPartsRef.current = level.parts;
+      return level.parts.map(() => false);
+    }
+    if (prevIntensityRef.current === intensity) {
+      return level.parts.map(() => false);
+    }
+    const flags = partsChanged(prevPartsRef.current, level.parts);
+    prevPartsRef.current = level.parts;
+    prevIntensityRef.current = intensity;
+    return flags;
+  }, [intensity, level.parts]);
+
+  return (
+    <div className="hero-wrap">
+      <h1 className="hero-line" aria-live="polite">
+        <span className="hero-name">Spurti Nimbali</span>{" "}
+        <span className="hero-predicate">
+          {level.parts.map((part, i) => renderPart(part, animateFlags[i], i))}
+        </span>
+      </h1>
+    </div>
   );
 }

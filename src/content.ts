@@ -1,154 +1,194 @@
-export const GITHUB = {
-  handle: "@SpurtiNimbali",
-  href: "https://github.com/SpurtiNimbali",
-};
-
 export const LINKS = {
-  github: "https://github.com/SpurtiNimbali",
-  stanford: "https://www.stanford.edu",
-  slack: "https://slack.com",
-  sail: "https://ai.stanford.edu",
   projects: "#projects",
-  fun: "#fun",
-  about: "#about",
+  research: "#research",
+  readme: "#readme",
+} as const;
+
+export type MarkKind = "line" | "squiggle";
+
+export type Definition = {
+  entity: string;
+  role: string;
 };
 
-export type Mark = "name" | "wavy" | "line";
-
-export type HeroPart = {
+export type PredicatePart = {
   text: string;
-  mark?: Mark;
+  mark?: MarkKind;
   href?: string;
-  sticker?: string;
+  definition?: Definition;
 };
 
-export type Line = {
-  mode: string;
-  parts: HeroPart[];
+export type IntensityLevel = {
+  label: string;
+  parts: PredicatePart[];
 };
 
-export const LINES: Line[] = [
+/** Single source of truth for axis copy. Edit text here, not in components. */
+export const INTENSITY_LEVELS: IntensityLevel[] = [
   {
-    mode: "draft",
+    label: "quiet",
     parts: [
-      { text: "Spurti Nimbali", mark: "name", href: LINKS.github },
-      { text: " studies " },
-      { text: "CS", mark: "wavy", href: LINKS.stanford, sticker: "Stanford" },
+      { text: "writes " },
+      { text: "software", mark: "line", href: LINKS.projects },
       { text: " at " },
-      { text: "Stanford", mark: "wavy", href: LINKS.stanford, sticker: "Stanford" },
+      {
+        text: "Stanford",
+        mark: "squiggle",
+        definition: { entity: "Stanford CS", role: "building in public" },
+      },
       { text: "." },
     ],
   },
   {
-    mode: "warm",
+    label: "modest",
     parts: [
-      { text: "Spurti Nimbali", mark: "name", href: LINKS.github },
-      { text: " studies " },
-      { text: "CS", mark: "wavy", href: LINKS.stanford, sticker: "Stanford" },
+      { text: "studies " },
+      {
+        text: "CS",
+        mark: "squiggle",
+        definition: { entity: "Stanford CS", role: "undergraduate" },
+      },
       { text: " at " },
-      { text: "Stanford", mark: "wavy", href: LINKS.stanford, sticker: "Stanford" },
+      {
+        text: "Stanford",
+        mark: "squiggle",
+        definition: { entity: "Stanford CS", role: "building in public" },
+      },
       { text: " and writes " },
-      { text: "software", mark: "wavy", href: LINKS.projects },
+      { text: "software", mark: "line", href: LINKS.projects },
       { text: "." },
     ],
   },
   {
-    mode: "considered",
+    label: "warm",
     parts: [
-      { text: "Spurti Nimbali", mark: "name", href: LINKS.github },
-      { text: " builds " },
-      { text: "AI", mark: "wavy", href: LINKS.sail, sticker: "AI" },
+      { text: "builds small " },
+      {
+        text: "AI",
+        mark: "squiggle",
+        definition: { entity: "AI × product", role: "human systems" },
+      },
+      { text: " things at " },
+      {
+        text: "Stanford",
+        mark: "squiggle",
+        definition: { entity: "Stanford CS", role: "building in public" },
+      },
+      { text: " and likes it when they work." },
+    ],
+  },
+  {
+    label: "confident",
+    parts: [
+      { text: "builds " },
+      {
+        text: "AI",
+        mark: "squiggle",
+        definition: { entity: "AI × product", role: "human systems" },
+      },
       { text: " and writes " },
-      { text: "software", mark: "wavy", href: LINKS.projects },
+      { text: "software", mark: "line", href: LINKS.projects },
       { text: " at " },
-      { text: "Stanford", mark: "wavy", href: LINKS.stanford, sticker: "Stanford" },
+      {
+        text: "Stanford",
+        mark: "squiggle",
+        definition: { entity: "Stanford CS", role: "building in public" },
+      },
       { text: " with " },
-      { text: "Slack", mark: "line", href: LINKS.slack, sticker: "Slack" },
+      {
+        text: "Slack",
+        mark: "squiggle",
+        definition: { entity: "Slack", role: "software intern" },
+      },
       { text: "." },
     ],
   },
   {
-    mode: "builder",
+    label: "bold",
     parts: [
-      { text: "Spurti Nimbali", mark: "name", href: LINKS.github },
-      { text: " ships " },
-      { text: "software", mark: "wavy", href: LINKS.projects },
+      { text: "builds " },
+      {
+        text: "AI",
+        mark: "squiggle",
+        definition: { entity: "AI × product", role: "human systems" },
+      },
       { text: " at " },
-      { text: "Stanford", mark: "wavy", href: LINKS.stanford, sticker: "Stanford" },
+      {
+        text: "Stanford",
+        mark: "squiggle",
+        definition: { entity: "Stanford CS", role: "building in public" },
+      },
       { text: ", " },
-      { text: "Slack", mark: "line", href: LINKS.slack, sticker: "Slack" },
+      {
+        text: "Slack",
+        mark: "squiggle",
+        definition: { entity: "Slack", role: "software intern" },
+      },
       { text: ", and " },
-      { text: "Hackspace", mark: "wavy", href: LINKS.fun, sticker: "Hackspace" },
+      {
+        text: "SAIL",
+        mark: "squiggle",
+        definition: { entity: "SAIL", role: "translational AI" },
+      },
       { text: "." },
     ],
   },
   {
-    mode: "proof",
+    label: "undeniable",
     parts: [
-      { text: "Spurti Nimbali", mark: "name", href: LINKS.github },
-      { text: " builds " },
-      { text: "AI", mark: "wavy", href: LINKS.sail, sticker: "AI" },
+      { text: "builds " },
+      {
+        text: "AI",
+        mark: "squiggle",
+        definition: { entity: "AI × product", role: "human systems" },
+      },
       { text: " at " },
-      { text: "Stanford", mark: "wavy", href: LINKS.stanford, sticker: "Stanford" },
-      { text: ", " },
-      { text: "Slack", mark: "line", href: LINKS.slack, sticker: "Slack" },
-      { text: ", and " },
-      { text: "SAIL", mark: "wavy", href: LINKS.sail, sticker: "SAIL" },
-      { text: "." },
-    ],
-  },
-  {
-    mode: "undeniable",
-    parts: [
-      { text: "Spurti Nimbali", mark: "name", href: LINKS.github },
-      { text: " ships " },
-      { text: "AI", mark: "wavy", href: LINKS.sail, sticker: "AI" },
-      { text: " at " },
-      { text: "Stanford", mark: "wavy", href: LINKS.stanford, sticker: "Stanford" },
-      { text: ", " },
-      { text: "Slack", mark: "line", href: LINKS.slack, sticker: "Slack" },
-      { text: ", and " },
-      { text: "SAIL", mark: "wavy", href: LINKS.sail, sticker: "SAIL" },
+      {
+        text: "Stanford",
+        mark: "squiggle",
+        definition: { entity: "Stanford CS", role: "building in public" },
+      },
+      { text: ", ships it at " },
+      {
+        text: "Slack",
+        mark: "squiggle",
+        definition: { entity: "Slack", role: "software intern" },
+      },
+      { text: ", and researches it at " },
+      {
+        text: "SAIL",
+        mark: "squiggle",
+        definition: { entity: "SAIL", role: "translational AI" },
+      },
       { text: "." },
     ],
   },
 ];
 
-export type StickerTone = "paper";
-
-export const STICKERS: Record<
-  string,
-  { label: string; note: string; tone: StickerTone }
-> = {
-  Stanford: { label: "Stanford CS", note: "building in public", tone: "paper" },
-  Slack: { label: "Slack", note: "software intern", tone: "paper" },
-  SAIL: { label: "SAIL", note: "translational AI", tone: "paper" },
-  SaySo: { label: "SaySo", note: "Adobe hackathon", tone: "paper" },
-  Hackspace: { label: "Hackspace", note: "BASES", tone: "paper" },
-  AI: { label: "AI × product", note: "human systems", tone: "paper" },
-  Rise: { label: "Rise Fellow", note: "global cohort", tone: "paper" },
-};
+export const DEFAULT_INTENSITY = 3;
+export const INTENSITY_MIN = 0;
+export const INTENSITY_MAX = INTENSITY_LEVELS.length - 1;
 
 export const NAV = [
   {
-    id: "projects",
+    id: "projects" as const,
     file: "projects.config",
     title: "Projects",
     hint: "things that shipped",
-    href: "#projects",
+    href: LINKS.projects,
   },
   {
-    id: "fun",
-    file: "fun.py",
-    title: "Fun",
-    hint: "side quests",
-    href: "#fun",
+    id: "research" as const,
+    file: "research.md",
+    title: "Research",
+    hint: "papers & explorations",
+    href: LINKS.research,
   },
   {
-    id: "about",
+    id: "readme" as const,
     file: "readme.txt",
-    title: "About",
+    title: "Read Me",
     hint: "the longer note",
-    href: "#about",
+    href: LINKS.readme,
   },
 ] as const;
