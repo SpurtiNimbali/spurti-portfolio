@@ -1,0 +1,123 @@
+# Content still needed
+
+Everything the site is waiting on, in one place. Fill in the blanks and send it
+back — each item says exactly which file and field it lands in, so nothing needs
+guessing on the way in.
+
+Generated from the codebase, not from memory: every line below corresponds to a
+literal `TODO` marker or an unset value that renders as a placeholder today.
+
+**Legend** — 🔴 shows as a visible placeholder to visitors · 🟡 renders but is
+thin or unverified · ⚪️ internal, invisible to visitors
+
+---
+
+## 1. About page — `src/content/aboutPage.ts`
+
+| # | Item | Status | What's needed |
+|---|---|---|---|
+| 1.1 | **CV link** | 🔴 | The `CV` link renders greyed out and unclickable. Give me a URL (Drive, personal site, wherever) → `ABOUT_CONTACT` |
+| 1.2 | **Message thread copy** | ⚪️ | You said the draft is fine — noting it only because it's my writing in her voice, not hers. Rewrite any time → `THREAD_OPENING`, `THREAD_SCRIPT` |
+
+Everything else on this page is filled: photos, playlist, album art, service
+logos, book strip.
+
+---
+
+## 2. Projects — `src/projects.ts`
+
+### 2a. Entries that are mostly empty
+
+These render with visible `TODO` text. They need real copy or they should be cut.
+
+**Dares** — 5 gaps
+- Year
+- `detail` — what it's for and who it's for
+- `full` — did it ship, did people use it, what broke
+- Stack
+- Link (repo? demo?)
+
+**CS 278** — 4 gaps
+- Year
+- `line` and `detail` — currently both literally `TODO`
+- `full` — and: is this separate from the CS 231N paper? If it's the same work it should be merged rather than duplicated. If it went badly, worth saying so plainly — that reads as a strength on this site, not a liability.
+
+**Cardea** *(id is `ollie-hinkle`)* — 3 gaps
+- Stack
+- Link
+- Naming: confirm this should read **Cardea** rather than the foundation name — the id and the display name currently disagree
+- Is it live, and who's using it?
+
+### 2b. Entries needing one field
+
+| Project | Missing |
+|---|---|
+| Atria AI | repo URL, demo video URL |
+| SaySo | marketplace URL |
+| Orchestrate Support Agent | `full` — how it placed, and what it got wrong |
+| Quantum AI Institute | stack |
+| Airys Tech | link |
+| Tricks for Tips *(NYC taxis)* | year |
+| Tag Team Reader | year |
+| EpiCare | year |
+| Navigo | year |
+
+**Years needed in one line, if that's easier:** Dares · CS 278 · Tricks for Tips
+· Tag Team Reader · EpiCare · Navigo
+
+---
+
+## 3. Research — `src/research.ts`
+
+| # | Item | Status | What's needed |
+|---|---|---|---|
+| 3.1 | **DysDiag paper URL** | 🔴 | The IJAARIT link is a dead `#`. This is the only peer-reviewed publication on the site, so it's the most valuable link here → `links` |
+| 3.2 | **Embodily** | 🟡 | `area` is a placeholder — one line on what it is |
+
+### 3.3 — "The Right Amount of Wrong" ⚠️
+
+Deliberately **not linked** anywhere public. `research.ts` flags the draft as
+containing stray editing marks, with several sentences ending mid-argument and
+at least two citations still to verify.
+
+**Needed before it goes public:** a proofread pass, citations checked, and your
+go-ahead. Then it can join the research page and the about-page book strip.
+
+---
+
+## 4. Assets
+
+| # | Item | Status | Where it goes |
+|---|---|---|---|
+| 4.1 | **Simba cut-out PNGs** | 🔴 | `public/simba/0.png` … `5.png` — six poses, quiet → undeniable, transparent cut-outs ~44px tall. The intensity slider renders a labelled placeholder box without them. Spec is in `public/simba/README.md` |
+
+Done and in place: album art, all four service logos, sticker photographs.
+
+---
+
+## 5. Quick wins
+
+If you only have ten minutes, these four are the highest value — each is a
+single URL that turns a dead placeholder into a working link:
+
+1. **CV link** (1.1) — currently greyed out on the about page
+2. **DysDiag paper URL** (3.1) — the only peer-reviewed publication on the site
+3. **Atria AI repo + demo** (2b)
+4. **SaySo marketplace URL** (2b)
+
+---
+
+## How to send it back
+
+Whichever is easiest:
+
+- Fill in this file and send it back
+- Reply in chat with the item numbers and values
+- Or just paste a list — I'll match things up
+
+I'll wire it in and re-verify the pages.
+
+---
+
+*Counts at time of writing: 24 `TODO` markers across `projects.ts` (21),
+`research.ts` (2) and `aboutPage.ts` (1), plus one missing asset set.*
