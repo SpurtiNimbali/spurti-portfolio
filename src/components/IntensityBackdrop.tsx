@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { ContourCanvas } from "./ContourCanvas";
 import { useIntensity } from "./IntensityContext";
 
 export function IntensityBackdrop() {
@@ -11,6 +12,7 @@ export function IntensityBackdrop() {
       style={{ "--intensity": String(intensity) } as CSSProperties}
     >
       <div className="paper-wash" />
+      <ContourCanvas />
       <div className="grain-overlay" />
     </div>
   );
