@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { NAV } from "../content";
+import { withIntensity } from "../lib/intensityUrl";
+import { navigate } from "../lib/navigate";
 import { startIcon, type IconHandle, type IconKind } from "../lib/icon3d";
+import { useIntensity } from "./IntensityContext";
 
 const PARALLAX_PX = [6, 10, 14];
 const ENTER_STAGGER_MS = 80;
@@ -29,6 +32,7 @@ function Icon3D({ kind, hovered }: { kind: IconKind; hovered: boolean }) {
 }
 
 export function NavDeck() {
+  const { intensity } = useIntensity();
   const rowRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLElement>(null);
   const [focus, setFocus] = useState<string | null>(null);
@@ -117,7 +121,7 @@ export function NavDeck() {
             style={{ "--enter-y": `${ENTER_OFFSET_PX}px` } as CSSProperties}
           >
             <a
-              href={item.href}
+              href={withIntensity(item.href, intensity)}
               className={`nav-item${focus === item.id ? " is-focus" : ""}`}
               aria-label={item.title}
               style={
@@ -130,6 +134,12 @@ export function NavDeck() {
               onPointerLeave={() => setFocus(null)}
               onFocus={() => setFocus(item.id)}
               onBlur={() => setFocus(null)}
+              onClick={(e) => {
+                if (!item.href.startsWith("/")) return;
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                e.preventDefault();
+                navigate(withIntensity(item.href, intensity));
+              }}
             >
               <div className="orb">
                 <Icon3D kind={item.id} hovered={focus === item.id} />

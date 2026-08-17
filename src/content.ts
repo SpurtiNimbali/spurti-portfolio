@@ -1,5 +1,5 @@
 export const LINKS = {
-  projects: "#projects",
+  projects: "/projects",
   research: "#research",
   readme: "#readme",
 } as const;

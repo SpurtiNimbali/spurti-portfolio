@@ -41,6 +41,15 @@ export function IntensityProvider({ children }: { children: ReactNode }) {
     writeIntensityToUrl(intensity);
   }, []);
 
+  useEffect(() => {
+    const onPopState = () => {
+      const fromUrl = readIntensityFromUrl();
+      if (fromUrl !== null) setIntensityState(fromUrl);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   const label = INTENSITY_LEVELS[intensity]?.label ?? "confident";
 
   const value = useMemo(

@@ -48,6 +48,35 @@ a {
   min-height: 100dvh;
 }
 
+.back-link {
+  display: inline-block;
+  margin: 0 0 0.85rem;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--mute);
+  text-decoration: none;
+}
+
+.back-link:hover,
+.back-link:focus-visible {
+  color: var(--ink);
+}
+
+.back-link:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--ink) 40%, transparent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.projects-page {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  padding-block: 4vh 6vh;
+  padding-inline: 2.4vw calc(48px + 168px);
+}
+
 /* —— Backdrop —— */
 .intensity-backdrop {
   position: fixed;

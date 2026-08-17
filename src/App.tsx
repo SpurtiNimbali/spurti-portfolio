@@ -1,10 +1,37 @@
+import { useEffect, useState } from "react";
 import { IntensityAxis } from "./components/IntensityAxis";
 import { IntensityProvider } from "./components/IntensityContext";
 import { HoverEffectsProvider } from "./components/HoverEffectsContext";
-import { CornerMeta } from "./components/CornerMeta";
-import { HeroLine } from "./components/HeroLine";
 import { IntensityBackdrop } from "./components/IntensityBackdrop";
-import { NavDeck } from "./components/NavDeck";
+import { HeroPage } from "./pages/HeroPage";
+import { ProjectsPage } from "./pages/ProjectsPage";
+import { normalizePath, ROUTES } from "./lib/routes";
+
+function usePathname() {
+  const [pathname, setPathname] = useState(() => normalizePath(window.location.pathname));
+
+  useEffect(() => {
+    const onNavigate = () => setPathname(normalizePath(window.location.pathname));
+    window.addEventListener("popstate", onNavigate);
+    window.addEventListener("spurti:navigate", onNavigate);
+    return () => {
+      window.removeEventListener("popstate", onNavigate);
+      window.removeEventListener("spurti:navigate", onNavigate);
+    };
+  }, []);
+
+  return pathname;
+}
+
+function AppRoutes() {
+  const pathname = usePathname();
+
+  if (pathname === ROUTES.projects) {
+    return <ProjectsPage />;
+  }
+
+  return <HeroPage />;
+}
 
 export default function App() {
   return (
@@ -13,15 +40,7 @@ export default function App() {
         <div className="page">
           <IntensityBackdrop />
           <IntensityAxis />
-          <section className="hero">
-            <CornerMeta />
-            <div className="hero-sentence">
-              <HeroLine />
-            </div>
-            <div className="hero-objects">
-              <NavDeck />
-            </div>
-          </section>
+          <AppRoutes />
         </div>
       </HoverEffectsProvider>
     </IntensityProvider>
