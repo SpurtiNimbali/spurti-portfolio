@@ -60,9 +60,9 @@ export function DefinitionMark({ definition, children }: Props) {
     <span
       ref={wrapRef}
       className="mark squiggle"
-      onMouseEnter={show}
+      onMouseEnter={() => show()}
       onMouseLeave={hide}
-      onFocus={show}
+      onFocus={() => show()}
       onBlur={hide}
       onClick={(e) => {
         if (!window.matchMedia("(hover: none)").matches) return;

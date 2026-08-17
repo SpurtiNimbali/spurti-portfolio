@@ -238,7 +238,7 @@ function mixEuler(a: THREE.Euler, b: THREE.Euler, t: number, out: THREE.Euler) {
 export function startIcon(
   canvas: HTMLCanvasElement,
   kind: IconKind,
-  options?: { static?: boolean },
+  options?: { ambient?: boolean },
 ): IconHandle {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
@@ -271,8 +271,10 @@ export function startIcon(
   let hoverV = 0;
   let scale = 0.2;
   let scaleV = 0;
-  const phase = kind === "projects" ? 0 : kind === "research" ? 1.1 : 2.2;
-  const introDelay = kind === "projects" ? 0.04 : kind === "research" ? 0.12 : 0.2;
+  const phase = kind === "projects" ? 0 : kind === "research" ? 2.09 : 4.18;
+  const ambient = options?.ambient ?? false;
+  const introDelay = ambient ? 0 : kind === "projects" ? 0.04 : kind === "research" ? 0.12 : 0.2;
+  const floatPeriod = kind === "projects" ? 9 : kind === "research" ? 8.5 : 10;
 
   const onMove = (e: PointerEvent) => {
     const r = canvas.parentElement?.getBoundingClientRect() ?? canvas.getBoundingClientRect();
@@ -298,38 +300,8 @@ export function startIcon(
   ro.observe(canvas);
   resize();
 
-  if (options?.static) {
+  if (ambient) {
     object.scale.setScalar(1.05);
-    for (const bit of pieces) {
-      bit.mesh.position.copy(bit.rest.p);
-      bit.mesh.rotation.copy(bit.rest.r);
-      bit.mesh.scale.setScalar(bit.rest.s);
-    }
-    const renderStatic = () => {
-      resize();
-      renderer.render(scene, camera);
-    };
-    renderStatic();
-    ro.disconnect();
-    const staticRo = new ResizeObserver(renderStatic);
-    staticRo.observe(canvas);
-
-    return {
-      setHover() {},
-      destroy() {
-        staticRo.disconnect();
-        textures.forEach((tex) => tex.dispose());
-        renderer.dispose();
-        scene.traverse((node) => {
-          if (node instanceof THREE.Mesh) {
-            node.geometry.dispose();
-            const mat = node.material;
-            if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
-            else mat.dispose();
-          }
-        });
-      },
-    };
   }
 
   const tmpE = new THREE.Euler();
@@ -340,27 +312,40 @@ export function startIcon(
     const t = (now - t0) / 1000;
     const dt = Math.min(0.033, Math.max(0.001, (now - last) / 1000));
     last = now;
-    const live = t > introDelay;
+    const live = ambient || t > introDelay;
     const h = stepSpring(hover, hoverV, hovered && live ? 1 : 0, dt, 8.8, 0.5);
     hover = h.value;
     hoverV = h.velocity;
-    const s = stepSpring(scale, scaleV, live ? 1.05 : 0.2, dt, 10, 0.56);
+    const targetScale = ambient ? 1.05 : live ? 1.05 : 0.2;
+    const s = stepSpring(scale, scaleV, targetScale, dt, 10, 0.56);
     scale = s.value;
     scaleV = s.velocity;
-    const mx = stepSpring(mouse.x, mouse.vx, hovered ? mouse.tx : 0, dt, 7.5, 0.84);
-    mouse.x = mx.value;
-    mouse.vx = mx.velocity;
-    const my = stepSpring(mouse.y, mouse.vy, hovered ? mouse.ty : 0, dt, 7.5, 0.84);
-    mouse.y = my.value;
-    mouse.vy = my.velocity;
+
+    if (!ambient) {
+      const mx = stepSpring(mouse.x, mouse.vx, hovered ? mouse.tx : 0, dt, 7.5, 0.84);
+      mouse.x = mx.value;
+      mouse.vx = mx.velocity;
+      const my = stepSpring(mouse.y, mouse.vy, hovered ? mouse.ty : 0, dt, 7.5, 0.84);
+      mouse.y = my.value;
+      mouse.vy = my.velocity;
+      object.rotation.y = mouse.x * 0.22;
+      object.rotation.x = -mouse.y * 0.16;
+    }
 
     object.scale.setScalar(scale);
-    object.position.y = Math.sin(t * 0.9 + phase) * 0.035 + hover * 0.08;
-    object.rotation.y = mouse.x * 0.22;
-    object.rotation.x = -mouse.y * 0.16;
+    if (ambient && !hovered) {
+      const w = (Math.PI * 2) / floatPeriod;
+      object.position.y = Math.sin(t * w + phase) * 0.028;
+      object.rotation.z = Math.sin(t * w * 0.85 + phase + 0.6) * 0.026;
+    } else if (ambient) {
+      object.position.y = hover * 0.04;
+      object.rotation.z = 0;
+    } else {
+      object.position.y = Math.sin(t * 0.9 + phase) * 0.035 + hover * 0.08;
+    }
 
     for (const bit of pieces) {
-      const ready = live && t > introDelay + bit.delay;
+      const ready = live && (ambient || t > introDelay + bit.delay);
       const sprung = stepSpring(bit.t, bit.v, hovered && ready ? 1 : 0, dt, 8.2, 0.5);
       bit.t = sprung.value;
       bit.v = sprung.velocity;
