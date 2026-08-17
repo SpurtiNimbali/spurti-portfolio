@@ -82,6 +82,16 @@ a {
   transition: background 600ms ease-out;
 }
 
+.contour-canvas {
+  z-index: 1;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: block;
+}
+
 .grain-overlay {
   z-index: 1;
   opacity: calc(0.03 + var(--warmth) * 0.04);
@@ -121,13 +131,13 @@ a {
 .hero-section {
   position: relative;
   z-index: 2;
-  flex: 1;
+  flex: none;
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 2rem;
-  padding: 12vh 7vw 4vh;
-  min-height: min(72dvh, 720px);
+  padding: 12vh 7vw 6vh;
+  min-height: auto;
 }
 
 .mast {
@@ -180,6 +190,9 @@ a {
   }
 }
 
+span.mark.squiggle {
+  cursor: pointer;
+  padding-bottom: 0.12em;
   position: relative;
   text-decoration: none;
 }
@@ -348,12 +361,13 @@ span.mark.squiggle:focus-visible {
   color: var(--mute);
 }
 
-/* —— Scene section (Part 4) —— */
+/* —— Scene section —— */
 .scene-section {
   position: relative;
   z-index: 2;
-  overflow: hidden;
-  padding: 2vh 4vw 8vh;
+  overflow: visible;
+  min-height: 460px;
+  padding: 4vh 4vw 12vh;
 }
 
 .scene-section__inner {
@@ -367,28 +381,45 @@ span.mark.squiggle:focus-visible {
   align-items: flex-end;
   gap: clamp(2rem, 8vw, 5.5rem);
   width: 100%;
-  overflow: hidden;
   padding: 2rem 0 1rem;
-}
-
-.nav-dock--static .nav-item {
-  transform: none !important;
-  pointer-events: auto;
+  --px: 0;
+  --py: 0;
 }
 
 .nav-item {
   display: grid;
   justify-items: center;
+  gap: 0.55rem;
   text-decoration: none;
   width: min(220px, 28vw);
-  overflow: hidden;
+  cursor: pointer;
+  transform: translate(
+    calc(var(--px, 0) * var(--parallax, 10px) * -1),
+    calc(var(--py, 0) * var(--parallax, 10px) * -1)
+  );
+  transition: transform 0.15s ease;
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--ink) 40%, transparent);
+  outline-offset: 6px;
+  border-radius: 12px;
 }
 
 .orb {
   position: relative;
   width: 148px;
   height: 148px;
-  overflow: hidden;
+  overflow: visible;
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.35s ease;
+}
+
+.nav-item.is-focus .orb,
+.nav-item:focus-visible .orb {
+  transform: translateY(-8px);
+  filter: drop-shadow(14px 22px 18px rgba(28, 40, 36, 0.18));
 }
 
 .icon3d {
@@ -403,6 +434,26 @@ span.mark.squiggle:focus-visible {
   filter: drop-shadow(10px 14px 10px rgba(28, 40, 36, 0.14));
 }
 
+.nav-item__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--mute);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+  text-align: center;
+}
+
+.nav-item.is-focus .nav-item__label,
+.nav-item:focus-visible .nav-item__label {
+  opacity: 1;
+  transform: none;
+  color: var(--ink);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -414,6 +465,10 @@ span.mark.squiggle:focus-visible {
   .hero-token--swap {
     opacity: 1;
     filter: none;
+  }
+
+  .nav-item {
+    transform: none !important;
   }
 }
 
