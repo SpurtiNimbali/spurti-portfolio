@@ -1,5 +1,6 @@
 import { BackLink } from "../components/BackLink";
 import { CornerMeta } from "../components/CornerMeta";
+import { ProjectsIndex } from "../components/ProjectsIndex";
 
 export function ProjectsPage() {
   return (
@@ -7,7 +8,7 @@ export function ProjectsPage() {
       <BackLink />
       <CornerMeta />
       <main className="projects-index" aria-label="Projects">
-        {/* ProjectsIndex wired in commit 4 */}
+        <ProjectsIndex />
       </main>
     </div>
   );
