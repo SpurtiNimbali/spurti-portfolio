@@ -21,7 +21,7 @@ function renderLinks(links: ResearchEntry["links"]) {
       {links.map((link, i) => (
         <span key={`${link.label}-${i}`}>
           {i > 0 ? " · " : null}
-          {link.href.startsWith("http") ? (
+          {link.href.startsWith("http") || link.href.startsWith("/") ? (
             <a href={link.href} target="_blank" rel="noreferrer">
               {link.label}
             </a>

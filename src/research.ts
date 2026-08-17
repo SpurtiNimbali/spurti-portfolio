@@ -64,22 +64,22 @@ export const RESEARCH_ENTRIES: ResearchEntry[] = [
     meta: "CS 231N final project, with Ahan Devgun and Anya Pinto.",
     imageRow: {
       caption:
-        "TODO: figure files needed as standalone images; they are currently only inside the PDF. Caption must credit all three authors.",
+        "Qualitative reconstructions for NSD photo cues (Set B). Rows: ground-truth photo, VDVAE ridge layout, Versatile Diffusion output. Spurti Nimbali, Ahan Devgun, and Anya Pinto.",
       stages: [
         {
           label: "Ground truth",
-          src: "TODO: /research/mindbridge/ground-truth.png",
-          alt: "TODO: MindBridge ground truth reconstruction row",
+          src: "/research/mindbridge/ground-truth.png",
+          alt: "MindBridge ground-truth photos for five NSD cues",
         },
         {
           label: "Coarse first stage",
-          src: "TODO: /research/mindbridge/coarse-stage.png",
-          alt: "TODO: MindBridge coarse first stage row",
+          src: "/research/mindbridge/coarse-stage.png",
+          alt: "MindBridge VDVAE ridge coarse reconstructions",
         },
         {
           label: "Diffusion output",
-          src: "TODO: /research/mindbridge/diffusion-output.png",
-          alt: "TODO: MindBridge diffusion output row",
+          src: "/research/mindbridge/diffusion-output.png",
+          alt: "MindBridge Versatile Diffusion final reconstructions",
         },
       ],
     },
@@ -98,7 +98,7 @@ export const RESEARCH_ENTRIES: ResearchEntry[] = [
     limitation:
       "This is simulated data, not real neural recordings, and it is not a seizure-prediction system. It shows that a marker would be detectable if the underlying dynamics behave this way — not that they do.",
     meta: "CS109 challenge project. Best Project Award finalist, top 1%.",
-    links: [{ label: "TODO: PDF URL", href: "#" }],
+    links: [{ label: "PDF", href: "/research/papers/calm-before-the-storm.pdf" }],
   },
   {
     id: "dysdiag",
@@ -127,7 +127,7 @@ export const RESEARCH_ENTRIES: ResearchEntry[] = [
     limitation: "An argument, not a study. She may want to phrase this one herself.",
     meta:
       "Writing and Rhetoric 2: Rhetoric of Imperfection. Proofread before publishing. The draft contains stray editing marks — several sentences end in an unresolved ? mid-argument, and at least two citations should be verified before the essay is linked publicly.",
-    links: [{ label: "TODO: PDF URL", href: "#" }],
+    links: [{ label: "draft PDF", href: "/research/papers/right-amount-of-wrong.pdf" }],
   },
 ];
 
@@ -137,14 +137,16 @@ export const LAB_ENTRIES: LabEntry[] = [
     affiliation: "Stanford Artificial Intelligence Laboratory (SAIL) — Translational AI Lab",
     period: "Apr 2026–present",
     advisors: "Advised by Prof. Ehsan Adeli and Fangrui Huang.",
-    area: 'TODO — a single cleared phrase, e.g. "evaluating LLM-simulated patients for therapy training."',
+    area:
+      "Multi-session LLM patient simulation — evaluation themes and metrics for therapy-training simulators.",
     inProgress: true,
   },
   {
     id: "snyder-lab",
     affiliation: "Stanford Snyder Lab",
     period: "Jun 2026–present",
-    area: 'TODO — a single cleared phrase, e.g. "wearable and audio-based physiological sensing."',
+    area:
+      "Smartphone bowel-sounds study app — timed audio capture, meal logging, and Fitbit/Apple Watch integration.",
     inProgress: true,
   },
   {
