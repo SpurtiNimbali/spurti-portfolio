@@ -2,21 +2,13 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from "re
 import { INTENSITY_LEVELS, INTENSITY_MAX, INTENSITY_MIN } from "../content";
 import { simbaAriaText } from "../lib/simba";
 import { useIntensity } from "./IntensityContext";
-import { SimbaThumb } from "./SimbaThumb";
 
 const TRACK_H = 300;
 const NOTCH_STEP = 60;
+const THUMB_R = 7;
 
 function notchY(index: number) {
   return (INTENSITY_MAX - index) * NOTCH_STEP;
-}
-
-function dotSize(index: number) {
-  return 4 + (index / INTENSITY_MAX) * 5;
-}
-
-function labelOpacity(index: number) {
-  return 0.35 + (index / INTENSITY_MAX) * 0.25;
 }
 
 const NOTCH_ORDER = [...INTENSITY_LEVELS].reverse();
@@ -25,22 +17,35 @@ export function IntensityAxis() {
   const { intensity, setIntensity } = useIntensity();
   const trackRef = useRef<HTMLDivElement>(null);
   const dotRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const groupRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState(intensity);
-  const [simbaStyle, setSimbaStyle] = useState<CSSProperties>({});
+  const [groupStyle, setGroupStyle] = useState<CSSProperties>({});
   const [fillHeight, setFillHeight] = useState(0);
 
   const activeIndex = isDragging ? preview : intensity;
+  const travelLabel = INTENSITY_LEVELS[activeIndex]?.label ?? "confident";
 
   const syncGeometry = useCallback(() => {
     const track = trackRef.current;
     const dot = dotRefs.current[activeIndex];
+    const group = groupRef.current;
     if (!track || !dot) return;
+
     const tr = track.getBoundingClientRect();
     const dr = dot.getBoundingClientRect();
-    const cy = Math.min(TRACK_H - 22, Math.max(22, dr.top + dr.height / 2 - tr.top));
+    let cy = dr.top + dr.height / 2 - tr.top;
     const cx = dr.left + dr.width / 2 - tr.left;
-    setSimbaStyle({ top: `${cy}px`, left: `${cx}px` });
+
+    if (group) {
+      const gh = group.offsetHeight;
+      const half = gh / 2;
+      cy = Math.min(TRACK_H - half, Math.max(half, cy));
+    } else {
+      cy = Math.min(TRACK_H - THUMB_R, Math.max(THUMB_R, cy));
+    }
+
+    setGroupStyle({ top: `${cy}px`, left: `${cx}px` });
     setFillHeight(Math.max(0, TRACK_H - cy));
   }, [activeIndex]);
 
@@ -52,7 +57,7 @@ export function IntensityAxis() {
       cancelAnimationFrame(id);
       window.removeEventListener("resize", syncGeometry);
     };
-  }, [syncGeometry, intensity, preview, isDragging]);
+  }, [syncGeometry, intensity, preview, isDragging, travelLabel]);
 
   const indexFromPointer = useCallback((clientY: number) => {
     const track = trackRef.current;
@@ -95,7 +100,6 @@ export function IntensityAxis() {
         aria-valuetext={`${ariaLabel} — ${ariaPose}`}
         aria-orientation="vertical"
         onKeyDown={onKeyDown}
-        onWheel={(e) => e.preventDefault()}
         onPointerDown={(e) => {
           setIsDragging(true);
           e.currentTarget.setPointerCapture(e.pointerId);
@@ -119,6 +123,9 @@ export function IntensityAxis() {
           setPreview(intensity);
         }}
       >
+        <span className="intensity-pole intensity-pole--top">undeniable</span>
+        <span className="intensity-pole intensity-pole--bottom">quiet</span>
+
         <div className="intensity-rail" aria-hidden="true">
           <div className="intensity-rail__fill" style={{ height: fillHeight }} />
         </div>
@@ -126,8 +133,6 @@ export function IntensityAxis() {
         <ol className="intensity-notches">
           {NOTCH_ORDER.map((level, vi) => {
             const i = INTENSITY_MAX - vi;
-            const size = dotSize(i);
-            const opacity = labelOpacity(i);
             return (
               <li
                 key={level.label}
@@ -136,23 +141,17 @@ export function IntensityAxis() {
               >
                 <button
                   type="button"
-                  className={`intensity-notch${i === intensity ? " is-on" : ""}`}
+                  className="intensity-notch"
                   aria-label={level.label}
                   aria-current={i === intensity ? "true" : undefined}
                   onClick={() => setIntensity(i)}
                 >
-                  <span
-                    className="intensity-notch__label"
-                    style={{ opacity: i === intensity ? 1 : opacity }}
-                  >
-                    {level.label}
-                  </span>
+                  <span className="intensity-tick" aria-hidden="true" />
                   <span
                     ref={(el) => {
                       dotRefs.current[i] = el;
                     }}
                     className="intensity-notch__dot"
-                    style={{ width: size, height: size }}
                     aria-hidden="true"
                   />
                 </button>
@@ -161,7 +160,10 @@ export function IntensityAxis() {
           })}
         </ol>
 
-        <SimbaThumb index={activeIndex} style={simbaStyle} />
+        <div ref={groupRef} className="intensity-thumb-group" style={groupStyle}>
+          <span className="intensity-travel-label">{travelLabel}</span>
+          <div className="intensity-thumb" aria-hidden="true" />
+        </div>
       </div>
     </aside>
   );
