@@ -72,31 +72,6 @@ export const ABOUT_SECTIONS: AboutSection[] = [
 ];
 
 /**
- * Featured poem.
- *
- * `lines` is EMPTY ON PURPOSE. The poems are Spurti's, published in
- * My Paperboats — they are not mine to write, and inventing verse to sit under
- * her name would be worse than leaving the slot visibly unfilled. Paste the
- * poem (or the handful of lines she wants shown) into `lines` and the card
- * renders it; until then it shows a pending state.
- *
- * Keep it short: the card holds roughly 8 lines at this size.
- */
-export type Poem = {
-  title: string;
-  lines: string[];
-  from: string;
-  href?: string;
-};
-
-export const FEATURED_POEM: Poem = {
-  title: "",
-  lines: [],
-  from: "from My Paperboats",
-  href: "https://books.google.com/books?id=yZQQEAAAQBAJ",
-};
-
-/**
  * Her poetry collection. Links out only — the poems themselves belong in the
  * book, not pasted onto a portfolio page.
  */
