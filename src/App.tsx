@@ -6,7 +6,8 @@ import { IntensityBackdrop } from "./components/IntensityBackdrop";
 import { HeroPage } from "./pages/HeroPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { ResearchPage } from "./pages/ResearchPage";
-import { normalizePath, ROUTES } from "./lib/routes";
+import { AboutPage } from "./pages/AboutPage";
+import { isAboutRoute, normalizePath, ROUTES } from "./lib/routes";
 
 function usePathname() {
   const [pathname, setPathname] = useState(() => normalizePath(window.location.pathname));
@@ -35,16 +36,23 @@ function AppRoutes() {
     return <ResearchPage />;
   }
 
+  if (pathname === ROUTES.about) {
+    return <AboutPage />;
+  }
+
   return <HeroPage />;
 }
 
 export default function App() {
+  const pathname = usePathname();
+  const showAxis = !isAboutRoute(pathname);
+
   return (
     <IntensityProvider>
       <HoverEffectsProvider>
         <div className="page">
           <IntensityBackdrop />
-          <IntensityAxis />
+          {showAxis ? <IntensityAxis /> : null}
           <AppRoutes />
         </div>
       </HoverEffectsProvider>

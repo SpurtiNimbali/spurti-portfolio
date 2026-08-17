@@ -1,7 +1,7 @@
 export const LINKS = {
   projects: "/projects",
   research: "/research",
-  readme: "#readme",
+  readme: "/about",
 } as const;
 
 /** Flip to false to use alternate level 4/5 copy without SAIL. */
