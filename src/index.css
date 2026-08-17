@@ -250,26 +250,17 @@ span.mark.squiggle:focus-visible {
   color: var(--mute);
 }
 
-/* —— Intensity axis (Part 2) —— */
+/* —— Intensity axis —— */
 .intensity-axis {
   position: relative;
-  align-self: center;
-  width: 140px;
+  align-self: start;
+  padding-top: 6vh;
   flex-shrink: 0;
-}
-
-.intensity-axis__inner {
-  display: flex;
-  align-items: stretch;
-  height: min(420px, 52vh);
 }
 
 .intensity-track {
   position: relative;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-  min-height: 280px;
+  width: 148px;
   touch-action: none;
   cursor: ns-resize;
   outline: none;
@@ -277,81 +268,70 @@ span.mark.squiggle:focus-visible {
 
 .intensity-track:focus-visible {
   outline: 2px solid color-mix(in oklch, var(--ink) 40%, transparent);
-  outline-offset: 4px;
+  outline-offset: 6px;
   border-radius: 8px;
 }
 
-.intensity-track__rail {
+.intensity-rail {
   position: absolute;
-  left: 50%;
-  top: 8px;
-  bottom: 8px;
+  right: 18px;
+  top: 0;
+  bottom: 0;
   width: 4px;
-  transform: translateX(-50%);
   border-radius: 999px;
-  background: color-mix(in oklch, var(--ink) 8%, transparent);
+  background: color-mix(in oklch, var(--ink) 7%, transparent);
+  overflow: hidden;
 }
 
-.intensity-track__thumb {
+.intensity-rail__fill {
   position: absolute;
-  width: 16px;
-  height: 16px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: #fff;
-  box-shadow:
-    0 0 0 2px color-mix(in oklch, var(--ink) 12%, transparent),
-    0 8px 16px rgba(28, 36, 32, 0.12);
-  pointer-events: none;
-  transition: top 120ms ease, left 120ms ease;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: color-mix(in oklch, var(--ink) 16%, transparent);
+  border-radius: 999px;
+  transition: height 120ms ease;
 }
 
 .intensity-notches {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  inset: 0;
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
-  width: 100%;
+  pointer-events: none;
+}
+
+.intensity-notch-row {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  pointer-events: auto;
 }
 
 .intensity-notch {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
   margin: 0;
-  padding: 4px 6px;
+  padding: 0;
   border: 0;
   background: transparent;
   cursor: pointer;
-  border-radius: 8px;
-  text-align: left;
+  text-align: right;
 }
 
-.intensity-notch:hover {
-  background: color-mix(in oklch, var(--paper) 50%, white);
+.intensity-notch:hover .intensity-notch__label {
+  color: var(--ink);
 }
 
 .intensity-notch.is-on .intensity-notch__label {
   color: var(--ink);
-  font-weight: 700;
-}
-
-.intensity-notch__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: color-mix(in oklch, var(--ink) 18%, transparent);
-  flex-shrink: 0;
-}
-
-.intensity-notch.is-on .intensity-notch__dot {
-  background: var(--ink);
-  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ink) 12%, transparent);
+  font-weight: 600;
+  opacity: 1 !important;
 }
 
 .intensity-notch__label {
@@ -359,6 +339,63 @@ span.mark.squiggle:focus-visible {
   font-weight: 500;
   letter-spacing: -0.02em;
   color: var(--mute);
+  min-width: 72px;
+  text-align: right;
+}
+
+.intensity-notch__dot {
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--ink) 22%, transparent);
+  flex-shrink: 0;
+}
+
+.intensity-notch.is-on .intensity-notch__dot {
+  background: var(--ink);
+}
+
+.simba-thumb {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  pointer-events: none;
+  z-index: 3;
+  transition: top 120ms ease, left 120ms ease;
+}
+
+.simba-thumb__frame {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.simba-thumb__frame.is-visible {
+  opacity: 1;
+}
+
+.simba-thumb__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.simba-thumb__placeholder {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+
+.simba-thumb__placeholder-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in oklch, var(--ink) 10%, white);
+  box-shadow:
+    0 0 0 2px color-mix(in oklch, var(--ink) 12%, transparent),
+    0 6px 14px rgba(28, 36, 32, 0.1);
 }
 
 /* —— Scene section —— */
@@ -470,6 +507,12 @@ span.mark.squiggle:focus-visible {
   .nav-item {
     transform: none !important;
   }
+
+  .simba-thumb,
+  .simba-thumb__frame,
+  .intensity-rail__fill {
+    transition: none !important;
+  }
 }
 
 @media (max-width: 767px) {
@@ -497,37 +540,6 @@ span.mark.squiggle:focus-visible {
     width: 100%;
     order: 2;
     padding-bottom: 1vh;
-  }
-
-  .intensity-axis__inner.is-mobile {
-    height: auto;
-    width: 100%;
-  }
-
-  .intensity-axis__inner.is-mobile .intensity-track {
-    min-height: 0;
-    min-width: min(100%, 320px);
-    height: 56px;
-    cursor: ew-resize;
-  }
-
-  .intensity-axis__inner.is-mobile .intensity-track__rail {
-    left: 8px;
-    right: 8px;
-    top: 50%;
-    bottom: auto;
-    width: auto;
-    height: 4px;
-    transform: translateY(-50%);
-  }
-
-  .intensity-axis__inner.is-mobile .intensity-notches {
-    flex-direction: row;
-    align-items: center;
-  }
-
-  .intensity-notch__label {
-    font-size: 10px;
   }
 
   .orb {

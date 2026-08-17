@@ -1,65 +1,66 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { INTENSITY_LEVELS, INTENSITY_MAX, INTENSITY_MIN } from "../content";
+import { simbaAriaText } from "../lib/simba";
 import { useIntensity } from "./IntensityContext";
+import { SimbaThumb } from "./SimbaThumb";
 
-function useMobileAxis() {
-  const [mobile, setMobile] = useState(() => window.matchMedia("(max-width: 767px)").matches);
+const TRACK_H = 300;
+const NOTCH_STEP = 60;
 
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const onChange = () => setMobile(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
-  return mobile;
+function notchY(index: number) {
+  return (INTENSITY_MAX - index) * NOTCH_STEP;
 }
 
-/** Visual order: undeniable at top, quiet at bottom. */
+function dotSize(index: number) {
+  return 4 + (index / INTENSITY_MAX) * 5;
+}
+
+function labelOpacity(index: number) {
+  return 0.35 + (index / INTENSITY_MAX) * 0.25;
+}
+
 const NOTCH_ORDER = [...INTENSITY_LEVELS].reverse();
 
 export function IntensityAxis() {
-  const { intensity, setIntensity, label } = useIntensity();
+  const { intensity, setIntensity } = useIntensity();
   const trackRef = useRef<HTMLDivElement>(null);
-  const notchRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const dragging = useRef(false);
-  const mobile = useMobileAxis();
-  const [thumbStyle, setThumbStyle] = useState<CSSProperties>({});
+  const dotRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [preview, setPreview] = useState(intensity);
+  const [simbaStyle, setSimbaStyle] = useState<CSSProperties>({});
+  const [fillHeight, setFillHeight] = useState(0);
 
-  const syncThumb = useCallback(() => {
+  const activeIndex = isDragging ? preview : intensity;
+
+  const syncGeometry = useCallback(() => {
     const track = trackRef.current;
-    const notch = notchRefs.current[intensity];
-    if (!track || !notch) return;
+    const dot = dotRefs.current[activeIndex];
+    if (!track || !dot) return;
     const tr = track.getBoundingClientRect();
-    const nr = notch.getBoundingClientRect();
-    if (mobile) {
-      const x = nr.left + nr.width / 2 - tr.left;
-      setThumbStyle({ left: `${x}px`, top: "50%" });
-    } else {
-      const y = nr.top + nr.height / 2 - tr.top;
-      setThumbStyle({ top: `${y}px`, left: "50%" });
-    }
-  }, [intensity, mobile]);
+    const dr = dot.getBoundingClientRect();
+    const cy = Math.min(TRACK_H - 22, Math.max(22, dr.top + dr.height / 2 - tr.top));
+    const cx = dr.left + dr.width / 2 - tr.left;
+    setSimbaStyle({ top: `${cy}px`, left: `${cx}px` });
+    setFillHeight(Math.max(0, TRACK_H - cy));
+  }, [activeIndex]);
 
   useEffect(() => {
-    syncThumb();
-    window.addEventListener("resize", syncThumb);
-    return () => window.removeEventListener("resize", syncThumb);
-  }, [syncThumb]);
+    syncGeometry();
+    const id = requestAnimationFrame(syncGeometry);
+    window.addEventListener("resize", syncGeometry);
+    return () => {
+      cancelAnimationFrame(id);
+      window.removeEventListener("resize", syncGeometry);
+    };
+  }, [syncGeometry, intensity, preview, isDragging]);
 
-  const snapFromPointer = useCallback(
-    (clientX: number, clientY: number) => {
-      const track = trackRef.current;
-      if (!track) return;
-      const r = track.getBoundingClientRect();
-      const t = mobile
-        ? (clientX - r.left) / r.width
-        : 1 - (clientY - r.top) / r.height;
-      const next = Math.round(Math.min(1, Math.max(0, t)) * INTENSITY_MAX);
-      setIntensity(next);
-    },
-    [mobile, setIntensity],
-  );
+  const indexFromPointer = useCallback((clientY: number) => {
+    const track = trackRef.current;
+    if (!track) return intensity;
+    const r = track.getBoundingClientRect();
+    const t = 1 - (clientY - r.top) / r.height;
+    return Math.round(Math.min(1, Math.max(0, t)) * INTENSITY_MAX);
+  }, [intensity]);
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowUp" || e.key === "ArrowRight") {
@@ -77,64 +78,90 @@ export function IntensityAxis() {
     }
   };
 
+  const ariaLabel = INTENSITY_LEVELS[intensity]?.label ?? "confident";
+  const ariaPose = simbaAriaText(activeIndex);
+
   return (
     <aside className="intensity-axis" aria-label="Intensity from quiet to undeniable">
-      <div className={`intensity-axis__inner${mobile ? " is-mobile" : ""}`}>
-        <div
-          ref={trackRef}
-          className="intensity-track"
-          role="slider"
-          tabIndex={0}
-          aria-valuemin={INTENSITY_MIN}
-          aria-valuemax={INTENSITY_MAX}
-          aria-valuenow={intensity}
-          aria-valuetext={label}
-          aria-orientation={mobile ? "horizontal" : "vertical"}
-          onKeyDown={onKeyDown}
-          onWheel={(e) => e.preventDefault()}
-          onPointerDown={(e) => {
-            dragging.current = true;
-            e.currentTarget.setPointerCapture(e.pointerId);
-            snapFromPointer(e.clientX, e.clientY);
-          }}
-          onPointerMove={(e) => {
-            if (!dragging.current) return;
-            snapFromPointer(e.clientX, e.clientY);
-          }}
-          onPointerUp={() => {
-            dragging.current = false;
-          }}
-          onPointerCancel={() => {
-            dragging.current = false;
-          }}
-        >
-          <div className="intensity-track__rail" aria-hidden="true">
-            <div className="intensity-track__thumb" style={thumbStyle} />
-          </div>
-
-          <ol className="intensity-notches">
-            {NOTCH_ORDER.map((level, vi) => {
-              const i = INTENSITY_MAX - vi;
-              return (
-                <li key={level.label}>
-                  <button
-                    ref={(el) => {
-                      notchRefs.current[i] = el;
-                    }}
-                    type="button"
-                    className={`intensity-notch${i === intensity ? " is-on" : ""}`}
-                    aria-label={level.label}
-                    aria-current={i === intensity ? "true" : undefined}
-                    onClick={() => setIntensity(i)}
-                  >
-                    <span className="intensity-notch__dot" aria-hidden="true" />
-                    <span className="intensity-notch__label">{level.label}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ol>
+      <div
+        ref={trackRef}
+        className="intensity-track"
+        style={{ height: TRACK_H }}
+        role="slider"
+        tabIndex={0}
+        aria-valuemin={INTENSITY_MIN}
+        aria-valuemax={INTENSITY_MAX}
+        aria-valuenow={intensity}
+        aria-valuetext={`${ariaLabel} — ${ariaPose}`}
+        aria-orientation="vertical"
+        onKeyDown={onKeyDown}
+        onWheel={(e) => e.preventDefault()}
+        onPointerDown={(e) => {
+          setIsDragging(true);
+          e.currentTarget.setPointerCapture(e.pointerId);
+          const next = indexFromPointer(e.clientY);
+          setPreview(next);
+          setIntensity(next);
+        }}
+        onPointerMove={(e) => {
+          if (!isDragging) return;
+          setPreview(indexFromPointer(e.clientY));
+        }}
+        onPointerUp={(e) => {
+          const next = indexFromPointer(e.clientY);
+          setIsDragging(false);
+          setPreview(next);
+          setIntensity(next);
+          e.currentTarget.releasePointerCapture(e.pointerId);
+        }}
+        onPointerCancel={() => {
+          setIsDragging(false);
+          setPreview(intensity);
+        }}
+      >
+        <div className="intensity-rail" aria-hidden="true">
+          <div className="intensity-rail__fill" style={{ height: fillHeight }} />
         </div>
+
+        <ol className="intensity-notches">
+          {NOTCH_ORDER.map((level, vi) => {
+            const i = INTENSITY_MAX - vi;
+            const size = dotSize(i);
+            const opacity = labelOpacity(i);
+            return (
+              <li
+                key={level.label}
+                className="intensity-notch-row"
+                style={{ top: notchY(i) }}
+              >
+                <button
+                  type="button"
+                  className={`intensity-notch${i === intensity ? " is-on" : ""}`}
+                  aria-label={level.label}
+                  aria-current={i === intensity ? "true" : undefined}
+                  onClick={() => setIntensity(i)}
+                >
+                  <span
+                    className="intensity-notch__label"
+                    style={{ opacity: i === intensity ? 1 : opacity }}
+                  >
+                    {level.label}
+                  </span>
+                  <span
+                    ref={(el) => {
+                      dotRefs.current[i] = el;
+                    }}
+                    className="intensity-notch__dot"
+                    style={{ width: size, height: size }}
+                    aria-hidden="true"
+                  />
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+
+        <SimbaThumb index={activeIndex} style={simbaStyle} />
       </div>
     </aside>
   );
