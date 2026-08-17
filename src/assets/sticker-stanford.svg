@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 264 100" width="264" height="100">
+  <!-- Interim asset: a cardinal pennant standing in for a photograph. -->
+  <path d="M8 12 L256 46 L8 88 Z" fill="#8C1515"/>
+  <path d="M8 12 L256 46 L8 88 Z" fill="none" stroke="#6f1010" stroke-width="2" stroke-linejoin="round"/>
+  <text x="30" y="57"
+        font-family="Georgia, 'Times New Roman', 'Iowan Old Style', serif"
+        font-size="27" font-style="italic" fill="#ffffff" letter-spacing="0.4">Stanford</text>
+</svg>

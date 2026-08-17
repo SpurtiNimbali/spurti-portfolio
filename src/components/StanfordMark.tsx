@@ -1,81 +1,47 @@
-import { useEffect, useRef } from "react";
-import type { Definition } from "../content";
+import { useEffect, useRef, type CSSProperties } from "react";
+import { definitionLabel, type Definition } from "../content";
 import { useHoverEffects } from "./HoverEffectsContext";
-
-const OPEN_DELAY_MS = 120;
 
 type Props = {
   definition: Definition;
   children: React.ReactNode;
-  onReveal: (definition: Definition | null) => void;
+  onSpawn?: (definition: Definition, at: HTMLElement | null) => void;
+  /** Carries the rewrite stagger down to the crossfading span. */
+  beat?: CSSProperties;
 };
 
-export function StanfordMark({ definition, children, onReveal }: Props) {
+export function StanfordMark({ definition, children, onSpawn, beat }: Props) {
   const { setStanfordHover } = useHoverEffects();
   const wrapRef = useRef<HTMLSpanElement>(null);
-  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const activeRef = useRef(false);
 
-  const clearOpenTimer = () => {
-    if (openTimer.current) {
-      clearTimeout(openTimer.current);
-      openTimer.current = null;
-    }
-  };
-
-  const show = (immediate = false) => {
-    clearOpenTimer();
-    setStanfordHover(true);
-    if (immediate) {
-      activeRef.current = true;
-      onReveal(definition);
-      return;
-    }
-    openTimer.current = setTimeout(() => {
-      activeRef.current = true;
-      onReveal(definition);
-    }, OPEN_DELAY_MS);
-  };
-
-  const hide = () => {
-    clearOpenTimer();
-    setStanfordHover(false);
-    if (!activeRef.current) return;
-    activeRef.current = false;
-    onReveal(null);
-  };
-
-  useEffect(() => () => {
-    clearOpenTimer();
-    setStanfordHover(false);
-  }, [setStanfordHover]);
-
-  useEffect(() => {
-    const onPointerDown = (e: PointerEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) hide();
-    };
-
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [definition]);
+  useEffect(
+    () => () => {
+      setStanfordHover(false);
+    },
+    [setStanfordHover],
+  );
 
   return (
     <span
       ref={wrapRef}
       className="mark squiggle"
-      onMouseEnter={() => show()}
-      onMouseLeave={hide}
-      onFocus={() => show()}
-      onBlur={hide}
+      style={beat}
+      onMouseEnter={() => setStanfordHover(true)}
+      onMouseLeave={() => setStanfordHover(false)}
+      onFocus={() => setStanfordHover(true)}
+      onBlur={() => setStanfordHover(false)}
       onClick={(e) => {
-        if (!window.matchMedia("(hover: none)").matches) return;
         e.preventDefault();
-        if (activeRef.current) hide();
-        else show(true);
+        onSpawn?.(definition, wrapRef.current);
+      }}
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault();
+        onSpawn?.(definition, wrapRef.current);
       }}
       tabIndex={0}
       role="button"
-      aria-pressed={activeRef.current}
+      aria-label={definitionLabel(definition)}
     >
       {children}
     </span>

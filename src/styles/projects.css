@@ -1,0 +1,653 @@
+/*
+ * Projects index. Each headline project gets its own sheet of tinted paper,
+ * torn along the top edge, with the artwork dropped on it at an angle. The
+ * washes are translucent so the liquid backdrop still moves underneath.
+ * Projects with no screenshot go typographic rather than showing a stand-in.
+ */
+
+.projects-page {
+  --pj-tint-0: oklch(0.985 0.008 92 / 0.9);
+  --pj-tint-1: oklch(0.938 0.024 84 / 0.94);
+  --pj-tint-2: oklch(0.898 0.036 79 / 0.95);
+
+  --pj-cobalt: var(--cobalt);
+  --pj-jade: var(--jade);
+  --pj-flame: var(--flame);
+  --pj-butter: oklch(0.66 0.13 78);
+  --pj-cardinal: var(--cardinal);
+
+  --pj-wave-h: clamp(34px, 4.6vw, 72px);
+  --pj-gutter: clamp(1.4rem, 5vw, 4.5rem);
+  --pj-shell: 68rem;
+
+  /*
+   * The tone control floats over this page and drives how much of each entry
+   * shows, so it has to stay visible — the page yields the space instead. The
+   * control publishes its own footprint as --tone-axis-space when it can; the
+   * fallback is deliberately generous because that control gets redesigned.
+   */
+  --pj-axis-safe: var(--tone-axis-space, 8.5rem);
+
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  padding-bottom: calc(var(--pj-axis-safe) + env(safe-area-inset-bottom, 0px));
+  overflow-x: clip;
+}
+
+/* —— Page head —— */
+
+.pj-top {
+  max-width: var(--pj-shell);
+  margin: 0 auto;
+  padding: 4vh var(--pj-gutter) 0;
+}
+
+.pj-top__kicker {
+  margin: clamp(2.5rem, 8vh, 5rem) 0 0.55rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: color-mix(in oklch, var(--ink) 40%, transparent);
+}
+
+.pj-top__intro {
+  margin: 0 0 clamp(1.8rem, 5vh, 3rem);
+  max-width: 30rem;
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: color-mix(in oklch, var(--ink) 60%, transparent);
+}
+
+/* —— Bands —— */
+
+.pj-bands {
+  overflow-x: clip;
+}
+
+.pj-band {
+  position: relative;
+  padding-block: clamp(3rem, 7vw, 6rem);
+  background: var(--pj-band);
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 620ms ease,
+    transform 820ms var(--pw-spring);
+}
+
+.pj-band.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.pj-band[data-tint="0"] {
+  --pj-band: var(--pj-tint-0);
+}
+
+.pj-band[data-tint="1"] {
+  --pj-band: var(--pj-tint-1);
+}
+
+.pj-band[data-tint="2"] {
+  --pj-band: var(--pj-tint-2);
+}
+
+/* The torn edge is the band's own wash, overlapping the sheet above it. */
+.pj-wave {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 100%;
+  height: var(--pj-wave-h);
+  margin-bottom: -1px;
+  display: block;
+  pointer-events: none;
+}
+
+.pj-wave__fill {
+  fill: var(--pj-band);
+}
+
+.pj-wave__edge {
+  fill: none;
+  stroke: color-mix(in oklch, var(--ink) 9%, transparent);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.pj-band__inner {
+  max-width: var(--pj-shell);
+  margin: 0 auto;
+  padding-inline: var(--pj-gutter);
+}
+
+.pj-entry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
+  gap: clamp(1.8rem, 4vw, 3.5rem);
+  align-items: center;
+}
+
+.pj-entry__text {
+  max-width: 34rem;
+}
+
+/*
+ * No artwork: the title takes one column and the prose the other, so the band
+ * still fills out instead of leaning on a stand-in image.
+ */
+.pj-entry--type {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pj-entry--type .pj-entry__text {
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+  gap: clamp(1.2rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+.pj-entry--type .pj-entry__head {
+  padding-top: 0.35rem;
+}
+
+.pj-entry--type .pj-entry__line {
+  max-width: 38ch;
+  font-size: clamp(1.05rem, 1.45vw, 1.22rem);
+}
+
+.pj-entry--type .pj-entry__body {
+  max-width: 34rem;
+}
+
+.pj-entry__eyebrow {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-variant: all-small-caps;
+  letter-spacing: 0.13em;
+  color: color-mix(in oklch, var(--ink) 45%, transparent);
+}
+
+.pj-entry__title {
+  margin: 0 0 0.7rem;
+  font-family: Palatino, "Iowan Old Style", "Times New Roman", serif;
+  font-size: clamp(2.2rem, 4.4vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.02;
+  color: var(--ink);
+}
+
+.pj-entry__line {
+  margin: 0;
+  max-width: 32ch;
+  font-size: clamp(1.02rem, 1.35vw, 1.18rem);
+  line-height: 1.45;
+  color: color-mix(in oklch, var(--ink) 86%, transparent);
+}
+
+/* —— Tier reveals, driven by the tone bar or the more button —— */
+
+.pj-tier {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition:
+    grid-template-rows 480ms var(--pw-spring),
+    opacity 300ms ease;
+  opacity: 0;
+}
+
+.pj-tier > * {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.pj-tier.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.pj-entry__detail,
+.pj-entry__full {
+  margin: 0.85rem 0 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: color-mix(in oklch, var(--ink) 78%, transparent);
+}
+
+.pj-entry__awards {
+  margin: 0.85rem 0 0;
+  padding-left: 1.05rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: color-mix(in oklch, var(--ink) 62%, transparent);
+}
+
+.pj-entry__stack {
+  margin: 0.85rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+  color: color-mix(in oklch, var(--ink) 52%, transparent);
+}
+
+.pj-entry__note {
+  margin: 0.7rem 0 0;
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
+  line-height: 1.35;
+  color: color-mix(in oklch, var(--ink) 55%, transparent);
+}
+
+.pj-entry__links {
+  margin: 1rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+}
+
+/* —— Links with the travelling arrow —— */
+
+.pj-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent, var(--ink));
+  text-decoration: none;
+}
+
+.pj-link__arrow {
+  transition: transform 320ms var(--pw-spring);
+}
+
+.pj-link:hover .pj-link__arrow,
+.pj-link:focus-visible .pj-link__arrow {
+  transform: translateX(4px);
+}
+
+.pj-link:hover,
+.pj-link:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  text-decoration-thickness: 1px;
+}
+
+.pj-link:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--ink) 34%, transparent);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+.pj-link.is-pending {
+  color: color-mix(in oklch, var(--ink) 38%, transparent);
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* —— More / less —— */
+
+.pj-entry__more {
+  margin-top: 1.15rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 0.72rem;
+  font-variant: all-small-caps;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ink) 45%, transparent);
+  cursor: pointer;
+  transition: color 220ms ease;
+}
+
+.pj-entry__more:hover,
+.pj-entry__more:focus-visible {
+  color: var(--ink);
+}
+
+.pj-entry__more-mark {
+  display: grid;
+  place-items: center;
+  width: 15px;
+  height: 15px;
+  border: 1px solid color-mix(in oklch, var(--ink) 24%, transparent);
+  border-radius: 50%;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.pj-entry__more:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--ink) 34%, transparent);
+  outline-offset: 5px;
+  border-radius: 3px;
+}
+
+/* —— Artwork —— */
+
+.pj-art {
+  position: relative;
+  display: grid;
+  place-items: center end;
+  min-height: clamp(240px, 30vw, 400px);
+  isolation: isolate;
+}
+
+/* A blank sheet behind the artwork, so it reads as a stack. */
+.pj-art__backing {
+  position: absolute;
+  right: 8%;
+  width: min(66%, 250px);
+  height: 76%;
+  border-radius: 18px;
+  background: oklch(1 0 0 / 0.55);
+  border: 1px solid color-mix(in oklch, var(--ink) 9%, transparent);
+  transform: rotate(6.5deg) translate(14%, 3%);
+  box-shadow: 0 14px 26px rgba(28, 24, 18, 0.1);
+  transition: transform 780ms var(--pw-spring);
+}
+
+/* Height-driven so portraits of different crops carry the same visual mass. */
+.pj-art__shot {
+  position: relative;
+  margin: 0;
+  height: clamp(236px, 27vw, 372px);
+  max-width: 100%;
+  border-radius: 16px;
+  border: 3px solid var(--accent);
+  overflow: hidden;
+  background: #fffdfa;
+  transform: rotate(-3.2deg);
+  box-shadow:
+    0 2px 4px rgba(28, 24, 18, 0.07),
+    0 22px 40px rgba(28, 24, 18, 0.18);
+  transition: transform 780ms var(--pw-spring);
+}
+
+.pj-art__shot img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pj-entry:hover .pj-art__shot {
+  transform: rotate(-1deg) translateY(-9px) scale(1.02);
+}
+
+.pj-entry:hover .pj-art__backing {
+  transform: rotate(9.5deg) translate(17%, 3%);
+}
+
+/* —— Cross-reference band (a project written up under research) —— */
+
+.pj-band--pointer {
+  padding-block: clamp(1.8rem, 3.5vw, 2.8rem);
+}
+
+.pj-pointer {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 1rem;
+}
+
+.pj-pointer__name {
+  font-family: Palatino, "Iowan Old Style", serif;
+  font-size: clamp(1.3rem, 2vw, 1.7rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* —— Quiet tail sections —— */
+
+.pj-tails {
+  max-width: var(--pj-shell);
+  margin: 0 auto;
+  padding: clamp(3.5rem, 9vw, 6.5rem) var(--pj-gutter) 0;
+  display: grid;
+  gap: clamp(3rem, 7vw, 5rem);
+}
+
+.pj-tail,
+.pj-bases {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 560ms ease,
+    transform 760ms var(--pw-spring);
+}
+
+.pj-tail.is-in,
+.pj-bases.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.pj-tail__heading {
+  margin: 0 0 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 500;
+  font-variant: all-small-caps;
+  letter-spacing: 0.16em;
+  color: color-mix(in oklch, var(--ink) 42%, transparent);
+}
+
+.pj-tail__blurb {
+  margin: 0 0 1.9rem;
+  max-width: 34rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: color-mix(in oklch, var(--ink) 52%, transparent);
+}
+
+.pj-tail__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: clamp(1.6rem, 3vw, 2.4rem) clamp(2rem, 5vw, 3.5rem);
+  align-items: start;
+}
+
+.pj-small {
+  border-top: 1px solid color-mix(in oklch, var(--ink) 12%, transparent);
+  padding-top: 0.9rem;
+}
+
+.pj-small__head {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  display: grid;
+  gap: 0.22rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pj-small__head--static {
+  cursor: default;
+}
+
+.pj-small__head:focus-visible {
+  outline: 2px solid color-mix(in oklch, var(--ink) 34%, transparent);
+  outline-offset: 5px;
+  border-radius: 3px;
+}
+
+.pj-small__year {
+  font-size: 0.7rem;
+  font-variant: all-small-caps;
+  letter-spacing: 0.13em;
+  color: color-mix(in oklch, var(--ink) 38%, transparent);
+}
+
+.pj-small__name {
+  font-family: Palatino, "Iowan Old Style", serif;
+  font-size: 1.22rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  transition: color 220ms ease;
+}
+
+.pj-small__head:hover .pj-small__name {
+  color: color-mix(in oklch, var(--ink) 62%, transparent);
+}
+
+.pj-small__line {
+  font-size: 0.93rem;
+  line-height: 1.45;
+  color: color-mix(in oklch, var(--ink) 62%, transparent);
+}
+
+.pj-small__detail {
+  margin: 0.6rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: color-mix(in oklch, var(--ink) 66%, transparent);
+}
+
+.pj-small__awards {
+  margin: 0.6rem 0 0;
+  padding-left: 1rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: color-mix(in oklch, var(--ink) 55%, transparent);
+}
+
+.pj-small__stack {
+  margin: 0.6rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 0.72rem;
+  color: color-mix(in oklch, var(--ink) 46%, transparent);
+}
+
+.pj-small__links {
+  margin: 0.7rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1.1rem;
+}
+
+.pj-small__links .pj-link {
+  font-size: 0.86rem;
+  color: color-mix(in oklch, var(--ink) 72%, transparent);
+}
+
+/* —— Bases note —— */
+
+.pj-bases {
+  padding: clamp(1.6rem, 3vw, 2.2rem) clamp(1.5rem, 3vw, 2.4rem);
+  border-radius: 20px;
+  border: 1px solid color-mix(in oklch, var(--ink) 10%, transparent);
+  background: oklch(1 0 0 / 0.42);
+  max-width: 44rem;
+}
+
+.pj-bases__kicker {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-hand);
+  font-size: 1.1rem;
+  color: color-mix(in oklch, var(--ink) 48%, transparent);
+}
+
+.pj-bases__title {
+  margin: 0;
+  font-family: Palatino, "Iowan Old Style", serif;
+  font-size: clamp(1.25rem, 2vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.pj-bases__period {
+  margin: 0.3rem 0 0;
+  font-size: 0.72rem;
+  font-variant: all-small-caps;
+  letter-spacing: 0.13em;
+  color: color-mix(in oklch, var(--ink) 40%, transparent);
+}
+
+.pj-bases__body {
+  margin: 0.8rem 0 0;
+  font-size: 0.97rem;
+  line-height: 1.6;
+  color: color-mix(in oklch, var(--ink) 72%, transparent);
+}
+
+/* —— Narrow —— */
+
+@media (max-width: 900px) {
+  .pj-entry {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .pj-entry--type .pj-entry__text {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.85rem;
+  }
+
+  .pj-entry--type .pj-entry__head {
+    padding-top: 0;
+  }
+
+  .pj-art {
+    min-height: 0;
+    place-items: center start;
+  }
+
+  .pj-art__shot {
+    height: clamp(220px, 46vw, 300px);
+  }
+
+  .pj-art__backing {
+    right: auto;
+    left: 6%;
+    width: min(58%, 200px);
+    height: 84%;
+  }
+}
+
+@media (max-width: 560px) {
+  .pj-entry__line,
+  .pj-entry--type .pj-entry__line {
+    max-width: none;
+  }
+
+  .pj-art__shot {
+    height: clamp(200px, 52vw, 260px);
+  }
+}
+
+/* —— Reduced motion —— */
+
+@media (prefers-reduced-motion: reduce) {
+  .pj-band,
+  .pj-tail,
+  .pj-bases {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .pj-tier,
+  .pj-link__arrow,
+  .pj-art__shot,
+  .pj-art__backing,
+  .pj-small__name {
+    transition: none;
+  }
+
+  .pj-entry:hover .pj-art__shot,
+  .pj-entry:hover .pj-art__backing {
+    transform: none;
+  }
+}

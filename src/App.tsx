@@ -45,7 +45,8 @@ function AppRoutes() {
 
 export default function App() {
   const pathname = usePathname();
-  const showAxis = !isAboutRoute(pathname);
+  // The hero renders its own axis inline under the sentence.
+  const showAxis = !isAboutRoute(pathname) && pathname !== ROUTES.home;
 
   return (
     <IntensityProvider>

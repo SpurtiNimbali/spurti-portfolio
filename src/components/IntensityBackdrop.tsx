@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { useHoverEffects } from "./HoverEffectsContext";
 import { useIntensity } from "./IntensityContext";
+import { WebGLBackdrop } from "./WebGLBackdrop";
 
 export function IntensityBackdrop() {
   const { intensity } = useIntensity();
@@ -18,7 +19,7 @@ export function IntensityBackdrop() {
       }
     >
       <div className="paper-wash" />
-      {/* TODO: re-enable ContourCanvas when terrain read is intentional */}
+      <WebGLBackdrop />
       <div className="grain-overlay" />
     </div>
   );

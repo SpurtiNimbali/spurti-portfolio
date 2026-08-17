@@ -1,76 +1,35 @@
-import { useEffect, useRef } from "react";
-import type { Definition } from "../content";
-
-const OPEN_DELAY_MS = 120;
+import type { CSSProperties } from "react";
+import { useRef } from "react";
+import { definitionLabel, type Definition } from "../content";
 
 type Props = {
   definition: Definition;
   children: React.ReactNode;
-  onReveal: (definition: Definition | null) => void;
+  onSpawn?: (definition: Definition, at: HTMLElement | null) => void;
+  /** Carries the rewrite stagger down to the crossfading span. */
+  beat?: CSSProperties;
 };
 
-export function DefinitionMark({ definition, children, onReveal }: Props) {
+export function DefinitionMark({ definition, children, onSpawn, beat }: Props) {
   const wrapRef = useRef<HTMLSpanElement>(null);
-  const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const activeRef = useRef(false);
-
-  const clearOpenTimer = () => {
-    if (openTimer.current) {
-      clearTimeout(openTimer.current);
-      openTimer.current = null;
-    }
-  };
-
-  const show = (immediate = false) => {
-    clearOpenTimer();
-    if (immediate) {
-      activeRef.current = true;
-      onReveal(definition);
-      return;
-    }
-    openTimer.current = setTimeout(() => {
-      activeRef.current = true;
-      onReveal(definition);
-    }, OPEN_DELAY_MS);
-  };
-
-  const hide = () => {
-    clearOpenTimer();
-    if (!activeRef.current) return;
-    activeRef.current = false;
-    onReveal(null);
-  };
-
-  useEffect(() => () => clearOpenTimer(), []);
-
-  useEffect(() => {
-    const onPointerDown = (e: PointerEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) {
-        hide();
-      }
-    };
-
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [definition]);
 
   return (
     <span
       ref={wrapRef}
       className="mark squiggle"
-      onMouseEnter={() => show()}
-      onMouseLeave={hide}
-      onFocus={() => show()}
-      onBlur={hide}
+      style={beat}
       onClick={(e) => {
-        if (!window.matchMedia("(hover: none)").matches) return;
         e.preventDefault();
-        if (activeRef.current) hide();
-        else show(true);
+        onSpawn?.(definition, wrapRef.current);
+      }}
+      onKeyDown={(e) => {
+        if (e.key !== "Enter" && e.key !== " ") return;
+        e.preventDefault();
+        onSpawn?.(definition, wrapRef.current);
       }}
       tabIndex={0}
       role="button"
-      aria-pressed={activeRef.current}
+      aria-label={definitionLabel(definition)}
     >
       {children}
     </span>

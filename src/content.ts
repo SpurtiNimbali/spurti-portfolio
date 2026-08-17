@@ -1,3 +1,5 @@
+import type { StickerKey } from "./lib/stickers";
+
 export const LINKS = {
   projects: "/projects",
   research: "/research",
@@ -7,12 +9,22 @@ export const LINKS = {
 /** Flip to false to use alternate level 4/5 copy without SAIL. */
 export const SAIL_IS_REAL = true;
 
+export const GITHUB_USER = "SpurtiNimbali";
+export const GITHUB_URL = `https://github.com/${GITHUB_USER}`;
+
 export type MarkKind = "squiggle";
 
 export type Definition = {
   entity: string;
   role: string;
+  /** Optional die-cut sticker or campus print, peeled off the word on click. */
+  sticker?: StickerKey;
 };
+
+/** Keyboard name for a mark — the visible caption is gone. */
+export function definitionLabel(definition: Definition) {
+  return `${definition.entity} — ${definition.role}`;
+}
 
 export type PredicatePart = {
   text: string;
@@ -25,10 +37,11 @@ export type IntensityLevel = {
   parts: PredicatePart[];
 };
 
-const ENTITY: Record<"Stanford" | "Slack" | "SAIL", Definition> = {
-  Stanford: { entity: "Stanford CS", role: "building in public" },
-  Slack: { entity: "Slack", role: "software intern" },
+const ENTITY: Record<"Stanford" | "Slack" | "SAIL" | "Simba", Definition> = {
+  Stanford: { entity: "Stanford CS", role: "building in public", sticker: "stanford" },
+  Slack: { entity: "Slack", role: "software intern", sticker: "slack" },
   SAIL: { entity: "SAIL", role: "translational AI" },
+  Simba: { entity: "Simba", role: "moral support", sticker: "simba" },
 };
 
 function sq(word: keyof typeof ENTITY): PredicatePart {
@@ -45,7 +58,9 @@ const LEVEL_4_BOLD: IntensityLevel = SAIL_IS_REAL
         sq("Slack"),
         { text: ", and " },
         sq("SAIL"),
-        { text: "." },
+        { text: ". " },
+        sq("Simba"),
+        { text: " supervises." },
       ],
     }
   : {
@@ -55,7 +70,9 @@ const LEVEL_4_BOLD: IntensityLevel = SAIL_IS_REAL
         sq("Stanford"),
         { text: " and ships software at " },
         sq("Slack"),
-        { text: "." },
+        { text: ". " },
+        sq("Simba"),
+        { text: " supervises." },
       ],
     };
 
@@ -69,7 +86,9 @@ const LEVEL_5_UNDENIABLE: IntensityLevel = SAIL_IS_REAL
         sq("Slack"),
         { text: ", does the research at " },
         sq("SAIL"),
-        { text: ", and is not especially humble about any of it." },
+        { text: ", and is not especially humble about any of it. " },
+        sq("Simba"),
+        { text: " agrees." },
       ],
     }
   : {
@@ -79,7 +98,9 @@ const LEVEL_5_UNDENIABLE: IntensityLevel = SAIL_IS_REAL
         sq("Stanford"),
         { text: ", ships it at " },
         sq("Slack"),
-        { text: ", and you dragged this all the way up, so." },
+        { text: ", and you dragged this all the way up, so. " },
+        sq("Simba"),
+        { text: " agrees." },
       ],
     };
 
@@ -90,6 +111,8 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
     parts: [
       { text: "writes software at " },
       sq("Stanford"),
+      { text: " with " },
+      sq("Simba"),
       { text: "." },
     ],
   },
@@ -98,7 +121,9 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
     parts: [
       { text: "studies CS at " },
       sq("Stanford"),
-      { text: " and writes software." },
+      { text: " and writes software with " },
+      sq("Simba"),
+      { text: "." },
     ],
   },
   {
@@ -106,6 +131,8 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
     parts: [
       { text: "builds small AI things at " },
       sq("Stanford"),
+      { text: " with " },
+      sq("Simba"),
       { text: " and likes it when they work." },
     ],
   },
@@ -116,6 +143,8 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
       sq("Stanford"),
       { text: " with " },
       sq("Slack"),
+      { text: ", and " },
+      sq("Simba"),
       { text: "." },
     ],
   },
@@ -123,16 +152,18 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
   LEVEL_5_UNDENIABLE,
 ];
 
-export const DEFAULT_INTENSITY = 3;
+/** Mid-range on purpose: the tone reads as a starting point you can push either way. */
+export const DEFAULT_INTENSITY = 2;
 export const INTENSITY_MIN = 0;
 export const INTENSITY_MAX = INTENSITY_LEVELS.length - 1;
 
 export const NAV = [
   {
     id: "projects" as const,
-    file: "projects.config",
+    file: "projects.py",
     title: "Projects",
     hint: "things that shipped",
+    cta: "View projects",
     href: LINKS.projects,
   },
   {
@@ -140,6 +171,7 @@ export const NAV = [
     file: "research.md",
     title: "Research",
     hint: "papers & explorations",
+    cta: "View research",
     href: LINKS.research,
   },
   {
@@ -147,6 +179,7 @@ export const NAV = [
     file: "readme.txt",
     title: "Read Me",
     hint: "the longer note",
+    cta: "Read the note",
     href: LINKS.readme,
   },
 ] as const;

@@ -1,58 +1,42 @@
-import {
-  PROJECT_SECTION_ORDER,
-  projectsForSection,
-  type ProjectSection,
-} from "../projects";
+import { projectsForSection } from "../projects";
 import { tierFromIntensity } from "../lib/projectTier";
 import { useIntensity } from "./IntensityContext";
-import { ProjectRow } from "./ProjectRow";
-import { BasesBlock } from "./BasesBlock";
-import { BeforeStanfordGroup } from "./BeforeStanfordGroup";
-
-function SectionHeading({ label }: { label: ProjectSection }) {
-  if (label === "before stanford") return null;
-  return <h2 className="project-section__heading">{label}</h2>;
-}
+import { ProjectBand } from "./ProjectBand";
+import { BasesNote, ProjectTail } from "./ProjectTail";
 
 export function ProjectsIndex() {
   const { intensity } = useIntensity();
   const axisTier = tierFromIntensity(intensity);
 
+  const selected = projectsForSection("selected");
+  const alsoBuilt = projectsForSection("also built");
+  const before = projectsForSection("before stanford");
+
   return (
-    <div className="projects-index__sections">
-      {PROJECT_SECTION_ORDER.map((section) => {
-        if (section === "bases") {
-          return (
-            <section key={section} className="project-section project-section--bases">
-              <SectionHeading label={section} />
-              <BasesBlock />
-            </section>
-          );
-        }
+    <>
+      <div className="pj-bands">
+        {selected.map((entry, i) => (
+          <ProjectBand key={entry.id} entry={entry} axisTier={axisTier} index={i} />
+        ))}
+      </div>
 
-        if (section === "before stanford") {
-          return (
-            <section key={section} className="project-section project-section--before">
-              <BeforeStanfordGroup
-                entries={projectsForSection(section)}
-                axisTier={axisTier}
-              />
-            </section>
-          );
-        }
+      <div className="pj-tails">
+        <ProjectTail
+          heading="also built"
+          blurb="Shorter runs — hackathons, internships, and coursework that turned into something."
+          entries={alsoBuilt}
+          axisTier={axisTier}
+        />
 
-        const entries = projectsForSection(section);
-        return (
-          <section key={section} className="project-section">
-            <SectionHeading label={section} />
-            <div className="project-section__rows">
-              {entries.map((entry) => (
-                <ProjectRow key={entry.id} entry={entry} axisTier={axisTier} />
-              ))}
-            </div>
-          </section>
-        );
-      })}
-    </div>
+        <BasesNote />
+
+        <ProjectTail
+          heading="before stanford"
+          blurb="High school work, mostly diagnostics and assistive hardware."
+          entries={before}
+          axisTier={axisTier}
+        />
+      </div>
+    </>
   );
 }

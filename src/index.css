@@ -3,6 +3,13 @@
   --ink: oklch(0.19 0.012 60);
   --flame: oklch(0.63 0.208 30);
   --cobalt: oklch(0.55 0.19 264);
+  --jade: oklch(0.53 0.115 158);
+  --pw-spring: linear(
+    0, 0.006, 0.0245, 0.0542, 0.0937 9.1%, 0.1944, 0.3151, 0.4458, 0.5765 26.9%,
+    0.6989, 0.8078 34.9%, 0.8574, 0.9016, 0.9399 43%, 0.9781, 1.0053, 1.0231 51.4%,
+    1.0311, 1.0339 57.5%, 1.0296, 1.0208 65.1%, 1.0028 77.4%, 0.9963 86.6%, 1
+  );
+  --butter: oklch(0.9 0.13 92);
   --mute: oklch(0.48 0.02 70);
   --hair: color-mix(in oklch, var(--ink) 14%, transparent);
   --font-hand: "Caveat", "Segoe Script", cursive;
@@ -12,6 +19,16 @@
   --stanford-tint: 0;
   --stanford-shift: calc(var(--stanford-tint) * (0.05 + var(--warmth) * 0.18));
   --cardinal: oklch(0.58 0.08 25);
+  /* Deep enough to sit on warm paper without reading as a default link blue. */
+  --git-ink: oklch(0.36 0.093 264);
+  /*
+   * One duration and one curve for everything the sentence does, so a tone
+   * change and a name swap read as the same gesture rather than as several
+   * effects firing at once. Probes override --hero-shift to inspect the middle.
+   */
+  --hero-shift: 300ms;
+  --hero-ease: cubic-bezier(0.22, 0.68, 0.24, 1);
+  --hero-stagger: 26ms;
   color: var(--ink);
   font-family: var(--font-body);
   background: var(--paper);
@@ -516,12 +533,24 @@ a {
 }
 
 .paper-wash,
+.liquid-canvas,
 .grain-overlay {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+/* Sits over the wash fallback, under the grain. */
+.liquid-canvas {
+  z-index: 0;
+}
+
+.liquid-canvas canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .paper-wash {
@@ -571,8 +600,10 @@ a {
   display: flex;
   flex-direction: column;
   padding-block: 4vh 6vh;
-  padding-inline: 2.4vw calc(48px + 168px);
+  /* Mirrored so content centres on the viewport; the intensity axis is fixed. */
+  padding-inline: calc(48px + 168px);
 }
+
 
 .hero-header {
   display: flex;
@@ -601,6 +632,9 @@ a {
   margin-top: 10vh;
   flex-grow: 0;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hero-objects {
@@ -615,22 +649,132 @@ a {
 .hero-wrap {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+}
+
+/*
+ * Fixed box, three lines tall at the cap size. The font scales to fit so the copy
+ * can change length without the page moving.
+ */
+/*
+ * Registered so the refit can interpolate: a plain custom property snaps, and a
+ * snapping size is what made a tone change feel choppy.
+ */
+@property --hero-fs {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 32px;
 }
 
 .hero-line {
+  --hero-fs-cap: clamp(32px, 4.6vw, 56px);
+  --hero-fs: var(--hero-fs-cap);
   position: relative;
   margin: 0;
-  font-size: clamp(32px, 4.6vw, 56px);
+  width: min(760px, 100%);
+  height: calc(var(--hero-fs-cap) * 1.28 * 3);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-size: var(--hero-fs);
+  transition: --hero-fs var(--hero-shift) var(--hero-ease);
   font-weight: 500;
   letter-spacing: -0.038em;
   line-height: 1.28;
   color: var(--ink);
-  max-width: 18ch;
+  text-align: center;
 }
 
+/* While the fit searches for a size it must measure real layout, not a size
+   halfway through easing to somewhere else. */
+.hero-line[data-fitting] {
+  transition: none;
+}
+
+.hero-line__fit {
+  display: block;
+  width: 100%;
+}
+
+/*
+ * A tone change rewrites the copy, which re-wraps the lines — a discrete jump no
+ * easing can smooth. Softening the whole sentence across the same beat as the
+ * size and the word crossfades hides the re-wrap inside one gesture.
+ */
+.hero-line[data-rewriting] .hero-line__fit {
+  animation: heroRewrite var(--hero-shift) var(--hero-ease) both;
+}
+
+@keyframes heroRewrite {
+  from {
+    opacity: 0.45;
+    filter: blur(1.6px);
+    transform: translateY(-3px);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.hero-nowrap {
+  white-space: nowrap;
+}
+
+/*
+ * "Spurti" stays in flow so the sentence never refits on hover. The handle is
+ * an overlay: it may briefly overlap the next words, and those words stay
+ * sharp — no blur, no dim, no recede.
+ */
 .hero-name {
+  position: relative;
   font-weight: 800;
+  white-space: nowrap;
+  color: inherit;
+  text-decoration: none;
+}
+
+.hero-name__word,
+.hero-name__handle {
+  transition: opacity var(--hero-shift) var(--hero-ease);
+}
+
+.hero-name__word {
+  display: inline-block;
+}
+
+.hero-name__handle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  color: var(--git-ink);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero-name[data-swapped="true"] .hero-name__word {
+  opacity: 0;
+}
+
+.hero-name[data-swapped="true"] .hero-name__handle {
+  opacity: 1;
+}
+
+.hero-name:focus-visible {
+  outline: none;
+}
+
+.hero-name__wink {
+  color: color-mix(in oklch, var(--git-ink) 45%, transparent);
 }
 
 .hero-predicate {
@@ -641,8 +785,10 @@ a {
   display: inline;
 }
 
+/* Staggered along the reading direction so the eye follows the rewrite. */
 .hero-token--swap {
-  animation: tokenSwap 180ms ease both;
+  animation: tokenSwap var(--hero-shift) var(--hero-ease) both;
+  animation-delay: calc(var(--i, 0) * var(--hero-stagger));
 }
 
 @keyframes tokenSwap {
@@ -687,37 +833,330 @@ span.mark.squiggle:focus-visible {
   border-radius: 2px;
 }
 
-.def-reveal {
-  width: 100%;
-  min-height: 64px;
-  margin: 0;
-  padding-top: 0.35rem;
+/* —— Die-cut stickers, after the Samwise reveal on ky.fyi —— */
+.sticker-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.def-reveal__line {
-  margin: 0;
-  min-height: 64px;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.35em;
-  opacity: 0;
-  transition: opacity 120ms ease;
+.sticker {
+  position: absolute;
+  transform: translate(-50%, -50%) rotate(var(--tilt));
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  animation: stickerIn 620ms var(--pw-spring) both;
+  will-change: transform;
 }
 
-.def-reveal__line.is-visible {
-  opacity: 1;
+.sticker[data-wiggle] {
+  animation: stickerWiggle 520ms ease both;
 }
 
-.def-reveal__line strong {
+.sticker[data-dragging] {
+  cursor: grabbing;
+  z-index: 2;
+  animation: none;
+  transform: translate(-50%, -50%) rotate(var(--tilt)) scale(1.04);
+}
+
+.sticker[data-leaving] {
+  animation: stickerOut 420ms cubic-bezier(0.4, 0, 0.85, 0.4) var(--stagger) both;
+}
+
+@keyframes stickerIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(0deg) scale(0.6);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--tilt)) scale(1);
+  }
+}
+
+@keyframes stickerWiggle {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--tilt));
+  }
+  28% {
+    transform: translate(-50%, -50%) rotate(calc(var(--tilt) - 6deg)) scale(1.05);
+  }
+  62% {
+    transform: translate(-50%, -50%) rotate(calc(var(--tilt) + 5deg)) scale(1.03);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--tilt));
+  }
+}
+
+@keyframes stickerOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--tilt)) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 48px)) rotate(calc(var(--tilt) + 14deg)) scale(0.7);
+  }
+}
+
+/* Only there once something is out, so it never names a dog nobody has met. */
+.sticker-shoo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 3px 5px;
   font-family: var(--font-hand);
-  font-weight: 700;
-  font-size: 18px;
+  font-size: 17px;
+  line-height: 1;
+  color: var(--mute);
+  white-space: nowrap;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 160ms ease;
+  animation: shooIn 320ms ease both;
 }
 
-.def-reveal__line span {
-  font-size: 11px;
-  color: var(--mute);
-  padding-top: 0.35em;
+.sticker-shoo::after {
+  content: "";
+  display: block;
+  height: 1px;
+  margin-top: 3px;
+  background: currentColor;
+  opacity: 0.3;
+  transform: scaleX(0.82);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.sticker-shoo:hover,
+.sticker-shoo:focus-visible {
+  color: var(--ink);
+}
+
+.sticker-shoo:hover::after,
+.sticker-shoo:focus-visible::after {
+  opacity: 0.65;
+  transform: scaleX(1);
+}
+
+.sticker-shoo:focus-visible {
+  outline: 1px solid color-mix(in oklch, var(--ink) 32%, transparent);
+  outline-offset: 5px;
+}
+
+.sticker-shoo[data-leaving] {
+  pointer-events: none;
+  animation: shooOut 200ms ease both;
+}
+
+@keyframes shooIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes shooOut {
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticker,
+  .sticker[data-wiggle],
+  .sticker[data-leaving],
+  .sticker-shoo,
+  .sticker-shoo[data-leaving] {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/*
+ * The paper edge and the coloured rim are dilations of the cutout's alpha:
+ * each drop-shadow repaints the previous result a few pixels over, so four
+ * cardinal passes grow a solid contour that hugs the subject at any size.
+ */
+.sticker__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter:
+    drop-shadow(4.5px 0 0 #fff) drop-shadow(-4.5px 0 0 #fff) drop-shadow(0 4.5px 0 #fff)
+    drop-shadow(0 -4.5px 0 #fff) drop-shadow(1.1px 0 0 var(--tint)) drop-shadow(-1.1px 0 0 var(--tint))
+    drop-shadow(0 1.1px 0 var(--tint)) drop-shadow(0 -1.1px 0 var(--tint))
+    drop-shadow(0 12px 18px rgba(46, 38, 28, 0.24));
+}
+
+/*
+ * Stanford campus shots sit on the desk as prints, not die-cuts. Padding here
+ * must stay in lockstep with PRINT_CHROME in src/lib/stickers.ts.
+ */
+.sticker--print {
+  overflow: visible;
+}
+
+.print__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.print--polaroid {
+  padding: 12px 12px 38px;
+  background: linear-gradient(180deg, #fbf8f1 0%, #f2ece2 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.72) inset,
+    0 1px 2px rgba(46, 38, 28, 0.1),
+    0 16px 32px rgba(46, 38, 28, 0.22);
+}
+
+.print--polaroid .print__photo {
+  box-shadow: inset 0 0 0 1px rgba(40, 32, 24, 0.08);
+}
+
+.print--tape {
+  padding: 7px;
+  background: #fffaf3;
+  box-shadow: 0 12px 26px rgba(46, 38, 28, 0.2);
+}
+
+.print--tape::before,
+.print--tape::after {
+  content: "";
+  position: absolute;
+  width: 46px;
+  height: 18px;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+.print--tape::before {
+  top: -7px;
+  left: 14px;
+  transform: rotate(-18deg);
+  background: color-mix(in oklch, var(--butter) 58%, transparent);
+}
+
+.print--tape::after {
+  top: -5px;
+  right: 16px;
+  transform: rotate(12deg);
+  background: color-mix(in oklch, var(--cardinal) 32%, transparent);
+}
+
+.print--torn {
+  padding: 9px;
+  background: #f7f1e6;
+  clip-path: polygon(
+    1.5% 2.8%,
+    8% 0.4%,
+    19% 2.2%,
+    31% 0.6%,
+    44% 2.4%,
+    58% 0.3%,
+    71% 2.1%,
+    84% 0.5%,
+    94% 2.6%,
+    99% 1.2%,
+    98.4% 14%,
+    100% 28%,
+    98.2% 42%,
+    100% 57%,
+    98.6% 71%,
+    99.4% 86%,
+    97.8% 99%,
+    86% 97.6%,
+    72% 99.4%,
+    58% 97.2%,
+    44% 99.5%,
+    31% 97.4%,
+    18% 99.2%,
+    6% 97.8%,
+    0.6% 99%,
+    0% 84%,
+    1.8% 68%,
+    0% 52%,
+    1.6% 36%,
+    0.2% 21%,
+    1.2% 8%
+  );
+  filter: drop-shadow(0 14px 18px rgba(46, 38, 28, 0.22));
+}
+
+.print--ink {
+  padding: 9px;
+  background: #f4efe4;
+  border: 2px solid #1c1710;
+  border-radius: 3px 9px 4px 8px / 7px 3px 9px 4px;
+  box-shadow:
+    3px 4px 0 #1c1710,
+    0 14px 24px rgba(28, 22, 16, 0.16);
+}
+
+/* Handwritten tag trailing off the end of the swapped handle. */
+.git-tag {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-hand);
+  font-size: 25px;
+  line-height: 1;
+  color: var(--git-ink);
+  white-space: nowrap;
+  /* Trails the handle it belongs to instead of running on its own clock. */
+  animation: gitTagIn var(--hero-shift) var(--hero-ease) calc(var(--hero-shift) * 0.35) both;
+}
+
+.git-tag__arrow {
+  width: 12px;
+  height: 12px;
+  margin-bottom: 3px;
+}
+
+@keyframes gitTagIn {
+  from {
+    opacity: 0;
+    transform: translate(-7px, -70%) rotate(-1deg) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(1px, -92%) rotate(-8deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticker {
+    transition: opacity 160ms ease;
+    transform: translate(-50%, var(--pull)) rotate(var(--tilt)) scale(1);
+  }
+
+  .git-tag {
+    animation: none;
+    opacity: 1;
+    transform: translate(1px, -92%) rotate(-8deg);
+  }
 }
 
 /* —— Slack hover mark —— */
@@ -807,156 +1246,161 @@ span.mark.squiggle:focus-visible {
   }
 }
 
-/* —— Intensity axis —— */
-.intensity-axis {
+/* —— Tone axis —— */
+/*
+ * Published for pages that float this control over their content and have to keep
+ * the space beneath clear: the control's own height plus its offset and slack.
+ */
+:root {
+  --tone-stack-h: 26px;
+  --tone-axis-space: calc(var(--tone-stack-h) + 26px + 2.25rem);
+}
+
+.tone-axis {
   position: fixed;
-  z-index: 20;
-  right: 48px;
-  top: 50%;
-  transform: translateY(-50%);
-  flex-shrink: 0;
-  overflow: visible;
-}
-
-.intensity-track {
-  position: relative;
-  width: 120px;
-  touch-action: none;
-  cursor: ns-resize;
-  outline: none;
-  overflow: visible;
-}
-
-.intensity-pole {
-  position: absolute;
-  right: 0;
-  font-size: 0.7rem;
-  font-weight: 500;
-  font-variant: all-small-caps;
-  letter-spacing: 0.14em;
-  text-transform: lowercase;
-  color: var(--mute);
-  opacity: 0.45;
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.intensity-pole--top {
-  top: -1.55rem;
-}
-
-.intensity-pole--bottom {
-  bottom: -1.55rem;
-}
-
-.intensity-track:focus-visible {
-  outline: 2px solid color-mix(in oklch, var(--ink) 40%, transparent);
-  outline-offset: 6px;
-  border-radius: 8px;
-}
-
-.intensity-rail {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  border-radius: 999px;
-  background: color-mix(in oklch, var(--ink) 7%, transparent);
-  overflow: hidden;
-}
-
-.intensity-rail__fill {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: color-mix(in oklch, var(--ink) 16%, transparent);
-  border-radius: 999px;
-  transition: height 120ms ease;
-}
-
-.intensity-notches {
-  position: absolute;
-  inset: 0;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  pointer-events: none;
-}
-
-.intensity-notch-row {
-  position: absolute;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  pointer-events: auto;
-}
-
-.intensity-notch {
-  display: flex;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  width: 100%;
+}
+
+/* Reads as a caption of the sentence it rewrites, so it sits tight beneath it. */
+.tone-axis--inline {
+  position: static;
+  transform: none;
+  z-index: auto;
+  margin-top: 1.15rem;
+}
+
+/*
+ * Equal side columns put the gap between the two steppers dead centre, whatever the
+ * labels weigh — and they do change width, since tracking is part of the readout.
+ * Fixed height so none of that can move the page.
+ */
+.tone-axis__stack {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: var(--tone-stack-h);
+}
+
+.tone-axis__spacer {
+  width: clamp(26px, 4vw, 58px);
+}
+
+.tone-axis__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   margin: 0;
-  padding: 0;
+  padding: 3px 2px;
   border: 0;
   background: transparent;
+  font-size: 0.78rem;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
   cursor: pointer;
+  /* Weight can't tween across static instances, so it snaps while the rest eases. */
+  transition:
+    color 300ms ease,
+    letter-spacing 300ms ease,
+    transform 320ms var(--pw-spring);
 }
 
-.intensity-tick {
+.tone-axis__step--down {
+  justify-self: end;
+}
+
+.tone-axis__step--up {
+  justify-self: start;
+}
+
+.tone-axis__step[aria-disabled="true"] {
+  cursor: default;
+}
+
+/* Only the end you can still travel to reacts. */
+.tone-axis__step:not([aria-disabled="true"]):hover {
+  color: var(--ink);
+}
+
+.tone-axis__step--down:not([aria-disabled="true"]):hover {
+  transform: translateX(-3px);
+}
+
+.tone-axis__step--up:not([aria-disabled="true"]):hover {
+  transform: translateX(3px);
+}
+
+.tone-axis__step:focus-visible {
+  outline: 1px solid color-mix(in oklch, var(--ink) 26%, transparent);
+  outline-offset: 4px;
+  border-radius: 3px;
+}
+
+/* Hairline arrow against heavy type, the way the reference sets it. */
+.tone-axis__arrow {
   display: block;
-  width: 6px;
-  height: 1px;
-  background: var(--ink);
-  opacity: 0.2;
-  flex-shrink: 0;
+  width: 25px;
+  height: 10px;
+  flex: none;
 }
 
-.intensity-notch__dot {
+.tone-axis__step[aria-disabled="true"] .tone-axis__arrow {
+  opacity: 0.45;
+}
+
+/* One quiet outward nudge after load, retired for good on first interaction. */
+.tone-axis__step--down[data-idle="true"] .tone-axis__arrow {
+  animation: tone-nudge-left 2.6s var(--pw-spring) 1.5s 2;
+}
+
+.tone-axis__step--up[data-idle="true"] .tone-axis__arrow {
+  animation: tone-nudge-right 2.6s var(--pw-spring) 1.5s 2;
+}
+
+@keyframes tone-nudge-left {
+  0%,
+  62%,
+  100% {
+    transform: translateX(0);
+  }
+  22% {
+    transform: translateX(-5px);
+  }
+}
+
+@keyframes tone-nudge-right {
+  0%,
+  62%,
+  100% {
+    transform: translateX(0);
+  }
+  22% {
+    transform: translateX(5px);
+  }
+}
+
+.tone-axis__status {
+  position: absolute;
   width: 1px;
   height: 1px;
-  opacity: 0;
-  flex-shrink: 0;
-}
-
-.intensity-thumb-group {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 3;
-  transition: top 120ms ease, left 120ms ease;
-}
-
-.intensity-travel-label {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--ink);
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
-  text-align: right;
-}
-
-.intensity-thumb {
-  position: relative;
-  flex-shrink: 0;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--ink);
-  box-shadow: 0 0 0 2px color-mix(in oklch, white 88%, var(--paper));
+  border: 0;
 }
 
 /* —— Nav objects —— */
 .nav-row {
-  width: 70%;
-  max-width: 720px;
+  width: 86%;
+  max-width: 860px;
 }
 
 .nav-dock {
@@ -968,28 +1412,47 @@ span.mark.squiggle:focus-visible {
   padding: 0;
   --px: 0;
   --py: 0;
+  /* Resting icon size, matching the reference's 110px marks. */
+  --pw-icon: 110px;
+  --pw-scale: 1;
+}
+
+@media (max-width: 1100px) {
+  .nav-dock {
+    --pw-scale: 0.92;
+  }
+}
+
+@media (max-width: 900px) {
+  .nav-dock {
+    --pw-scale: 0.8;
+  }
 }
 
 .nav-item-shell {
   flex: 1 1 0;
   min-width: 0;
   opacity: 0;
-  transform: translateY(var(--enter-y, 16px));
+  transform: translateY(var(--enter-y, 24px)) scale(0.96);
   transition:
-    opacity 420ms ease,
-    transform 420ms ease;
+    opacity 720ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .nav-item-shell.is-entered {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .nav-item {
   display: grid;
+  /* The resting pill never wraps, so an auto track would widen to the pill's
+     min-content and spill to the right, dragging the mark and the hover block
+     off their column. Pin the track to the column and let the pill overhang. */
+  grid-template-columns: minmax(0, 1fr);
   justify-items: center;
   align-content: end;
-  gap: 0.65rem;
+  gap: 0.7rem;
   text-decoration: none;
   width: 100%;
   cursor: pointer;
@@ -997,7 +1460,6 @@ span.mark.squiggle:focus-visible {
     calc(var(--px, 0) * var(--parallax, 10px) * -1),
     calc(var(--py, 0) * var(--parallax, 10px) * -1)
   );
-  transition: transform 0.15s ease;
 }
 
 .nav-item:focus-visible {
@@ -1006,52 +1468,605 @@ span.mark.squiggle:focus-visible {
   border-radius: 12px;
 }
 
+/* At rest a mark is just the icon; the mockups hide behind it until hover. */
 .orb {
   position: relative;
-  width: 140px;
-  height: 140px;
+  width: calc(var(--pw-icon) * var(--pw-scale));
+  height: calc(var(--pw-icon) * var(--pw-scale));
   overflow: visible;
-  transition:
-    transform 0.2s ease,
-    filter 0.2s ease;
 }
 
-.nav-item:hover .orb,
-.nav-item:focus-visible .orb,
-.nav-item.is-focus .orb {
-  transform: translateY(-6px);
-  filter: drop-shadow(14px 22px 18px rgba(28, 40, 36, 0.18));
+.pw-stage {
+  position: absolute;
+  inset: 0;
+  transform: scale(var(--pw-scale));
+  transform-origin: center;
+  pointer-events: none;
 }
 
-.icon3d {
+.pw-bloom {
+  position: absolute;
+  inset: 0;
+  /*
+   * The bloom reaches far wider than the mark it grows from, so on narrow
+   * viewports it would push the document past the fold. Scaling the whole bloom
+   * keeps the composition — offsets and object sizes shrink together — where
+   * pulling individual offsets in would flatten the overlaps.
+   */
+  transform: scale(var(--pw-bloom, 1));
+  transform-origin: center;
+}
+
+@media (max-width: 900px) {
+  .pw-bloom {
+    --pw-bloom: 0.8;
+  }
+}
+
+@media (max-width: 767px) {
+  .pw-bloom {
+    --pw-bloom: 0.56;
+  }
+}
+
+.pw-bloom > * {
   position: absolute;
   left: 50%;
-  bottom: 0;
-  width: 300px;
-  height: 300px;
-  transform: translate(-50%, 8%);
-  display: block;
-  pointer-events: none;
-  filter: drop-shadow(10px 14px 10px rgba(28, 40, 36, 0.14));
-}
-
-.nav-item__label {
-  font-size: 16px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  opacity: 0.7;
-  text-align: center;
+  top: 50%;
+  will-change: transform, opacity;
+  transform: translate(-50%, -50%) scale(0.28);
+  opacity: 0;
   transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+    transform 900ms var(--pw-spring),
+    opacity 320ms ease;
+  transition-delay: calc(var(--d, 0) * 55ms);
 }
 
-.nav-item:hover .nav-item__label,
-.nav-item:focus-visible .nav-item__label,
-.nav-item.is-focus .nav-item__label {
+.nav-item:hover .pw-bloom > *,
+.nav-item:focus-visible .pw-bloom > *,
+.nav-item.is-focus .pw-bloom > * {
+  transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) rotate(var(--rot)) scale(1);
   opacity: 1;
+}
+
+.pw-icon-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  transition: transform 760ms var(--pw-spring);
+}
+
+.pw-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 10px 12px rgba(20, 24, 40, 0.16));
+}
+
+/* The reference shrinks the icon to 70% and drops it below the fanned cards. */
+.nav-item.is-focus .pw-icon-wrap,
+.nav-item:hover .pw-icon-wrap,
+.nav-item:focus-visible .pw-icon-wrap {
+  transform: translateY(30px) scale(0.7);
+}
+
+/* A screenshot fills its card, so the frame is only the coloured border. */
+.pw-ui.is-shot,
+.pw-win.is-shot {
+  padding: 0;
+  background: none;
+}
+
+.pw-shot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pw-ui,
+.pw-win {
+  overflow: hidden;
+  background: #fffdfa;
+  box-shadow:
+    0 2px 4px rgba(28, 24, 18, 0.06),
+    0 18px 34px rgba(28, 24, 18, 0.14);
+}
+
+.pw-ui {
+  width: 176px;
+  height: 216px;
+  border-radius: 26px;
+  padding: 16px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.pw-ui--peach {
+  z-index: 1;
+  border: 3.5px solid #ef8f5f;
+}
+
+.pw-ui--blue {
+  z-index: 2;
+  width: 158px;
+  height: 271px;
+  border: 3.5px solid #2f6bf6;
+}
+
+.pw-ui__pill {
+  align-self: flex-start;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  background: #fff;
+  border-radius: 999px;
+  padding: 4px 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pw-ui strong {
+  font-family: Palatino, "Iowan Old Style", serif;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.pw-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px;
+  border-radius: 12px;
+  border: 1px solid #efe9e0;
+}
+
+.pw-row__dot {
+  flex: 0 0 auto;
+  width: 21px;
+  height: 21px;
+  border-radius: 7px;
+}
+
+.pw-row__dot--coin {
+  background: linear-gradient(150deg, #ffd66b, #e0a11d);
+}
+
+.pw-row__dot--clock {
+  background: linear-gradient(150deg, #ffa87a, #ef6b32);
+}
+
+.pw-row__dot--cal {
+  background: linear-gradient(150deg, #7fb2ff, #2f6bf6);
+}
+
+.pw-row i {
+  display: block;
+  height: 5px;
+  width: 100%;
+  border-radius: 999px;
+  background: #ece5da;
+}
+
+.pw-ui__hero {
+  height: 72px;
+  border-radius: 18px;
+  background:
+    radial-gradient(120% 80% at 30% 90%, rgba(255, 214, 130, 0.9), transparent 60%),
+    linear-gradient(180deg, #16294a 0%, #3f6f9c 58%, #d8a05e 100%);
+}
+
+.pw-ui__meta {
+  display: flex;
+  gap: 5px;
+}
+
+.pw-ui__meta i {
+  display: block;
+  height: 24px;
+  flex: 1;
+  border-radius: 9px;
+  background: #f2ece3;
+}
+
+.pw-ui__pay {
+  margin-top: auto;
+  display: grid;
+  place-items: center;
+  height: 30px;
+  border-radius: 13px;
+  background: linear-gradient(180deg, #3f83ff, #1f5ce0);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pw-key {
+  z-index: 4;
+  width: 78px;
+  height: 54px;
+  border-radius: 13px 13px 16px 16px;
+  background: linear-gradient(180deg, #6fb3ff 0%, #3f8bff 52%, #2a72f0 100%);
+  color: #fff;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0;
+  display: grid;
+  place-items: center;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.5),
+    0 11px 0 #0f4bbd,
+    0 22px 24px rgba(13, 40, 120, 0.3);
+}
+
+.pw-win {
+  width: 244px;
+  height: 163px;
+  border-radius: 18px;
+  border: 1px solid rgba(20, 24, 40, 0.08);
+}
+
+/* Borders picked from each poster so the frame reads as part of the artwork. */
+.pw-win--back {
+  z-index: 1;
+  width: 256px;
+  height: 143px;
+  border: 3.5px solid #7c5cd3;
+}
+
+.pw-win--front {
+  z-index: 2;
+  width: 244px;
+  height: 163px;
+  border: 3.5px solid #8c1515;
+}
+
+.pw-win__bar {
+  display: flex;
+  gap: 7px;
+  padding: 13px 14px 10px;
+}
+
+.pw-win__bar b {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e5e2dc;
+}
+
+.pw-win__bar b:nth-child(1) {
+  background: #ff6b6b;
+}
+
+.pw-win__bar b:nth-child(2) {
+  background: #ffd166;
+}
+
+.pw-win__bar b:nth-child(3) {
+  background: #63d47a;
+}
+
+.pw-win__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+
+.pw-win__grid span {
+  height: 44px;
+  border-radius: 13px;
+  background: linear-gradient(160deg, #f6f1e9, #eae3d8);
+}
+
+.pw-win__body {
+  padding: 0 14px 14px;
+}
+
+.pw-win--front p {
+  margin: 0 0 11px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+.pw-win__tags {
+  display: flex;
+  gap: 5px;
+}
+
+.pw-win__tags em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #1e3a8a;
+}
+
+/*
+ * A die-cut cutout of her rather than a photo in a frame, so no radius, fill or
+ * shadow of its own — the silhouette is the shape. The box stays square and
+ * clips to a head-and-shoulders crop, which keeps this mark's footprint level
+ * with its siblings instead of being a tall portrait.
+ */
+.pw-portrait {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* softly trimmed corners so the straight bottom cut reads as hand-cut */
+  border-radius: 0 0 14px 14px;
+  /*
+   * The contour lives on the crop, not the image: dilating the clipped alpha
+   * means the white edge follows her hair and shoulders where the background was
+   * knocked out, and follows the trim where the crop cuts across her, which is
+   * how a die-cut bust sticker actually looks. On the image it stopped at the cut
+   * and left a raw photo edge.
+   */
+  filter:
+    drop-shadow(3.2px 0 0 #fff) drop-shadow(-3.2px 0 0 #fff) drop-shadow(0 3.2px 0 #fff)
+    drop-shadow(0 -3.2px 0 #fff) drop-shadow(0.9px 0 0 #cbbfa8) drop-shadow(-0.9px 0 0 #cbbfa8)
+    drop-shadow(0 0.9px 0 #cbbfa8) drop-shadow(0 -0.9px 0 #cbbfa8)
+    drop-shadow(0 11px 17px rgba(46, 38, 28, 0.26));
+}
+
+/*
+ * Scaled past the box so the subject carries the same optical mass as the solid
+ * app icon and cube stack beside it; a cutout sized only to the box reads
+ * noticeably smaller. Percentages keep the framing when the mark scales.
+ */
+.pw-portrait img {
+  position: absolute;
+  display: block;
+  width: 122%;
+  left: -11%;
+  top: -4%;
+  height: auto;
+}
+
+/*
+ * The portrait sits at the same size as the other marks at rest, then grows on
+ * hover instead of shrinking, lifting clear of the caption as it does.
+ */
+.nav-item:hover .pw-stage--me .pw-icon-wrap,
+.nav-item:focus-visible .pw-stage--me .pw-icon-wrap,
+.nav-item.is-focus .pw-stage--me .pw-icon-wrap {
+  transform: translateY(-18px) scale(1.32);
+}
+
+.pw-art {
+  z-index: 4;
+  box-shadow:
+    0 2px 3px rgba(28, 24, 18, 0.09),
+    0 14px 22px rgba(28, 24, 18, 0.17);
+}
+
+/*
+ * The dominant object of this mark, at the mass of a Projects card: an actual
+ * window with a title bar and output rather than a one-line pill.
+ */
+.pw-art--term {
+  width: 310px;
+  border-radius: 11px;
+  border: 1.5px solid #08060a;
+  background: #201c17;
+  color: #efe8da;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  overflow: hidden;
+}
+
+.pw-term__bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 11px;
+  background: #2c2721;
+  border-bottom: 1px solid #0d0b09;
+}
+
+.pw-term__bar b {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #4a423a;
+}
+
+.pw-term__bar b:nth-child(1) {
+  background: #ff6b5e;
+}
+
+.pw-term__bar b:nth-child(2) {
+  background: #ffc13d;
+}
+
+.pw-term__bar b:nth-child(3) {
+  background: #4fce6a;
+}
+
+.pw-term__bar span {
+  margin-left: 4px;
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  color: #9b9086;
+}
+
+.pw-term__body {
+  padding: 12px 15px 16px;
+  font-size: 13.5px;
+  line-height: 1.7;
+  white-space: nowrap;
+}
+
+.pw-term__body p {
+  margin: 0;
+}
+
+.pw-art--term b.pw-term__prompt {
+  color: #7ce38b;
+}
+
+.pw-term__out {
+  color: #b6ab9c;
+}
+
+/* Block cursor on the last line. */
+.pw-term__caret {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  margin-left: 3px;
+  vertical-align: -1px;
+  background: #7ce38b;
+}
+
+/* Vector chips, same construction as the marks so they read as one family. */
+.pw-chip {
+  width: 50px;
+  height: 50px;
+  z-index: 4;
+  filter: drop-shadow(0 9px 11px rgba(28, 24, 18, 0.19));
+}
+
+/* Read Me objects: each one is its own silhouette, so they only share the cast shadow. */
+.pw-obj {
+  z-index: 4;
+  filter: drop-shadow(0 10px 13px rgba(28, 24, 18, 0.22));
+}
+
+/* The strong second piece, balancing the terminal on the other side of her. */
+.pw-obj--india {
+  width: 190px;
+  height: 217px;
+}
+
+/* The one accent, so it can be bigger than a chip without crowding anything. */
+.pw-obj--boba {
+  width: 62px;
+  height: 93px;
+}
+
+/* Caption swaps a resting pill for the title/description/CTA block on hover. */
+.nav-item__caption {
+  position: relative;
+  margin-top: 13px;
+  width: 100%;
+  min-height: 39px;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-item__pill {
+  padding: 10px 16px;
+  border-radius: 30px;
+  background: rgba(226, 226, 226, 0.8);
+  color: rgba(0, 0, 0, 0.82);
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition:
+    opacity 260ms ease,
+    transform 400ms var(--pw-spring);
+}
+
+.nav-item__detail {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  /* Centred on its column but deliberately wider than one, so half of it
+     hangs into the page gutter. On phones the columns and gutter shrink
+     until 210px reaches past the viewport edge; ~47vw is where the outermost
+     block touches it, so cap below that. No-op above a 478px viewport. */
+  width: min(210px, 44vw);
+  transform: translateX(-50%) translateY(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  /* Long unbroken words (a file name, a URL) must wrap, not widen the box. */
+  overflow-wrap: anywhere;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 300ms ease,
+    transform 620ms var(--pw-spring);
+}
+
+.nav-item__detail strong {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.nav-item__detail p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.68);
+}
+
+.nav-item__cta {
+  margin-top: 4px;
+  padding: 9px 15px;
+  border-radius: 30px;
+  background: rgba(226, 226, 226, 0.9);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.nav-item:hover .nav-item__pill,
+.nav-item:focus-visible .nav-item__pill,
+.nav-item.is-focus .nav-item__pill {
+  opacity: 0;
   transform: translateY(-6px);
+}
+
+.nav-item:hover .nav-item__detail,
+.nav-item:focus-visible .nav-item__detail,
+.nav-item.is-focus .nav-item__detail {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Hovering one mark pushes everything else out of focus. */
+.nav-dock:has(.nav-item:hover) .nav-item-shell:not(:has(.nav-item:hover)),
+.nav-dock:has(.nav-item:focus-visible) .nav-item-shell:not(:has(.nav-item:focus-visible)) {
+  filter: blur(4px);
+  opacity: 0.45;
+}
+
+.hero:has(.nav-item:hover) .hero-sentence,
+.hero:has(.nav-item:focus-visible) .hero-sentence {
+  filter: blur(5px);
+  opacity: 0.5;
+}
+
+.nav-item-shell,
+.hero-sentence {
+  transition:
+    filter 420ms ease,
+    opacity 420ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pw-bloom > *,
+  .nav-item__detail,
+  .nav-item__pill {
+    transition-duration: 1ms;
+  }
+
+  .nav-dock:has(.nav-item:hover) .nav-item-shell:not(:has(.nav-item:hover)),
+  .hero:has(.nav-item:hover) .hero-sentence {
+    filter: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1077,9 +2092,7 @@ span.mark.squiggle:focus-visible {
     filter: none;
   }
 
-  .intensity-thumb-group,
-  .intensity-rail__fill,
-  .def-reveal__line,
+  .tone-axis__step,
   .paper-wash,
   .project-tier-block,
   .project-row__chevron {
@@ -1105,25 +2118,20 @@ span.mark.squiggle:focus-visible {
   }
 
   .hero-line {
-    max-width: min(18ch, 92vw);
+    width: 100%;
   }
 
-  .intensity-axis {
-    position: fixed;
-    right: 16px;
-    top: auto;
-    bottom: 4vh;
-    transform: none;
+  .tone-axis__step {
+    font-size: 0.68rem;
+    gap: 5px;
   }
 
-  .orb {
-    width: 108px;
-    height: 108px;
+  .tone-axis__arrow {
+    width: 19px;
   }
 
-  .icon3d {
-    width: 230px;
-    height: 230px;
+  .nav-dock {
+    --pw-scale: 0.66;
   }
 
   .nav-row {
@@ -1170,7 +2178,7 @@ span.mark.squiggle:focus-visible {
 
 @media (max-height: 760px) {
   .hero-line {
-    font-size: clamp(26px, 4vw, 44px);
+    --hero-fs-cap: clamp(26px, 4vw, 44px);
   }
 }
 
@@ -1183,14 +2191,8 @@ span.mark.squiggle:focus-visible {
     padding-block: 3vh 4vh;
   }
 
-  .orb {
-    width: 116px;
-    height: 116px;
-  }
-
-  .icon3d {
-    width: 250px;
-    height: 250px;
+  .nav-dock {
+    --pw-scale: 0.82;
   }
 
   .hero-objects {

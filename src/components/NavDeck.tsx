@@ -2,33 +2,17 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { NAV } from "../content";
 import { withIntensityPath } from "../lib/intensityUrl";
 import { navigate } from "../lib/navigate";
-import { startIcon, type IconHandle, type IconKind } from "../lib/icon3d";
 import { useIntensity } from "./IntensityContext";
+import { ProjectsMark, ReadMeMark, ResearchMark } from "./PixelMarks";
 
-const PARALLAX_PX = [6, 10, 14];
-const ENTER_STAGGER_MS = 80;
-const ENTER_OFFSET_PX = 16;
+const PARALLAX_PX = [8, 13, 18];
+const ENTER_STAGGER_MS = 120;
+const ENTER_OFFSET_PX = 24;
 
-function Icon3D({ kind, hovered }: { kind: IconKind; hovered: boolean }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  const api = useRef<IconHandle | null>(null);
-
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    const handle = startIcon(canvas, kind, { ambient: true });
-    api.current = handle;
-    return () => {
-      handle.destroy();
-      api.current = null;
-    };
-  }, [kind]);
-
-  useEffect(() => {
-    api.current?.setHover(hovered);
-  }, [hovered]);
-
-  return <canvas ref={ref} className="icon3d" aria-hidden="true" />;
+function Mark({ id }: { id: (typeof NAV)[number]["id"] }) {
+  if (id === "projects") return <ProjectsMark />;
+  if (id === "research") return <ResearchMark />;
+  return <ReadMeMark />;
 }
 
 export function NavDeck() {
@@ -97,8 +81,8 @@ export function NavDeck() {
 
     let raf = 0;
     const tick = () => {
-      pointer.current.x += (pointer.current.tx - pointer.current.x) * 0.08;
-      pointer.current.y += (pointer.current.ty - pointer.current.y) * 0.08;
+      pointer.current.x += (pointer.current.tx - pointer.current.x) * 0.12;
+      pointer.current.y += (pointer.current.ty - pointer.current.y) * 0.12;
       dockRef.current?.style.setProperty("--px", pointer.current.x.toFixed(4));
       dockRef.current?.style.setProperty("--py", pointer.current.y.toFixed(4));
       raf = requestAnimationFrame(tick);
@@ -142,9 +126,16 @@ export function NavDeck() {
               }}
             >
               <div className="orb">
-                <Icon3D kind={item.id} hovered={focus === item.id} />
+                <Mark id={item.id} />
               </div>
-              <span className="nav-item__label">{item.title}</span>
+              <div className="nav-item__caption">
+                <span className="nav-item__pill">{item.file}</span>
+                <div className="nav-item__detail">
+                  <strong>{item.file}</strong>
+                  <p>{item.hint}</p>
+                  <span className="nav-item__cta">{item.cta}</span>
+                </div>
+              </div>
             </a>
           </div>
         ))}
