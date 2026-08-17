@@ -151,11 +151,8 @@ export const NOW_PLAYING: {
 };
 
 /**
- * Rest of the playlist, shown under the now-playing line.
- *
- * "Sunflower" is the one still to confirm — the Post Malone & Swae Lee track is
- * the most-streamed song of that name, but Rex Orange County has one too and it
- * sits closer to the rest of this list. Correct it here if it's the latter.
+ * Rest of the playlist, shown under the now-playing line. Titles and artists
+ * confirmed by Spurti.
  */
 export const UP_NEXT: { title: string; artist: string }[] = [
   { title: "Sparks", artist: "Coldplay" },
