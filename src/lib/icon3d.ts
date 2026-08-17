@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
 
-export type IconKind = "projects" | "fun" | "about";
+export type IconKind = "projects" | "research" | "readme";
 export const ICON_REV = 9;
 
 export type IconHandle = {
@@ -214,7 +214,7 @@ function groundShadow() {
 
 function build(kind: IconKind) {
   if (kind === "projects") return makeProjects();
-  if (kind === "fun") return makeFun();
+  if (kind === "research") return makeFun();
   return makeAbout();
 }
 
@@ -235,7 +235,11 @@ function mixEuler(a: THREE.Euler, b: THREE.Euler, t: number, out: THREE.Euler) {
   out.set(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
 }
 
-export function startIcon(canvas: HTMLCanvasElement, kind: IconKind): IconHandle {
+export function startIcon(
+  canvas: HTMLCanvasElement,
+  kind: IconKind,
+  options?: { static?: boolean },
+): IconHandle {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -267,8 +271,8 @@ export function startIcon(canvas: HTMLCanvasElement, kind: IconKind): IconHandle
   let hoverV = 0;
   let scale = 0.2;
   let scaleV = 0;
-  const phase = kind === "projects" ? 0 : kind === "fun" ? 1.1 : 2.2;
-  const introDelay = kind === "projects" ? 0.04 : kind === "fun" ? 0.12 : 0.2;
+  const phase = kind === "projects" ? 0 : kind === "research" ? 1.1 : 2.2;
+  const introDelay = kind === "projects" ? 0.04 : kind === "research" ? 0.12 : 0.2;
 
   const onMove = (e: PointerEvent) => {
     const r = canvas.parentElement?.getBoundingClientRect() ?? canvas.getBoundingClientRect();
@@ -293,6 +297,40 @@ export function startIcon(canvas: HTMLCanvasElement, kind: IconKind): IconHandle
   const ro = new ResizeObserver(resize);
   ro.observe(canvas);
   resize();
+
+  if (options?.static) {
+    object.scale.setScalar(1.05);
+    for (const bit of pieces) {
+      bit.mesh.position.copy(bit.rest.p);
+      bit.mesh.rotation.copy(bit.rest.r);
+      bit.mesh.scale.setScalar(bit.rest.s);
+    }
+    const renderStatic = () => {
+      resize();
+      renderer.render(scene, camera);
+    };
+    renderStatic();
+    ro.disconnect();
+    const staticRo = new ResizeObserver(renderStatic);
+    staticRo.observe(canvas);
+
+    return {
+      setHover() {},
+      destroy() {
+        staticRo.disconnect();
+        textures.forEach((tex) => tex.dispose());
+        renderer.dispose();
+        scene.traverse((node) => {
+          if (node instanceof THREE.Mesh) {
+            node.geometry.dispose();
+            const mat = node.material;
+            if (Array.isArray(mat)) mat.forEach((m) => m.dispose());
+            else mat.dispose();
+          }
+        });
+      },
+    };
+  }
 
   const tmpE = new THREE.Euler();
   let raf = 0;
