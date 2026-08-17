@@ -1,15 +1,15 @@
-import simbaSit from "../assets/sticker-simba-1.png";
-import simbaBowtie from "../assets/sticker-simba-2.png";
-import simbaSweater from "../assets/sticker-simba-3.png";
-import simbaSock from "../assets/sticker-simba-4.png";
-import slackEvent from "../assets/sticker-slack.png";
-import slackLobby from "../assets/sticker-slack-2.JPG";
-import slackEntry from "../assets/sticker-slack-3.JPG";
-import slackTower from "../assets/sticker-slack-4.JPG";
-import stanfordRainbow from "../assets/sticker-stanford.png";
-import stanfordStadium from "../assets/sticker-stanford-2.JPG";
-import stanfordWins from "../assets/sticker-stanford-3.JPG";
-import stanfordPalms from "../assets/sticker-stanford-4.JPG";
+import simbaSit from "../assets/sticker-simba-1.webp";
+import simbaBowtie from "../assets/sticker-simba-2.webp";
+import simbaSweater from "../assets/sticker-simba-3.webp";
+import simbaSock from "../assets/sticker-simba-4.webp";
+import slackEvent from "../assets/sticker-slack.webp";
+import slackLobby from "../assets/sticker-slack-2.webp";
+import slackEntry from "../assets/sticker-slack-3.webp";
+import slackTower from "../assets/sticker-slack-4.webp";
+import stanfordRainbow from "../assets/sticker-stanford.webp";
+import stanfordStadium from "../assets/sticker-stanford-2.webp";
+import stanfordWins from "../assets/sticker-stanford-3.webp";
+import stanfordPalms from "../assets/sticker-stanford-4.webp";
 
 /**
  * Photos that peel off an underlined word, one click at a time, after

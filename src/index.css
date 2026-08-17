@@ -764,9 +764,9 @@ a {
   flex-basis: 0;
   overflow: hidden;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  /* Fixed 15px: a username, not a headline. Keeps the width delta vs "Spurti"
-     small enough that the following words shift without a refit or re-wrap. */
-  font-size: 15px;
+  /* Scales with the headline so the width delta stays small at v5 / 390px.
+     Capped at 15px so low-tone headlines still read it as a username. */
+  font-size: clamp(12px, 0.28em, 15px);
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--git-ink);

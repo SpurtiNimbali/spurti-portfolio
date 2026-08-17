@@ -244,11 +244,16 @@ function useFitToBox(deps: unknown[]) {
 
 export function HeroLine() {
   const { intensity } = useIntensity();
-  const level = INTENSITY_LEVELS[intensity];
+  // Visible copy lags one out-beat behind `intensity` so the sentence can
+  // clear, swap while it is gone, then settle — the CSS keys off data-phase.
+  const [shown, setShown] = useState(intensity);
+  const shownRef = useRef(intensity);
+  const [phase, setPhase] = useState<"out" | "in" | undefined>();
+  const level = INTENSITY_LEVELS[shown];
   const [nameHover, setNameHover] = useState(false);
   // Fit only on tone, never on the name swap: the handle takes real space and
   // the following words slide. A font-size jump on hover is the thing to avoid.
-  const { boxRef, textRef } = useFitToBox([intensity]);
+  const { boxRef, textRef } = useFitToBox([shown]);
   const prevPartsRef = useRef<PredicatePart[]>(level.parts);
   const prevIntensityRef = useRef<number | null>(null);
   const [pinned, setPinned] = useState<Pinned[]>([]);
@@ -335,18 +340,18 @@ export function HeroLine() {
 
   const animateFlags = useMemo(() => {
     if (prevIntensityRef.current === null) {
-      prevIntensityRef.current = intensity;
+      prevIntensityRef.current = shown;
       prevPartsRef.current = level.parts;
       return level.parts.map(() => false);
     }
-    if (prevIntensityRef.current === intensity) {
+    if (prevIntensityRef.current === shown) {
       return level.parts.map(() => false);
     }
     const flags = partsChanged(prevPartsRef.current, level.parts);
     prevPartsRef.current = level.parts;
-    prevIntensityRef.current = intensity;
+    prevIntensityRef.current = shown;
     return flags;
-  }, [intensity, level.parts]);
+  }, [shown, level.parts]);
 
   // Only the changed words are staggered, and only against each other, so the
   // rewrite reads left to right however few words actually differ.
@@ -356,18 +361,35 @@ export function HeroLine() {
   }, [animateFlags]);
 
   /**
-   * A tone change re-wraps the lines, which is a discrete jump. Marking the box
-   * for the length of the gesture lets the whole sentence soften and settle over
-   * the same beat as the size and the word crossfades, so the re-wrap lands
-   * inside one movement instead of snapping on its own.
+   * Out, then swap, then in — all on --hero-shift / --hero-ease. The new copy
+   * is written while the sentence is at opacity 0 so there is no empty flash
+   * and no snap of overflowing text. The box height never changes.
    */
-  const [rewriting, setRewriting] = useState(false);
   useEffect(() => {
-    if (prevIntensityRef.current === null) return;
-    setRewriting(true);
-    const box = boxRef.current;
-    const timer = setTimeout(() => setRewriting(false), box ? shiftMs(box) + 40 : 340);
-    return () => clearTimeout(timer);
+    if (shownRef.current === intensity) {
+      setPhase(undefined);
+      return;
+    }
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      shownRef.current = intensity;
+      setShown(intensity);
+      setPhase(undefined);
+      return;
+    }
+    const total = shiftMs(boxRef.current);
+    const outMs = Math.round(total * 0.42);
+    const inMs = Math.round(total * 0.58);
+    setPhase("out");
+    const swap = window.setTimeout(() => {
+      shownRef.current = intensity;
+      setShown(intensity);
+      setPhase("in");
+    }, outMs);
+    const done = window.setTimeout(() => setPhase(undefined), outMs + inMs);
+    return () => {
+      window.clearTimeout(swap);
+      window.clearTimeout(done);
+    };
   }, [intensity, boxRef]);
 
   return (
@@ -378,7 +400,7 @@ export function HeroLine() {
         ref={boxRef}
         className="hero-line"
         aria-live="polite"
-        data-rewriting={rewriting || undefined}
+        data-phase={phase}
         onPointerLeave={() => setNameHover(false)}
       >
         <span ref={textRef} className="hero-line__fit">
