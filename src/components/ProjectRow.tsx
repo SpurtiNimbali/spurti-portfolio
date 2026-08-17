@@ -81,7 +81,9 @@ export function ProjectRow({ entry, axisTier }: Props) {
           </ul>
         </ProjectTierBlock>
 
-        {showFull ? renderLinks(entry.links) : null}
+        <ProjectTierBlock visible={showFull && Boolean(entry.links?.length)} className="project-row__links-wrap">
+          {renderLinks(entry.links)}
+        </ProjectTierBlock>
       </div>
     </article>
   );
