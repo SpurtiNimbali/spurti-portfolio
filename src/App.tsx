@@ -1,28 +1,24 @@
-import { useState } from "react";
-import { AboutPanel, type StickerEvent } from "./components/AboutPanel";
+import { IntensityAxis } from "./components/IntensityAxis";
+import { IntensityProvider } from "./components/IntensityContext";
 import { CornerMeta } from "./components/CornerMeta";
 import { HeroLine } from "./components/HeroLine";
-import { NavDeck } from "./components/NavDeck";
-import { StickerLayer } from "./components/StickerLayer";
-import { WebGLBackdrop } from "./components/WebGLBackdrop";
+import { IntensityBackdrop } from "./components/IntensityBackdrop";
+import { SceneSection } from "./components/SceneSection";
 
 export default function App() {
-  const [sell, setSell] = useState(0.4);
-  const [stickers, setStickers] = useState<StickerEvent[]>([]);
-
   return (
-    <div className="stage">
-      <WebGLBackdrop />
-      <CornerMeta />
-      <main className="mast">
-        <HeroLine
-          sell={sell}
-          onSticker={(s) => setStickers((prev) => [...prev.slice(-4), s])}
-        />
-      </main>
-      <AboutPanel sell={sell} onSell={setSell} />
-      <NavDeck />
-      <StickerLayer stickers={stickers} />
-    </div>
+    <IntensityProvider>
+      <div className="page">
+        <IntensityBackdrop />
+        <CornerMeta />
+        <section className="hero-section">
+          <main className="mast">
+            <HeroLine />
+          </main>
+          <IntensityAxis />
+        </section>
+        <SceneSection />
+      </div>
+    </IntensityProvider>
   );
 }
