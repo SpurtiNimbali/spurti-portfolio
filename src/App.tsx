@@ -7,6 +7,7 @@ import { HeroPage } from "./pages/HeroPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 import { ResearchPage } from "./pages/ResearchPage";
 import { AboutPage } from "./pages/AboutPage";
+import "./styles/about.css";
 import { isAboutRoute, normalizePath, ROUTES } from "./lib/routes";
 
 function usePathname() {
