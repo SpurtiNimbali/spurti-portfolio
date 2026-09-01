@@ -24,7 +24,13 @@ function readIntensityFromUrl(): number | null {
 
 function writeIntensityToUrl(value: number) {
   const url = new URL(window.location.href);
-  url.searchParams.set("v", String(value));
+  // The default tone is implied, so it stays out of the URL and only a
+  // deliberate change leaves something to share.
+  if (value === DEFAULT_INTENSITY) {
+    url.searchParams.delete("v");
+  } else {
+    url.searchParams.set("v", String(value));
+  }
   window.history.replaceState(null, "", url);
 }
 
@@ -38,7 +44,10 @@ export function IntensityProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    writeIntensityToUrl(intensity);
+    // Clears the redundant param from links shared while it was always written.
+    if (readIntensityFromUrl() === DEFAULT_INTENSITY) {
+      writeIntensityToUrl(DEFAULT_INTENSITY);
+    }
   }, []);
 
   useEffect(() => {
