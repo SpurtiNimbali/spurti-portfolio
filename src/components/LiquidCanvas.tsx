@@ -147,7 +147,14 @@ export function LiquidCanvas() {
       uMouse: { value: new Vector2(0.5, 0.5) },
     };
     for (const [name, token] of COLOR_TOKENS) {
-      uniforms[name] = { value: new Vector3(...tokenToLinear(token)) };
+      const linear = tokenToLinear(token);
+      // The backdrop is decorative, so an unreadable palette token leaves the
+      // plain CSS background in place instead of taking the page down with it.
+      if (!linear) {
+        console.warn(`LiquidCanvas: skipped, could not read ${token}`);
+        return;
+      }
+      uniforms[name] = { value: new Vector3(...linear) };
     }
 
     const renderer = new WebGLRenderer({ antialias: false, alpha: false });
