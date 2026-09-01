@@ -4,8 +4,6 @@ import {
   researchForSection,
   type ResearchPageSection,
 } from "../research";
-import { tierFromIntensity } from "../lib/researchTier";
-import { useIntensity } from "./IntensityContext";
 import { ResearchRow } from "./ResearchRow";
 import { LabsBlock } from "./LabsBlock";
 
@@ -23,12 +21,9 @@ function scrollToHash() {
 }
 
 export function ResearchIndex() {
-  const { intensity } = useIntensity();
-  const axisTier = tierFromIntensity(intensity);
-
   useEffect(() => {
     scrollToHash();
-  }, [intensity]);
+  }, []);
 
   useEffect(() => {
     const onNavigate = () => scrollToHash();
@@ -43,9 +38,9 @@ export function ResearchIndex() {
   return (
     <div className="research-index__sections projects-index__sections">
       {RESEARCH_PAGE_SECTION_ORDER.map((section) => {
-        if (section === "labs") {
+        if (section === "experience") {
           return (
-            <section key={section} className="project-section project-section--labs">
+            <section key={section} className="project-section project-section--experience">
               <SectionHeading label={section} />
               <LabsBlock />
             </section>
@@ -58,7 +53,7 @@ export function ResearchIndex() {
             <SectionHeading label={section} />
             <div className="project-section__rows">
               {entries.map((entry) => (
-                <ResearchRow key={entry.id} entry={entry} axisTier={axisTier} />
+                <ResearchRow key={entry.id} entry={entry} />
               ))}
             </div>
           </section>

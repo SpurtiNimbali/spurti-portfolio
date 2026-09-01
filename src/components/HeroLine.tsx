@@ -11,7 +11,6 @@ import { GitTag, StickerBoard } from "./HeroOverlay";
 import { IntensityAxis } from "./IntensityAxis";
 import { useIntensity } from "./IntensityContext";
 import { DefinitionMark } from "./DefinitionMark";
-import { SlackMark } from "./SlackMark";
 import { StanfordMark } from "./StanfordMark";
 import { printsFor } from "../lib/stickers";
 
@@ -53,19 +52,6 @@ function renderPart(
   const beat = animate ? ({ "--i": stagger } as CSSProperties) : undefined;
 
   if (part.mark === "squiggle" && part.definition) {
-    if (part.text === "Slack") {
-      return (
-        <SlackMark
-          key={index}
-          definition={part.definition}
-          onSpawn={onSpawn}
-          animate={animate}
-          beat={beat}
-        >
-          {part.text}
-        </SlackMark>
-      );
-    }
     if (part.text === "Stanford") {
       return (
         <StanfordMark

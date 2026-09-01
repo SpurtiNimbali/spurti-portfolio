@@ -1,51 +1,26 @@
-import { LAB_ENTRIES, type LabEntry } from "../research";
-import { withIntensityPath } from "../lib/intensityUrl";
-import { navigate } from "../lib/navigate";
-import { useIntensity } from "./IntensityContext";
-
-function LabLine({ entry }: { entry: LabEntry }) {
-  const { intensity } = useIntensity();
-  const suffix = entry.inProgress ? " In progress." : "";
-
-  return (
-    <p className="lab-entry">
-      <strong className="lab-entry__affiliation">
-        {entry.affiliation}, {entry.period}.
-      </strong>{" "}
-      {entry.advisors ? <span className="lab-entry__advisors">{entry.advisors} </span> : null}
-      <span className="lab-entry__area">
-        {entry.seeAlso ? (
-          <>
-            See{" "}
-            <a
-              href={withIntensityPath(`/research#${entry.seeAlso.id}`, intensity)}
-              onClick={(e) => {
-                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-                e.preventDefault();
-                navigate(withIntensityPath(`/research#${entry.seeAlso!.id}`, intensity));
-              }}
-            >
-              {entry.seeAlso.label}
-            </a>{" "}
-            above.
-          </>
-        ) : (
-          <>
-            {entry.area}
-            {suffix}
-          </>
-        )}
-      </span>
-    </p>
-  );
-}
+import { LAB_ENTRIES } from "../research";
 
 export function LabsBlock() {
   return (
-    <div className="labs-block">
+    <ol className="labs-list">
       {LAB_ENTRIES.map((entry) => (
-        <LabLine key={entry.id} entry={entry} />
+        <li key={entry.id} className="lab-line">
+          <p className="lab-line__period">{entry.period}</p>
+          <h3 className="lab-line__name">
+            <a className="pj-link" href={entry.href} target="_blank" rel="noreferrer">
+              {entry.affiliation}
+              <span className="pj-link__arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+          </h3>
+
+          <p className="lab-line__role">{entry.role}</p>
+          <p className="lab-line__work">{entry.work}</p>
+
+          {entry.advisors ? <p className="lab-line__advisors">Advised by {entry.advisors}</p> : null}
+        </li>
       ))}
-    </div>
+    </ol>
   );
 }

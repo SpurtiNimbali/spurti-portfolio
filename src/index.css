@@ -93,7 +93,6 @@ a {
   padding-block: 4vh 6vh;
   padding-inline: 2.4vw calc(48px + 168px);
 }
-
 .projects-index,
 .research-index {
   max-width: 52rem;
@@ -268,114 +267,164 @@ a {
   font-style: normal;
 }
 
-.research-row__approach p,
-.research-row__finding,
-.research-row__limitation {
+/*
+ * Opened, a paper is a short summary and its links. The links are the point of
+ * opening it, so they are the only element here with a filled shape.
+ */
+.research-row__summary p {
   font-size: 1rem;
-  line-height: 1.55;
+  line-height: 1.6;
   color: var(--ink);
 }
 
-.research-row__limitation {
-  margin-top: 0.55rem;
+.research-row__meta-line {
+  margin-top: 0.78rem;
+  font-size: 0.88rem;
   color: var(--mute);
 }
 
-.research-row__meta p {
-  font-size: 0.92rem;
-  line-height: 1.5;
-  color: var(--mute);
+.research-row__cta {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
 }
 
-.research-row__links {
-  font-size: 0.92rem;
-  line-height: 1.5;
-  color: var(--mute);
+.research-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.44rem 1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklch, var(--cardinal) 26%, transparent);
+  background: color-mix(in oklch, var(--cardinal) 8%, transparent);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1;
+  color: color-mix(in oklch, var(--cardinal) 86%, var(--ink));
+  text-decoration: none;
+  transition:
+    background 240ms ease,
+    border-color 240ms ease;
 }
 
-.research-row__links a {
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 0.14em;
+.research-cta:hover,
+.research-cta:focus-visible {
+  background: color-mix(in oklch, var(--cardinal) 16%, transparent);
+  border-color: color-mix(in oklch, var(--cardinal) 52%, transparent);
 }
 
-.research-image-row {
-  margin: 0;
-  display: grid;
-  gap: 0.75rem;
+.research-cta__arrow {
+  transition: transform 320ms var(--pw-spring);
 }
 
-.research-image-row__stages {
-  display: grid;
-  gap: 0.85rem;
+.research-cta:hover .research-cta__arrow,
+.research-cta:focus-visible .research-cta__arrow {
+  transform: translateX(3px);
 }
 
-.research-image-row__stage {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.research-image-row__frame {
-  min-height: 4.5rem;
-  border-radius: 6px;
-  background: color-mix(in oklch, var(--ink) 4%, var(--paper));
-  overflow: hidden;
-}
-
-.research-image-row__frame img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.research-image-row__placeholder {
-  display: grid;
-  place-items: center;
-  min-height: 4.5rem;
-  padding: 0.75rem 1rem;
-  font-size: 0.78rem;
-  line-height: 1.4;
-  color: var(--mute);
-  text-align: center;
-}
-
-.research-image-row__label {
-  font-size: 0.78rem;
-  color: var(--mute);
-}
-
-.research-image-row__caption {
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: var(--mute);
-}
-
-.labs-block {
-  display: grid;
-  gap: 1rem;
-}
-
-.lab-entry {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.55;
-  color: var(--ink);
-  opacity: 0.82;
-}
-
-.lab-entry__affiliation {
+.research-cta.is-pending {
+  border-style: dashed;
+  background: none;
   font-weight: 500;
+  font-style: italic;
+  color: var(--mute);
 }
 
-.lab-entry__advisors,
-.lab-entry__area {
-  font-weight: 400;
+/*
+ * Pin the single implicit column to the index width. Without this the experience
+ * section below, which is deliberately wider than the track, sizes the track to
+ * itself and drags every sibling section — the paper rows included — out to 68rem
+ * with it.
+ */
+.research-index__sections {
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.lab-entry a {
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 0.14em;
+/*
+ * The paper rows below need the index's 52rem reading measure, but three labs at
+ * that measure wrap into a stranded left column with the page's right half bare.
+ * A side-list is not prose, so this one section grows out to the 68rem shell the
+ * projects tail uses, stopping short of the nav-dock gutter (and a scrollbar's
+ * worth) so it can never force a sideways scroll.
+ */
+.project-section--experience {
+  width: 68rem;
+  max-width: max(100%, calc(100vw - 2.4vw - 232px));
+}
+
+/* Same treatment as the projects tail entries: a hairline, a small-caps period,
+   then a serif name that underlines on hover. */
+.labs-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: clamp(1.6rem, 3vw, 2.4rem) clamp(2rem, 5vw, 3.5rem);
+  align-items: start;
+}
+
+.lab-line {
+  border-top: 1px solid color-mix(in oklch, var(--ink) 12%, transparent);
+  padding-top: 0.9rem;
+}
+
+.lab-line__period {
+  margin: 0;
+  font-size: 0.7rem;
+  font-variant: all-small-caps;
+  letter-spacing: 0.13em;
+  color: color-mix(in oklch, var(--ink) 38%, transparent);
+}
+
+.lab-line__name {
+  margin: 0.22rem 0 0;
+  font-family: Palatino, "Iowan Old Style", serif;
+  font-size: 1.22rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+/* Cardinal, as in the tail sections — the one site accent no project band claims.
+   Scoped past .pj-link so the tail's own sizing does not win on load order. */
+.lab-line__name .pj-link {
+  --accent: var(--cardinal);
+  /* Lab names are long enough to wrap in a column this narrow, and the tail's
+     inline-flex strands the arrow beside the first line instead of after the
+     last word. Inline flow keeps it attached to the end of the name. */
+  display: inline;
+  font: inherit;
+}
+
+.lab-line__name .pj-link__arrow {
+  /* Still a box, so the hover nudge applies — transforms skip inline elements. */
+  display: inline-block;
+  margin-left: 0.28em;
+  font-size: 0.72em;
+}
+
+.lab-line__role {
+  margin: 0.3rem 0 0;
+  font-size: 0.93rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: color-mix(in oklch, var(--ink) 62%, transparent);
+}
+
+.lab-line__work {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: color-mix(in oklch, var(--ink) 66%, transparent);
+}
+
+.lab-line__advisors {
+  margin: 0.6rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: color-mix(in oklch, var(--ink) 46%, transparent);
 }
 
 .about-page.content-page {
@@ -764,9 +813,9 @@ a {
   flex-basis: 0;
   overflow: hidden;
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  /* Scales with the headline so the width delta stays small at v5 / 390px.
-     Capped at 15px so low-tone headlines still read it as a username. */
-  font-size: clamp(12px, 0.28em, 15px);
+  /* Smaller than the headline so the following words only slide a little,
+     large enough to read as the username rather than a caption. */
+  font-size: clamp(18px, 0.72em, 28px);
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--git-ink);
@@ -1197,93 +1246,6 @@ body:has(.nav-item:focus-visible) .sticker-layer {
   }
 }
 
-/* —— Slack hover mark —— */
-.slack-mark__box {
-  display: inline-block;
-  position: relative;
-  vertical-align: baseline;
-  overflow: visible;
-}
-
-.slack-mark__word {
-  display: inline-block;
-  transition:
-    transform 320ms ease-out,
-    opacity 240ms ease;
-}
-
-.slack-mark__word.is-active.can-slide {
-  transform: translateX(calc(100% + 12px));
-}
-
-.slack-mark__word.is-active.use-above {
-  opacity: 0.7;
-}
-
-.slack-mark__logo {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 100%;
-  height: 0.8em;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  transform: translateY(-50%) scale(0.9);
-  transition:
-    opacity 320ms ease-out,
-    transform 320ms ease-out;
-  pointer-events: none;
-}
-
-.slack-mark__logo.is-visible {
-  opacity: 1;
-  transform: translateY(-50%) scale(1);
-}
-
-.slack-mark__logo.is-above {
-  top: 0;
-  left: 50%;
-  width: auto;
-  height: 0.8em;
-  transform: translate(-50%, calc(-100% - 0.12em)) scale(0.6);
-}
-
-.slack-mark__logo.is-above.is-visible {
-  opacity: 1;
-  transform: translate(-50%, calc(-100% - 0.12em)) scale(0.6);
-}
-
-.slack-mark__logo-svg {
-  width: auto;
-  height: 100%;
-  display: block;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .slack-mark__word,
-  .slack-mark__logo {
-    transition: none !important;
-  }
-
-  .slack-mark__word.is-active.can-slide {
-    transform: translateX(calc(100% + 12px));
-  }
-
-  .slack-mark__word.is-active.use-above {
-    opacity: 0.7;
-  }
-
-  .slack-mark__logo.is-visible {
-    opacity: 1;
-    transform: translateY(-50%) scale(1);
-  }
-
-  .slack-mark__logo.is-above.is-visible {
-    transform: translate(-50%, calc(-100% - 0.12em)) scale(0.6);
-  }
-}
-
 /* —— Tone axis —— */
 /*
  * Published for pages that float this control over their content and have to keep
@@ -1291,7 +1253,8 @@ body:has(.nav-item:focus-visible) .sticker-layer {
  */
 :root {
   --tone-stack-h: 26px;
-  --tone-axis-space: calc(var(--tone-stack-h) + 26px + 2.25rem);
+  /* Stack, the floating pill's own padding and hairline, its offset, then slack. */
+  --tone-axis-space: calc(var(--tone-stack-h) + 18px + 26px + 2.25rem);
 }
 
 .tone-axis {
@@ -1303,6 +1266,23 @@ body:has(.nav-item:focus-visible) .sticker-layer {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
+}
+
+/*
+ * Floating over a page that scrolls, the control lands on whatever copy happens
+ * to be behind it, so it carries its own sheet of paper. The inline variant on
+ * the home page sits in the layout under the sentence and needs none of this.
+ */
+.tone-axis:not(.tone-axis--inline) {
+  padding: 8px 20px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--paper) 82%, transparent);
+  backdrop-filter: blur(12px) saturate(1.06);
+  -webkit-backdrop-filter: blur(12px) saturate(1.06);
+  border: 1px solid color-mix(in oklch, var(--ink) 8%, transparent);
+  box-shadow:
+    0 1px 2px rgba(28, 24, 18, 0.05),
+    0 12px 28px rgba(28, 24, 18, 0.09);
 }
 
 /* Reads as a caption of the sentence it rewrites, so it sits tight beneath it. */

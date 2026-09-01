@@ -16,22 +16,17 @@
   --pj-butter: oklch(0.66 0.13 78);
   --pj-cardinal: var(--cardinal);
 
+  /* Settles without overshoot: springs suit a spawn, not a pointer or a panel. */
+  --pj-ease: cubic-bezier(0.22, 0.68, 0.24, 1);
+
   --pj-wave-h: clamp(34px, 4.6vw, 72px);
   --pj-gutter: clamp(1.4rem, 5vw, 4.5rem);
   --pj-shell: 68rem;
 
-  /*
-   * The tone control floats over this page and drives how much of each entry
-   * shows, so it has to stay visible — the page yields the space instead. The
-   * control publishes its own footprint as --tone-axis-space when it can; the
-   * fallback is deliberately generous because that control gets redesigned.
-   */
-  --pj-axis-safe: var(--tone-axis-space, 8.5rem);
-
   position: relative;
   z-index: 2;
   min-height: 100dvh;
-  padding-bottom: calc(var(--pj-axis-safe) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(clamp(4rem, 9vw, 7rem) + env(safe-area-inset-bottom, 0px));
   overflow-x: clip;
 }
 
@@ -51,8 +46,10 @@
   color: color-mix(in oklch, var(--ink) 40%, transparent);
 }
 
+/* The first band's tear reaches up over whatever precedes it, so the intro has
+   to clear a wave's worth of height or the sheet crops its last line. */
 .pj-top__intro {
-  margin: 0 0 clamp(1.8rem, 5vh, 3rem);
+  margin: 0 0 calc(clamp(1.8rem, 5vh, 3rem) + var(--pj-wave-h));
   max-width: 30rem;
   font-size: 1.02rem;
   line-height: 1.5;
@@ -69,14 +66,21 @@
   position: relative;
   padding-block: clamp(3rem, 7vw, 6rem);
   background: var(--pj-band);
-  opacity: 0;
-  transform: translateY(20px);
-  transition:
-    opacity 620ms ease,
-    transform 820ms var(--pw-spring);
 }
 
-.pj-band.is-in {
+/*
+ * The sheet itself stays put — fading a full-width tinted band in and out reads
+ * as the paper flashing rather than the entry arriving. Only the contents rise.
+ */
+.pj-band__inner {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 460ms var(--pj-ease),
+    transform 520ms var(--pj-ease);
+}
+
+.pj-band.is-in .pj-band__inner {
   opacity: 1;
   transform: none;
 }
@@ -124,7 +128,7 @@
 
 .pj-entry {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 0.78fr);
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.1fr);
   gap: clamp(1.8rem, 4vw, 3.5rem);
   align-items: center;
 }
@@ -194,9 +198,11 @@
 .pj-tier {
   display: grid;
   grid-template-rows: 0fr;
+  /* Matched lengths: the copy must not finish fading before the panel stops
+     growing, and an overshoot here bounces the text it is revealing. */
   transition:
-    grid-template-rows 480ms var(--pw-spring),
-    opacity 300ms ease;
+    grid-template-rows 360ms var(--pj-ease),
+    opacity 360ms var(--pj-ease);
   opacity: 0;
 }
 
@@ -218,12 +224,45 @@
   color: color-mix(in oklch, var(--ink) 78%, transparent);
 }
 
-.pj-entry__awards {
-  margin: 0.85rem 0 0;
-  padding-left: 1.05rem;
-  font-size: 0.9rem;
-  line-height: 1.55;
-  color: color-mix(in oklch, var(--ink) 62%, transparent);
+/*
+ * A win reads as a credential line, not a banner: the accent is carried by the
+ * rosette and the ink weight alone, so it lifts off the summary without
+ * competing with the title.
+ */
+.pj-awards {
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.pj-awards__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45em;
+  font-size: 0.83rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: color-mix(in oklch, var(--ink) 76%, transparent);
+}
+
+.pj-awards__mark {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  translate: 0 2px;
+}
+
+.pj-awards__mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .pj-entry__stack {
@@ -291,42 +330,79 @@
 
 /* —— More / less —— */
 
+/*
+ * A pill that looks pressable, rather than two glyphs floating in the margin.
+ * The chevron rotates to point the way the panel is about to move.
+ */
 .pj-entry__more {
-  margin-top: 1.15rem;
-  padding: 0;
-  border: 0;
-  background: none;
+  margin-top: 1.2rem;
+  padding: 0.42rem 0.85rem 0.42rem 0.6rem;
+  border: 1px solid color-mix(in oklch, var(--ink) 13%, transparent);
+  border-radius: 999px;
+  background: oklch(1 0 0 / 0.4);
   display: inline-flex;
   align-items: center;
-  gap: 0.45em;
+  gap: 0.5em;
   font-size: 0.72rem;
   font-variant: all-small-caps;
-  letter-spacing: 0.14em;
-  color: color-mix(in oklch, var(--ink) 45%, transparent);
+  letter-spacing: 0.13em;
+  color: color-mix(in oklch, var(--ink) 58%, transparent);
   cursor: pointer;
-  transition: color 220ms ease;
+  transition:
+    color 220ms ease,
+    background-color 220ms ease,
+    border-color 220ms ease,
+    transform 220ms var(--pj-ease);
 }
 
 .pj-entry__more:hover,
 .pj-entry__more:focus-visible {
   color: var(--ink);
+  background: oklch(1 0 0 / 0.72);
+  border-color: color-mix(in oklch, var(--ink) 22%, transparent);
+}
+
+.pj-entry__more:active {
+  transform: translateY(1px);
 }
 
 .pj-entry__more-mark {
   display: grid;
   place-items: center;
-  width: 15px;
-  height: 15px;
-  border: 1px solid color-mix(in oklch, var(--ink) 24%, transparent);
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  font-size: 10px;
-  line-height: 1;
+  background: color-mix(in oklch, var(--accent) 16%, transparent);
+  transition: transform 300ms var(--pj-ease);
+}
+
+.pj-entry__more-mark svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: color-mix(in oklch, var(--ink) 62%, transparent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pj-entry__more[aria-expanded="true"] .pj-entry__more-mark {
+  transform: rotate(180deg);
 }
 
 .pj-entry__more:focus-visible {
   outline: 2px solid color-mix(in oklch, var(--ink) 34%, transparent);
-  outline-offset: 5px;
-  border-radius: 3px;
+  outline-offset: 3px;
+}
+
+/* The link that carries the entry, set just under the summary. */
+.pj-entry__links--lead {
+  margin-top: 0.95rem;
+}
+
+.pj-entry__links--lead .pj-link {
+  font-weight: 700;
 }
 
 /* —— Artwork —— */
@@ -346,18 +422,18 @@
   width: min(66%, 250px);
   height: 76%;
   border-radius: 18px;
-  background: oklch(1 0 0 / 0.55);
-  border: 1px solid color-mix(in oklch, var(--ink) 9%, transparent);
-  transform: rotate(6.5deg) translate(14%, 3%);
+  background: oklch(1 0 0 / 0.34);
+  border: 1px solid color-mix(in oklch, var(--ink) 6%, transparent);
+  transform: rotate(5deg) translate(7%, 2%);
   box-shadow: 0 14px 26px rgba(28, 24, 18, 0.1);
-  transition: transform 780ms var(--pw-spring);
+  transition: transform 300ms var(--pj-ease);
 }
 
 /* Height-driven so portraits of different crops carry the same visual mass. */
 .pj-art__shot {
   position: relative;
   margin: 0;
-  height: clamp(236px, 27vw, 372px);
+  height: clamp(258px, 30vw, 420px);
   max-width: 100%;
   border-radius: 16px;
   border: 3px solid var(--accent);
@@ -367,7 +443,7 @@
   box-shadow:
     0 2px 4px rgba(28, 24, 18, 0.07),
     0 22px 40px rgba(28, 24, 18, 0.18);
-  transition: transform 780ms var(--pw-spring);
+  transition: transform 300ms var(--pj-ease);
 }
 
 .pj-art__shot img {
@@ -381,8 +457,270 @@
   transform: rotate(-1deg) translateY(-9px) scale(1.02);
 }
 
+/*
+ * Two landscape frames laid over each other like prints on a desk: the console
+ * anchors the upper right, the title card lies across its lower-left corner. The
+ * box is proportional rather than a fixed height, so the overlap holds at every
+ * width instead of the pair drifting apart into two islands on wide screens.
+ */
+.pj-art--pair {
+  place-items: stretch;
+  min-height: 0;
+  aspect-ratio: 1.26;
+}
+
+.pj-art--pair .pj-art__shot {
+  position: absolute;
+  height: auto;
+  border-width: 2px;
+}
+
+.pj-art--pair .pj-art__shot:nth-of-type(1) {
+  width: 94%;
+  right: 0;
+  top: 3%;
+  transform: rotate(2.4deg);
+  z-index: 1;
+}
+
+/* On top, so the frame it covers is the only one losing a corner. */
+.pj-art--pair .pj-art__shot:nth-of-type(2) {
+  width: 66%;
+  left: 0;
+  bottom: 3%;
+  transform: rotate(-4deg);
+  z-index: 3;
+}
+
+/* Hover parts them slightly — enough to read as two sheets, not enough to unstack. */
+.pj-entry:hover .pj-art--pair .pj-art__shot:nth-of-type(1) {
+  transform: rotate(3.6deg) translate(2%, -8px);
+}
+
+.pj-entry:hover .pj-art--pair .pj-art__shot:nth-of-type(2) {
+  transform: rotate(-2.4deg) translate(-3%, 6px) scale(1.02);
+}
+
+/* SaySo carries a single mark, so the pair takes the corner the others reserve. */
+.pj-art--pair[data-art="sayso"] .pj-art__shot:nth-of-type(1) {
+  width: 100%;
+  top: 0;
+}
+
+.pj-art--pair[data-art="sayso"] .pj-art__shot:nth-of-type(2) {
+  width: 73%;
+  bottom: 0;
+}
+
+.pj-art--pair[data-art="sayso"] .pj-mark--br {
+  left: 73%;
+}
+
+/*
+ * Phone screens sit in a row with a shallow overlap. Four tall frames across one
+ * column is the binding constraint: every point of width one screen keeps is a
+ * point the next one loses, so the widths are set to leave roughly three
+ * quarters of each screen showing rather than to make any single one large.
+ */
+.pj-art--deck {
+  place-items: stretch;
+  min-height: 0;
+  aspect-ratio: 1.38;
+}
+
+.pj-art--deck .pj-art__shot {
+  position: absolute;
+  height: auto;
+  border-width: 2px;
+  border-radius: 18px;
+}
+
+.pj-art--deck .pj-art__shot:nth-of-type(1) {
+  width: 29%;
+  left: 0;
+  bottom: 8%;
+  transform: rotate(-7deg);
+  z-index: 1;
+}
+
+.pj-art--deck .pj-art__shot:nth-of-type(2) {
+  width: 30%;
+  left: 22%;
+  bottom: 3%;
+  transform: rotate(-2.5deg);
+  z-index: 2;
+}
+
+.pj-art--deck .pj-art__shot:nth-of-type(3) {
+  width: 31%;
+  left: 44%;
+  bottom: 5%;
+  transform: rotate(2.5deg);
+  z-index: 3;
+}
+
+.pj-art--deck .pj-art__shot:nth-of-type(4) {
+  width: 33%;
+  left: 67%;
+  bottom: 0;
+  transform: rotate(7deg);
+  z-index: 4;
+}
+
+/* Hover fans the row open from its centre, so the overlap loosens rather than lifts. */
+.pj-entry:hover .pj-art--deck .pj-art__shot {
+  transform: rotate(-9deg) translate(-4%, -10px);
+}
+
+.pj-entry:hover .pj-art--deck .pj-art__shot:nth-of-type(2) {
+  transform: rotate(-3.5deg) translate(-1.5%, -14px);
+}
+
+.pj-entry:hover .pj-art--deck .pj-art__shot:nth-of-type(3) {
+  transform: rotate(3.5deg) translate(1.5%, -12px);
+}
+
+.pj-entry:hover .pj-art--deck .pj-art__shot:nth-of-type(4) {
+  transform: rotate(9deg) translate(4%, -6px);
+}
+
+/*
+ * Marks are pinned to the frame corners rather than to the container's, and are
+ * centred on the point they are pinned to, so each sits half on the frame and
+ * half on the paper however the composition scales. Centring uses the standalone
+ * translate property so hover can lift a mark without restating its rotation.
+ */
+
+.pj-mark {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  translate: -50% -50%;
+  rotate: var(--tilt, 0deg);
+  transition:
+    translate 340ms var(--pj-ease),
+    rotate 340ms var(--pj-ease);
+}
+
+.pj-mark--chip {
+  --mark: clamp(40px, 4.4vw, 62px);
+  width: var(--mark);
+  height: var(--mark);
+  filter: drop-shadow(0 9px 11px rgba(28, 24, 18, 0.19));
+}
+
+.pj-mark--object {
+  --mark: clamp(58px, 6.4vw, 88px);
+  display: block;
+  width: var(--mark);
+  filter: drop-shadow(0 12px 16px rgba(28, 24, 18, 0.22));
+}
+
+.pj-mark--object svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/*
+ * Each object fills its own viewBox differently, so a shared width would make the
+ * squat ones read as twice the size of the tall ones. Trimmed to equal presence.
+ */
+.pj-mark--obj-heart {
+  --mark: clamp(50px, 5.5vw, 76px);
+}
+
+.pj-mark--obj-flame {
+  --mark: clamp(46px, 5.1vw, 70px);
+}
+
+.pj-mark--obj-trophy,
+.pj-mark--obj-journal {
+  --mark: clamp(52px, 5.8vw, 79px);
+}
+
+.pj-mark--obj-stopwatch {
+  --mark: clamp(54px, 6vw, 82px);
+}
+
+.pj-mark--logo {
+  --mark: clamp(54px, 6vw, 82px);
+  width: var(--mark);
+  height: auto;
+  filter: drop-shadow(0 10px 15px rgba(28, 24, 18, 0.22));
+}
+
+/* Everything lifts together and eases toward upright, so the set reads as one move. */
+.pj-entry:hover .pj-mark {
+  translate: -50% calc(-50% - 8px);
+  rotate: calc(var(--tilt, 0deg) * 0.5);
+}
+
+/* —— Anchors: each slot is the frame corner the mark is pinned to —— */
+
+.pj-art--pair .pj-mark--tl {
+  --tilt: -9deg;
+  left: 7%;
+  top: 5%;
+}
+
+.pj-art--pair .pj-mark--tr {
+  --tilt: 9deg;
+  left: 95%;
+  top: 5%;
+}
+
+.pj-art--pair .pj-mark--rt {
+  --tilt: -6deg;
+  left: 98%;
+  top: 56%;
+}
+
+.pj-art--pair .pj-mark--br {
+  --tilt: 7deg;
+  left: 66%;
+  top: 93%;
+}
+
+.pj-art--pair .pj-mark--bl {
+  --tilt: -8deg;
+  left: 4%;
+  top: 93%;
+}
+
+.pj-art--pair .pj-mark--seam {
+  --tilt: -5deg;
+  left: 64%;
+  top: 52%;
+  z-index: 5;
+}
+
+.pj-art--deck .pj-mark--tl {
+  --tilt: -8deg;
+  left: 5%;
+  top: 21%;
+}
+
+.pj-art--deck .pj-mark--tr {
+  --tilt: 9deg;
+  left: 96%;
+  top: 9%;
+}
+
+.pj-art--deck .pj-mark--bl {
+  --tilt: -7deg;
+  left: 3%;
+  top: 90%;
+}
+
+.pj-art--deck .pj-mark--br {
+  --tilt: 8deg;
+  left: 95%;
+  top: 92%;
+}
+
 .pj-entry:hover .pj-art__backing {
-  transform: rotate(9.5deg) translate(17%, 3%);
+  transform: rotate(7.5deg) translate(10%, 2%);
 }
 
 /* —— Cross-reference band (a project written up under research) —— */
@@ -416,17 +754,15 @@
   gap: clamp(3rem, 7vw, 5rem);
 }
 
-.pj-tail,
-.pj-bases {
+.pj-tail {
   opacity: 0;
-  transform: translateY(16px);
+  transform: translateY(14px);
   transition:
-    opacity 560ms ease,
-    transform 760ms var(--pw-spring);
+    opacity 460ms var(--pj-ease),
+    transform 520ms var(--pj-ease);
 }
 
-.pj-tail.is-in,
-.pj-bases.is-in {
+.pj-tail.is-in {
   opacity: 1;
   transform: none;
 }
@@ -488,17 +824,53 @@
   color: color-mix(in oklch, var(--ink) 38%, transparent);
 }
 
+/*
+ * These headings are the only control on the card, so the caret is always there
+ * rather than appearing on hover: on a touch screen there is no hover state to
+ * discover it with, and a bare serif line reads as a label, not a button.
+ */
+.pj-small__title {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+
 .pj-small__name {
   font-family: Palatino, "Iowan Old Style", serif;
   font-size: 1.22rem;
   font-weight: 600;
   letter-spacing: -0.015em;
   line-height: 1.15;
-  transition: color 220ms ease;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: transparent;
+  transition:
+    color 220ms ease,
+    text-decoration-color 220ms ease;
+}
+
+.pj-small__caret {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: color-mix(in oklch, var(--ink) 40%, transparent);
+  transition:
+    transform 300ms var(--pj-ease),
+    color 220ms ease;
+}
+
+.pj-small__head.is-open .pj-small__caret {
+  transform: rotate(-180deg);
 }
 
 .pj-small__head:hover .pj-small__name {
   color: color-mix(in oklch, var(--ink) 62%, transparent);
+  text-decoration-color: color-mix(in oklch, var(--ink) 30%, transparent);
+}
+
+.pj-small__head:hover .pj-small__caret {
+  color: color-mix(in oklch, var(--ink) 66%, transparent);
 }
 
 .pj-small__line {
@@ -514,12 +886,12 @@
   color: color-mix(in oklch, var(--ink) 66%, transparent);
 }
 
-.pj-small__awards {
-  margin: 0.6rem 0 0;
-  padding-left: 1rem;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: color-mix(in oklch, var(--ink) 55%, transparent);
+.pj-small .pj-awards {
+  margin-top: 0.6rem;
+}
+
+.pj-small .pj-awards__item {
+  font-size: 0.78rem;
 }
 
 .pj-small__stack {
@@ -536,50 +908,18 @@
   gap: 0.3rem 1.1rem;
 }
 
+/*
+ * The tail cards carry no artwork, so they never get a band accent of their own
+ * and the links were falling back to ink, which read as more body copy. One
+ * shared colour instead — cardinal is the only site accent no band claims.
+ */
 .pj-small__links .pj-link {
   font-size: 0.86rem;
-  color: color-mix(in oklch, var(--ink) 72%, transparent);
+  color: var(--pj-cardinal);
 }
 
-/* —— Bases note —— */
-
-.pj-bases {
-  padding: clamp(1.6rem, 3vw, 2.2rem) clamp(1.5rem, 3vw, 2.4rem);
-  border-radius: 20px;
-  border: 1px solid color-mix(in oklch, var(--ink) 10%, transparent);
-  background: oklch(1 0 0 / 0.42);
-  max-width: 44rem;
-}
-
-.pj-bases__kicker {
-  margin: 0 0 0.5rem;
-  font-family: var(--font-hand);
-  font-size: 1.1rem;
-  color: color-mix(in oklch, var(--ink) 48%, transparent);
-}
-
-.pj-bases__title {
-  margin: 0;
-  font-family: Palatino, "Iowan Old Style", serif;
-  font-size: clamp(1.25rem, 2vw, 1.6rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-
-.pj-bases__period {
-  margin: 0.3rem 0 0;
-  font-size: 0.72rem;
-  font-variant: all-small-caps;
-  letter-spacing: 0.13em;
-  color: color-mix(in oklch, var(--ink) 40%, transparent);
-}
-
-.pj-bases__body {
-  margin: 0.8rem 0 0;
-  font-size: 0.97rem;
-  line-height: 1.6;
-  color: color-mix(in oklch, var(--ink) 72%, transparent);
+.pj-small__links .pj-link.is-pending {
+  color: color-mix(in oklch, var(--ink) 38%, transparent);
 }
 
 /* —— Narrow —— */
@@ -630,7 +970,7 @@
 /* —— Reduced motion —— */
 
 @media (prefers-reduced-motion: reduce) {
-  .pj-band,
+  .pj-band__inner,
   .pj-tail,
   .pj-bases {
     opacity: 1;
@@ -642,12 +982,18 @@
   .pj-link__arrow,
   .pj-art__shot,
   .pj-art__backing,
-  .pj-small__name {
+  .pj-small__name,
+  .pj-small__caret {
     transition: none;
   }
 
   .pj-entry:hover .pj-art__shot,
   .pj-entry:hover .pj-art__backing {
     transform: none;
+  }
+
+  .pj-entry:hover .pj-mark {
+    translate: -50% -50%;
+    rotate: var(--tilt, 0deg);
   }
 }

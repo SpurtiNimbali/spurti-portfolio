@@ -2,7 +2,7 @@ import { projectsForSection } from "../projects";
 import { tierFromIntensity } from "../lib/projectTier";
 import { useIntensity } from "./IntensityContext";
 import { ProjectBand } from "./ProjectBand";
-import { BasesNote, ProjectTail } from "./ProjectTail";
+import { ProjectTail } from "./ProjectTail";
 
 export function ProjectsIndex() {
   const { intensity } = useIntensity();
@@ -23,16 +23,14 @@ export function ProjectsIndex() {
       <div className="pj-tails">
         <ProjectTail
           heading="also built"
-          blurb="Shorter runs — hackathons, internships, and coursework that turned into something."
+          blurb="Shorter runs: hackathons, internships, and coursework that turned into something."
           entries={alsoBuilt}
           axisTier={axisTier}
         />
 
-        <BasesNote />
-
         <ProjectTail
           heading="before stanford"
-          blurb="High school work, mostly diagnostics and assistive hardware."
+          blurb="High school work, mostly assistive tools for health and accessibility."
           entries={before}
           axisTier={axisTier}
         />

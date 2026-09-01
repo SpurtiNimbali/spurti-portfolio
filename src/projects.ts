@@ -1,12 +1,10 @@
-export type ProjectSection =
-  | "selected"
-  | "also built"
-  | "bases"
-  | "before stanford";
+export type ProjectSection = "selected" | "also built" | "before stanford";
 
 export type ProjectLink = {
   label: string;
   href: string;
+  /** Shown with the summary at every tier, not held back behind "more". */
+  primary?: boolean;
 };
 
 export type ProjectCrossRef = {
@@ -29,12 +27,7 @@ export type ProjectEntry = {
   crossRef?: ProjectCrossRef;
 };
 
-export const PROJECT_SECTION_ORDER: ProjectSection[] = [
-  "selected",
-  "also built",
-  "bases",
-  "before stanford",
-];
+export const PROJECT_SECTION_ORDER: ProjectSection[] = ["selected", "also built", "before stanford"];
 
 export const PROJECTS: ProjectEntry[] = [
   {
@@ -42,78 +35,83 @@ export const PROJECTS: ProjectEntry[] = [
     year: 2026,
     name: "Atria AI",
     section: "selected",
-    line: "Keeps families updated during a medical emergency.",
+    line: "Keeps families informed when minutes matter.",
     detail:
-      "A real-time conversational assistant that generates contextual updates for families from electronic health records, so nobody is left refreshing a waiting room screen.",
-    full: "LangGraph orchestrates a 10-agent reasoning pipeline with separate modules for hypothesis, evidence grounding, and safety validation. Retrieval runs on Jina embeddings. Every output is citation-grounded to keep hallucination down, which matters more here than latency.",
+      "A real-time conversational assistant that turns raw EHR activity into plain-language updates for families, so nobody is left *waiting*.",
+    full: "Ten specialized agents orchestrated in LangGraph (drug interaction, lab trend forecasting, treatment risk, personalized dosing, disease progression), separated into hypothesis generation, evidence grounding, and safety validation, so no clinical inference reaches a family without passing a verification stage. Retrieval runs on hybrid BM25 and vector KNN over Jina embeddings in Elasticsearch, and every claim is bound to a source record. The latency budget bends to that constraint, not the reverse.",
     stack: "Python · React · Elasticsearch · ElevenLabs · LangGraph",
     links: [
-      { label: "TODO: repo URL", href: "#" },
-      { label: "TODO: demo video URL", href: "#" },
+      { label: "live prototype", href: "https://atria-ai-gilt.vercel.app/", primary: true },
+      { label: "demo video", href: "https://www.youtube.com/watch?v=C4xo_87xCiQ" },
+      { label: "github", href: "https://github.com/SpurtiNimbali/Atria-AI" },
     ],
-  },
-  {
-    id: "mindbridge-ref",
-    year: 2026,
-    name: "MindBridge",
-    section: "selected",
-    line: "MindBridge — see",
-    crossRef: { href: "/research#mindbridge", label: "research" },
   },
   {
     id: "sayso",
     year: 2025,
     name: "SaySo",
     section: "selected",
-    line: "Turns recorded voice notes into linked design tasks.",
+    line: "Feedback that sticks before it slips.",
     detail:
-      "An Adobe Express add-on for asynchronous design review. Spoken feedback becomes structured tasks linked to the specific elements they refer to, instead of a comment thread someone has to translate.",
-    full: "Built with the Adobe Express Extensibility team and shipped to the add-on marketplace. Won the 2025 Adobe Express Add-On Hackathon.",
-    stack: "React · FastAPI · OpenAI Whisper",
-    links: [{ label: "TODO: marketplace URL", href: "#" }],
-    awards: ["Winner, Adobe Express Add-On Hackathon 2025"],
+      "An Adobe Express add-on that streamlines asynchronous design reviews by converting recorded voice feedback into structured, element-linked tasks, cutting the turnaround from review to implementation.",
+    full: "Voice is captured in-panel through the Web Audio API, transcribed by Whisper, and extracted by GPT-4 into editable task cards. The interesting constraint: Express add-ons run sandboxed and cannot create native canvas annotations, so there is no way to attach feedback to an element. SaySo reconstructs the link instead, a bridge script logs element selection history during recording and matches transcript segments to elements by timestamp, so \"this part looks off\" resolves to a specific object. Nothing leaves the browser; recording and inference run in memory with no storage. Built through to marketplace release with Adobe's Extensibility team.",
+    stack: "React · React Spectrum · FastAPI · Whisper · GPT-4",
+    links: [
+      { label: "demo video", href: "https://www.youtube.com/watch?v=ka0tRQN76ZM", primary: true },
+      { label: "github", href: "https://github.com/SpurtiNimbali/SaySo" },
+      { label: "devpost", href: "https://devpost.com/software/sayso" },
+      { label: "pitch deck", href: "https://canva.link/b1lod72dti1ltaw" },
+    ],
+    awards: ["Winner, Collaboration Catalyst at the Adobe Express Add-ons Hackathon 2025"],
   },
   {
-    id: "ollie-hinkle",
+    id: "cooked",
+    year: "TODO: year",
+    name: "COOKED",
+    section: "selected",
+    line: "Either cook or get cooked.",
+    detail:
+      "A social computing app where your friend group is the accountability system. Call out a friend to do something bold, funny, or embarrassing, and the whole crew watches a 24-hour timer run down.",
+    full: "They accept, counter-dare, or fold, all of it public. The crew bets Sparks on whether they'll pull it off, video proof comes in, and the group votes on whether it counted. Everyone cycles through three roles: the one calling out, the one on the spot, and the crowd judging, so nobody is just scrolling. The bet behind it: friend groups already run on social pressure, and that pressure disappears the moment a commitment moves to a private text thread. COOKED makes the commitment public and gives it stakes. Payouts scale with how many people bet against you, so the dares nobody believed in are worth the most.",
+    stack: "TODO",
+    links: [
+      {
+        label: "demo video",
+        href: "https://drive.google.com/file/d/1xnbra8pVARG94BDgGdj5xrfOEt029aGH/view?usp=sharing",
+        primary: true,
+      },
+      { label: "github", href: "https://github.com/elnukk/cooked-mobile" },
+      {
+        label: "project doc",
+        href: "https://drive.google.com/file/d/151I51iWsjpQg8dhfPx2pTbCYh3VUC_in/view?usp=sharing",
+      },
+    ],
+  },
+  {
+    id: "cardea",
     year: 2026,
     name: "Cardea",
     section: "selected",
-    line: "A heart-health companion for patients and the people caring for them.",
+    line: "Care doesn't stop when you leave the hospital.",
     detail:
-      "Led a cross-functional team of Stanford engineers to design and ship a healthcare product in partnership with the Ollie Hinkle Heart Foundation, owning product vision, technical architecture, and stakeholder alignment. Came out of CS 51/52, CS for Social Good, where she TAs.",
-    full: "Mood check-ins, a learning and resources library, saved questions to bring to your care team, and guided chat prompts — the app is built around the parts of heart care that happen between appointments.",
-    stack: "TODO",
-    note: "TODO: confirm the name reads as Cardea rather than the foundation, and say whether it is live and who is using it.",
-    links: [{ label: "TODO", href: "#" }],
-  },
-  {
-    id: "dares",
-    year: "TODO: year",
-    name: "Dares",
-    section: "selected",
-    line: "A social dare game with friends, on a timer.",
-    detail:
-      "TODO: what it is for and who it is for. From the build: friends dare each other, each dare runs on a countdown, and a live friend feed shows what is in play with points staked on the outcome.",
-    full: "TODO: the outcome — did it ship, did people use it, what broke.",
-    stack: "TODO",
-    links: [{ label: "TODO", href: "#" }],
-  },
-  {
-    id: "orchestrate-support-agent",
-    year: 2026,
-    name: "Orchestrate Support Agent",
-    section: "also built",
-    line: "Terminal agent that triages support tickets.",
-    detail:
-      "Built in 24 hours for the HackerRank Orchestrate hackathon. Routes real support tickets across the HackerRank, Claude, and Visa support corpora, and has to escalate anything sensitive or unsupported rather than guess at an answer.",
-    full: "TODO: how it placed, and what it got wrong.",
-    stack: "Python",
+      "A companion app for families raising a child with congenital heart disease, built for the Ollie Hinkle Heart Foundation. Mood check-ins, a trauma-informed chat companion, coping tools, and a running list of questions to bring to the next appointment.",
+    full: "The idea is that the hardest part of heart care isn't the appointments, it's the months in between, where caregivers are managing a child's condition and their own exhaustion with no one to ask. Cardea's chat answers from a retrieval index built on vetted CHD material rather than open-ended generation, so responses stay grounded in what the foundation actually endorses, and crisis language is caught by its own tested layer instead of trusted to a prompt. Separate content pipelines feed the medical glossary and question library into Supabase, so OHHF can grow the app's knowledge without a developer.",
+    stack: "Vite · React · TypeScript · Express · Supabase · OpenAI · Anthropic",
     links: [
-      {
-        label: "GitHub",
-        href: "https://github.com/SpurtiNimbali/orchestrate-support-agent",
-      },
+      { label: "prototype", href: "https://ohhf-cs-52.vercel.app/home", primary: true },
+      { label: "github", href: "https://github.com/SpurtiNimbali/OHHF_CS52" },
     ],
+  },
+  {
+    id: "airys-tech",
+    year: 2025,
+    name: "Airys Tech, climate document intelligence",
+    section: "also built",
+    line: "Reads 800+ county climate plans so people don't have to.",
+    detail:
+      "A document intelligence pipeline at the TomKat Center processing over 800 County Hazard and Climate Mitigation Plans with embedding-based retrieval and structured extraction, cutting end-to-end processing latency by 80%.",
+    full: "Also deployed a dashboard using agentic deep-web extraction and LLM querying over infrastructure and socio-economic datasets, built for Texas Drinking Water Watch to identify and prioritize climate mitigation grant allocation.",
+    stack: "Python · LLMs · embedding retrieval · web scraping",
   },
   {
     id: "quantum-ai-institute",
@@ -122,22 +120,9 @@ export const PROJECTS: ProjectEntry[] = [
     section: "also built",
     line: "First intern hire at a pre-seed startup.",
     detail:
-      "Product and growth at Second Time Founders, building the Quantum AI Institute — an invitation-only fellowship for executives. Ran competitive landscape analysis, partnered on product strategy and positioning, and supported early-stage fundraising alongside leadership.",
-    full: "Supported a $500K raise as the first intern on the team. Confirm she is comfortable with this line — it is the company's raise, not hers.",
-    stack: "TODO",
+      "Product and growth at Second Time Founders, building the Quantum AI Institute, an invitation-only fellowship for executives. Ran competitive landscape analysis, partnered on product strategy and positioning, and supported early-stage fundraising alongside leadership.",
+    full: "Supported a $500K raise as the first intern on the team.",
     links: [{ label: "joinquantum.ai", href: "https://joinquantum.ai" }],
-  },
-  {
-    id: "airys-tech",
-    year: 2025,
-    name: "Airys Tech — climate document intelligence",
-    section: "also built",
-    line: "Reads 800+ county climate plans so people don't have to.",
-    detail:
-      "A document intelligence pipeline at the TomKat Center processing over 800 County Hazard and Climate Mitigation Plans with embedding-based retrieval and structured extraction, cutting end-to-end processing latency by 80%.",
-    full: "Also deployed a dashboard using agentic deep-web extraction and LLM querying over infrastructure and socio-economic datasets, built for Texas Drinking Water Watch to identify and prioritize climate mitigation grant allocation.",
-    stack: "Python · LLMs · embedding retrieval · web scraping",
-    links: [{ label: "TODO", href: "#" }],
   },
   {
     id: "nyc-taxi-trips",
@@ -148,6 +133,13 @@ export const PROJECTS: ProjectEntry[] = [
     detail:
       "Developed a supervised learning model to predict tipping outcomes in NYC taxi data; constructed a dataset of 500K+ observations with engineered temporal, spatial, and transactional features.",
     stack: "Pandas · Scikit-Learn · BeautifulSoup",
+    links: [
+      { label: "github", href: "https://github.com/SpurtiNimbali/DATASCI112" },
+      {
+        label: "poster",
+        href: "https://drive.google.com/file/d/1fK0b9ujwFfFiwNr3vWfMIpN7PskClvyj/view?usp=sharing",
+      },
+    ],
   },
   {
     id: "tag-team-reader",
@@ -159,41 +151,10 @@ export const PROJECTS: ProjectEntry[] = [
       "Built a full-stack MERN web app that uses Anthropic's API to generate reading content, with custom backend routes and session-based storage using TTL-indexed MongoDB.",
     full: "Rendered a responsive React frontend with dynamic routing and state management to support multi-user reading sessions in real time.",
     stack: "React.js · Node.js · MongoDB",
-  },
-  {
-    id: "cs-278",
-    year: "TODO: year",
-    name: "CS 278",
-    section: "also built",
-    line: "TODO",
-    detail: "TODO",
-    full: "TODO: If this is separate from the CS 231N paper, it needs its own entry. If it went badly, say so plainly at the full tier — that is an asset on this page, not a liability.",
-  },
-  {
-    id: "dysdiag",
-    year: 2023,
-    name: "DysDiag",
-    section: "before stanford",
-    line: "Screening tool for dyslexia, dysgraphia, and dyscalculia in children aged 5–8.",
-    detail:
-      "Handwriting sample analysis for stroke consistency and letter reversals, facial emotion modeling for confusion and frustration signals, and caregiver-reported behavioural surveys.",
-    full: "F1 of 0.785 and 0.964 across classifiers; in a case-control study of 40, 90% sensitivity, 90% specificity, 94.73% positive predictive value. ISEF 2023 special award, published in IJAARIT, and the youngest researcher to present at the All India Conclave on Research, Innovation and Entrepreneurship.",
-    awards: [
-      "Special Award, Regeneron ISEF 2023",
-      "Rise Global Fellow, Rhodes Trust and Schmidt Futures — 1 of 100 worldwide from over 14,000 applications across 170+ countries.",
-      "Winner, Smart India Hackathon 2023, Ministry of Science and Technology — first of over 10,000 applications.",
-      "CS109 Best Project Award finalist, top 1%.",
+    links: [
+      { label: "github", href: "https://github.com/LuciaLanganey/TagTeam-Reader" },
+      { label: "project doc", href: "https://canva.link/ldxt0x7zhsidd08" },
     ],
-  },
-  {
-    id: "oral-cancer-detection",
-    year: 2023,
-    name: "Oral cancer detection",
-    section: "before stanford",
-    line: "Diagnostic pipeline for early detection of oral squamous cell carcinoma from histopathological slides.",
-    detail:
-      "Morphological and textural feature extraction with OpenCV — nuclear shape, boundary irregularity, pixel intensity — classified via Google Cloud Vision.",
-    full: "96.43% precision and recall against expert-annotated labels.",
   },
   {
     id: "epicare",
@@ -203,6 +164,7 @@ export const PROJECTS: ProjectEntry[] = [
     line: "Android app for people with epilepsy and their caregivers.",
     detail:
       "Seizure detection triggering an SOS workflow with live geolocation and visual first-aid instructions for bystanders, plus seizure and medication logging and sleep pattern tracking.",
+    links: [{ label: "demo video", href: "https://www.youtube.com/watch?v=bhEwDd5M6is" }],
   },
   {
     id: "navigo",
@@ -212,14 +174,14 @@ export const PROJECTS: ProjectEntry[] = [
     line: "Arduino navigation device for the visually impaired.",
     detail:
       "Ultrasonic, flame, and water sensors driving real-time audio and haptic feedback for obstacle detection and hazard alerts.",
+    links: [
+      {
+        label: "project doc",
+        href: "https://90f0ab20-fb4a-49cf-aa26-db692f4c1b66.filesusr.com/ugd/e24c99_9b3de05f0dfe4dc38b495c0f9217919c.pdf",
+      },
+    ],
   },
 ];
-
-export const BASES_BLOCK = {
-  title: "Director, Hackspace — BASES",
-  period: "Jan 2025–present",
-  body: "Runs Stanford's largest hackathon and builder ecosystem: weekly HackerHours with Microsoft Founder's Hub, quarterly demo days with VCs and industry. Previously Frosh Battalion Fellow, selected as 1 of 30 in her incoming class.",
-};
 
 export function projectsForSection(section: ProjectSection): ProjectEntry[] {
   return PROJECTS.filter((entry) => entry.section === section);

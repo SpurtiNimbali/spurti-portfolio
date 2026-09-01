@@ -30,6 +30,7 @@ export type Print = {
   width: number;
   /** Photo height ÷ width. */
   photoAspect: number;
+  /** Degrees off square. Stays under about 10: these are tilted, never turned. */
   tilt: number;
   frame: PrintFrame;
   /** Rim just outside the white edge — only used by `cutout`. */

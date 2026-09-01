@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { IntensityAxis } from "./components/IntensityAxis";
 import { IntensityProvider } from "./components/IntensityContext";
 import { HoverEffectsProvider } from "./components/HoverEffectsContext";
 import { IntensityBackdrop } from "./components/IntensityBackdrop";
@@ -8,7 +7,7 @@ import { ProjectsPage } from "./pages/ProjectsPage";
 import { ResearchPage } from "./pages/ResearchPage";
 import { AboutPage } from "./pages/AboutPage";
 import "./styles/about.css";
-import { isAboutRoute, normalizePath, ROUTES } from "./lib/routes";
+import { normalizePath, ROUTES } from "./lib/routes";
 
 function usePathname() {
   const [pathname, setPathname] = useState(() => normalizePath(window.location.pathname));
@@ -44,17 +43,17 @@ function AppRoutes() {
   return <HeroPage />;
 }
 
+/*
+ * The hero is the only place the tone control appears, inline under the
+ * sentence it rewrites. The reading pages carry no floating copy of it: with
+ * disclosure handled per row, it had nothing left to say there.
+ */
 export default function App() {
-  const pathname = usePathname();
-  // The hero renders its own axis inline under the sentence.
-  const showAxis = !isAboutRoute(pathname) && pathname !== ROUTES.home;
-
   return (
     <IntensityProvider>
       <HoverEffectsProvider>
         <div className="page">
           <IntensityBackdrop />
-          {showAxis ? <IntensityAxis /> : null}
           <AppRoutes />
         </div>
       </HoverEffectsProvider>

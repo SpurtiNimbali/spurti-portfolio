@@ -10,9 +10,7 @@ export function ProjectsPage() {
         <BackLink />
         <CornerMeta />
         <p className="pj-top__kicker">projects.py</p>
-        <p className="pj-top__intro">
-          Things that shipped, roughly newest first.
-        </p>
+        <p className="pj-top__intro">Things that shipped.</p>
       </div>
 
       <main className="pj-main" aria-label="Projects">

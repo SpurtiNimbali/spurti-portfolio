@@ -1,7 +1,10 @@
 import { useId, useState } from "react";
-import { BASES_BLOCK, type ProjectEntry } from "../projects";
+import { type ProjectEntry } from "../projects";
 import { effectiveTier, tierAtLeast, type ProjectTier } from "../lib/projectTier";
 import { useReveal } from "../lib/useReveal";
+import { isTodo, realList, realOr } from "../lib/todo";
+import { withEmphasis } from "../lib/emphasis";
+import { Awards } from "./ProjectBand";
 
 type Props = {
   heading: string;
@@ -14,67 +17,42 @@ function TailEntry({ entry, axisTier }: { entry: ProjectEntry; axisTier: Project
   const [expanded, setExpanded] = useState(false);
   const panelId = useId();
   const tier = effectiveTier(axisTier, expanded);
-  const showDetail = tierAtLeast(tier, "detail") && Boolean(entry.detail);
-  const showFull = tierAtLeast(tier, "full");
-  const openable = Boolean(entry.detail || entry.full || entry.stack || entry.awards?.length);
 
-  const body = (
-    <div id={panelId} className="pj-small__body">
-      <div className={`pj-tier${showDetail ? " is-open" : ""}`} aria-hidden={!showDetail}>
-        <div>
-          <p className="pj-small__detail">{entry.detail}</p>
-        </div>
-      </div>
+  const year = realOr(entry.year);
+  const line = realOr(entry.line);
+  const detail = realOr(entry.detail);
+  const full = realOr(entry.full);
+  const stack = realOr(entry.stack);
+  const awards = realList(entry.awards, (award) => award);
+  const links = realList(entry.links, (link) => link.label).filter(
+    (link) => !isTodo(link.href),
+  );
 
-      <div className={`pj-tier${showFull && entry.full ? " is-open" : ""}`} aria-hidden={!(showFull && entry.full)}>
-        <div>
-          <p className="pj-small__detail">{entry.full}</p>
-        </div>
-      </div>
+  const showDetail = tierAtLeast(tier, "detail") && Boolean(detail);
+  const showFull = tierAtLeast(tier, "full") && Boolean(full);
+  /* Links are the whole point of a card this small, so they never hide behind "more". */
+  const openable = Boolean(detail || full);
 
-      <div
-        className={`pj-tier${showFull && entry.awards?.length ? " is-open" : ""}`}
-        aria-hidden={!(showFull && entry.awards?.length)}
-      >
-        <div>
-          <ul className="pj-small__awards">
-            {entry.awards?.map((award) => (
-              <li key={award}>{award}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      <div className={`pj-tier${showFull && entry.stack ? " is-open" : ""}`} aria-hidden={!(showFull && entry.stack)}>
-        <div>
-          <p className="pj-small__stack">{entry.stack}</p>
-        </div>
-      </div>
-
-      <div
-        className={`pj-tier${showFull && entry.links?.length ? " is-open" : ""}`}
-        aria-hidden={!(showFull && entry.links?.length)}
-      >
-        <div>
-          <p className="pj-small__links">
-            {entry.links?.map((link, i) =>
-              link.href.startsWith("http") ? (
-                <a key={i} className="pj-link" href={link.href} target="_blank" rel="noreferrer">
-                  {link.label}
-                  <span className="pj-link__arrow" aria-hidden="true">
-                    →
-                  </span>
-                </a>
-              ) : (
-                <span key={i} className="pj-link is-pending">
-                  {link.label}
-                </span>
-              ),
-            )}
-          </p>
-        </div>
-      </div>
-    </div>
+  const heading = (
+    <>
+      {year ? <span className="pj-small__year">{year}</span> : null}
+      <span className="pj-small__title">
+        <span className="pj-small__name">{entry.name}</span>
+        {openable ? (
+          <svg className="pj-small__caret" viewBox="0 0 12 12" aria-hidden="true">
+            <path
+              d="M2.5 4.5 6 8l3.5-3.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : null}
+      </span>
+      {line ? <span className="pj-small__line">{withEmphasis(line)}</span> : null}
+    </>
   );
 
   return (
@@ -82,23 +60,52 @@ function TailEntry({ entry, axisTier }: { entry: ProjectEntry; axisTier: Project
       {openable ? (
         <button
           type="button"
-          className="pj-small__head"
+          className={`pj-small__head${expanded ? " is-open" : ""}`}
           aria-expanded={expanded}
           aria-controls={panelId}
           onClick={() => setExpanded((open) => !open)}
         >
-          <span className="pj-small__year">{entry.year}</span>
-          <span className="pj-small__name">{entry.name}</span>
-          <span className="pj-small__line">{entry.line}</span>
+          {heading}
         </button>
       ) : (
-        <div className="pj-small__head pj-small__head--static">
-          <span className="pj-small__year">{entry.year}</span>
-          <span className="pj-small__name">{entry.name}</span>
-          <span className="pj-small__line">{entry.line}</span>
-        </div>
+        <div className="pj-small__head pj-small__head--static">{heading}</div>
       )}
-      {body}
+
+      {awards.length ? <Awards awards={awards} /> : null}
+      {stack ? <p className="pj-small__stack">{stack}</p> : null}
+
+      {links.length ? (
+        <p className="pj-small__links">
+          {links.map((link, i) =>
+            link.href.startsWith("http") ? (
+              <a key={i} className="pj-link" href={link.href} target="_blank" rel="noreferrer">
+                {link.label}
+                <span className="pj-link__arrow" aria-hidden="true">
+                  →
+                </span>
+              </a>
+            ) : (
+              <span key={i} className="pj-link is-pending">
+                {link.label}
+              </span>
+            ),
+          )}
+        </p>
+      ) : null}
+
+      <div id={panelId} className="pj-small__body">
+        <div className={`pj-tier${showDetail ? " is-open" : ""}`} aria-hidden={!showDetail}>
+          <div>
+            <p className="pj-small__detail">{withEmphasis(detail)}</p>
+          </div>
+        </div>
+
+        <div className={`pj-tier${showFull ? " is-open" : ""}`} aria-hidden={!showFull}>
+          <div>
+            <p className="pj-small__detail">{withEmphasis(full)}</p>
+          </div>
+        </div>
+      </div>
     </article>
   );
 }
@@ -119,15 +126,3 @@ export function ProjectTail({ heading, blurb, entries, axisTier }: Props) {
   );
 }
 
-export function BasesNote() {
-  const { ref, revealed } = useReveal<HTMLElement>();
-
-  return (
-    <section ref={ref} className={`pj-bases${revealed ? " is-in" : ""}`}>
-      <p className="pj-bases__kicker">on the side</p>
-      <h2 className="pj-bases__title">{BASES_BLOCK.title}</h2>
-      <p className="pj-bases__period">{BASES_BLOCK.period}</p>
-      <p className="pj-bases__body">{BASES_BLOCK.body}</p>
-    </section>
-  );
-}
