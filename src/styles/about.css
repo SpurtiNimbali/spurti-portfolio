@@ -4,19 +4,21 @@
    Loaded by AboutPage.
 
    LAYOUT is marco.fyi/about: a copy card on the left holding every section, a
-   widget grid on the right where each card carries an eyebrow, a rounded icon
-   tile in its corner, and media or an action below it.
+   widget grid on the right where each card carries an eyebrow, an extruded
+   object in its corner, and media or an action below it.
 
-   SURFACE is ours: cream paper, dot grid and liquid backdrop come from
-   IntensityBackdrop; type, palette, squiggle marks and mono pills from
-   index.css. Cards are the one structural import — the reference separates by
-   fill alone (grey on white), so ours go the other way (near-white on cream),
-   no border and no shadow.
+   SURFACE is ours, and that is most of what this file is for. Cream paper, dot
+   grid and liquid backdrop come from IntensityBackdrop; palette, squiggle marks
+   and mono pills from index.css. Cards are translucent paper on the same tint
+   the project bands use, so the backdrop keeps moving underneath them, and they
+   carry the site's hairline and lift rather than separating by fill alone.
 
-   Type scale measured off the reference:
-     label  12px / w500 / uppercase / normal tracking   <- widget eyebrows only
-     body   18px / w400 / lh 1.8      <- ours matches, now that the copy card
-                                         holds a bio instead of six answers
+   TYPE follows the site's roles rather than the reference's:
+     eyebrows   all-small-caps at 0.14em in a muted ink mix — never uppercase
+     names      Palatino at w600 with negative tracking
+     credits    mono, the same role a project's stack line has
+     asides     Caveat, one voice, used once
+     body       18px / w400 / lh 1.8, the one measurement kept off the reference
 
    The copy card carries no visible heading: it is her bio, unlabelled, and the
    only h1 on the page is screen-reader-only.
@@ -47,7 +49,10 @@
   flex-direction: column;
   padding: 2.2vh clamp(1rem, 2.4vw, 2.2rem);
   overflow: hidden;
-  --ab-card: oklch(0.988 0.004 88);
+  /* Translucent, on the projects page's --pj-tint-0 idiom: an opaque card
+     stopped the liquid backdrop dead under a third of the viewport, which is
+     the single loudest tell that this page was built somewhere else. */
+  --ab-card: oklch(0.985 0.008 92 / 0.86);
   --ab-line: color-mix(in oklch, var(--ink) 9%, transparent);
   --ab-gap: clamp(0.55rem, 0.9vw, 0.95rem);
 }
@@ -67,12 +72,15 @@
   width: 100%;
 }
 
+/* The page's one aside in her own hand, which is what Caveat is for here. */
 .ab-hint {
   flex: none;
   margin: 0.5rem 0;
   text-align: right;
-  font-size: 13px;
-  color: color-mix(in oklch, var(--ink) 42%, transparent);
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  line-height: 1;
+  color: color-mix(in oklch, var(--ink) 46%, transparent);
 }
 
 .ab-hint span {
@@ -92,15 +100,16 @@
   gap: var(--ab-gap);
 }
 
-/* Two media rows over a full-width strip. */
+/* A media row over a full-width thread. */
 .ab-widgets {
   display: grid;
   /* Photos takes the wider column; the music card only needs room for a sleeve
      and two lines. */
   grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
-  /* The thread is the tallest thing here now that it has the poem card's
-     space — it earns it, being the only interactive block. */
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) auto;
+  /* Two rows, not three: the book strip used to hold the bottom one, and an
+     empty third track still costs a gap. The thread takes the space it left —
+     it earns it, being the only interactive block on the page. */
+  grid-template-rows: minmax(0, 0.94fr) minmax(0, 1.06fr);
   gap: var(--ab-gap);
   min-height: 0;
 }
@@ -117,12 +126,32 @@
   gap: 0.55rem;
   padding: clamp(0.8rem, 1.25vw, 1.3rem);
   border-radius: 22px;
+  /* Hairline and lift are the site's, from .pj-art__shot: paper resting on
+     paper, not a panel filled a shade lighter than the page. */
+  border: 1px solid color-mix(in oklch, var(--ink) 6%, transparent);
   background: var(--ab-card);
+  box-shadow:
+    0 2px 4px rgb(28 24 18 / 0.05),
+    0 14px 26px rgb(28 24 18 / 0.1);
   min-height: 0;
-  /* No border, no shadow — the reference separates by fill alone. */
+  transition:
+    transform 300ms var(--hero-ease),
+    box-shadow 300ms var(--hero-ease);
 }
 
-/* Eyebrow left, icon tile right. */
+/*
+ * One coordinated move per card, the way .pj-entry:hover works: the sheet lifts
+ * a couple of pixels, its shadow deepens a step, and the object in its corner
+ * rises and eases toward upright. Three effects, one gesture.
+ */
+.ab-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 3px 6px rgb(28 24 18 / 0.06),
+    0 20px 36px rgb(28 24 18 / 0.14);
+}
+
+/* Eyebrow left, object right. */
 .ab-cardhead {
   flex: none;
   display: flex;
@@ -131,120 +160,59 @@
   gap: 0.75rem;
 }
 
-.ab-icon {
+/*
+ * Card objects, built like the ones on /projects: sizing and shadow live here
+ * rather than in the component, because each fills its viewBox differently and
+ * a shared width would make the cassette read as twice the print stack.
+ */
+.ab-mark {
   flex: none;
-  width: clamp(34px, 2.9vw, 46px);
-  height: clamp(34px, 2.9vw, 46px);
-  border-radius: 12px;
-  overflow: hidden;
-  background: color-mix(in oklch, var(--ink) 5%, transparent);
-}
-
-.ab-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
   display: block;
+  width: var(--mark);
+  rotate: var(--tilt, 0deg);
+  filter: drop-shadow(0 10px 14px rgb(28 24 18 / 0.22));
+  transition:
+    translate 300ms var(--hero-ease),
+    rotate 300ms var(--hero-ease);
 }
 
-/* 12px, uppercase, normal tracking. Measured, not invented. */
+.ab-mark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ab-mark--cassette {
+  --mark: clamp(56px, 5.6vw, 78px);
+  --tilt: -7deg;
+}
+
+.ab-mark--prints {
+  --mark: clamp(44px, 4.4vw, 60px);
+  --tilt: 6deg;
+}
+
+.ab-mark--envelope {
+  --mark: clamp(50px, 5vw, 68px);
+  --tilt: -6deg;
+}
+
+.ab-card:hover .ab-mark {
+  translate: 0 -7px;
+  rotate: calc(var(--tilt, 0deg) * 0.45);
+}
+
+/* The site's eyebrow, not the reference's: small caps and tracking, so this
+   reads as the same label as EXPERIENCE and PAPERS elsewhere. */
 .ab-label {
   margin: 0;
-  font-size: 12px;
+  font-size: 0.72rem;
   font-weight: 500;
   line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: normal;
-  color: color-mix(in oklch, var(--ink) 50%, transparent);
-}
-
-.ab-card__meta {
-  flex: none;
-  display: grid;
-  gap: 0.1rem;
-  margin: 0;
-}
-
-.ab-card__meta strong {
-  font-size: clamp(13px, 1.05vw, 15px);
-  font-weight: 600;
-  letter-spacing: -0.012em;
-  color: var(--ink);
-}
-
-.ab-card__meta span {
-  font-size: 12px;
-  line-height: 1.35;
-  color: color-mix(in oklch, var(--ink) 55%, transparent);
-}
-
-/* App-style tiles. Original marks in each service's colour family — see
-   AppTiles.tsx for why these are not the official logos. */
-.ab-tile {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: clamp(34px, 2.9vw, 46px);
-  height: clamp(34px, 2.9vw, 46px);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgb(40 36 32 / 0.16);
-}
-
-.ab-tile svg {
-  width: 62%;
-  height: 62%;
-}
-
-.ab-tile--music {
-  background: linear-gradient(160deg, #1fd664, #12a04a);
-}
-
-.ab-tile--music svg {
-  fill: #fff;
-}
-
-.ab-tile--photos {
-  background: #fff;
-}
-
-.ab-tile--messages {
-  background: linear-gradient(160deg, #5cf07a, #16c13c);
-}
-
-.ab-tile--messages svg {
-  fill: #fff;
-}
-
-.ab-tile--books {
-  background: linear-gradient(160deg, #ff9f45, #f4691f);
-}
-
-.ab-tile--books svg {
-  fill: none;
-  stroke: #fff;
-  stroke-width: 1.5;
-  stroke-linejoin: round;
-}
-
-/* A supplied logo is already a finished app icon: no tile background, no
-   padding, just the artwork at tile size. */
-.ab-tile--bare {
-  background: none;
-  box-shadow: none;
-  overflow: visible;
-}
-
-.ab-tile--bare img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
-  display: block;
-}
-
-/* The Photos tile overlays a photograph, so it keeps a ground of its own. */
-.ab-icon--float .ab-tile {
-  box-shadow: 0 2px 6px rgb(40 36 32 / 0.24);
+  font-variant: all-small-caps;
+  letter-spacing: 0.14em;
+  text-transform: none;
+  color: color-mix(in oklch, var(--ink) 42%, transparent);
 }
 
 /* ---------- copy card ---------- */
@@ -316,8 +284,8 @@
   text-decoration-color: var(--ink);
 }
 
-.ab-body span.mark.squiggle::after {
-  height: 0.26em;
+/* Body copy here is one size, so the wave is set outright rather than tracking em. */
+.ab-body span.mark.squiggle {
   background-size: 16px 6px;
 }
 
@@ -359,15 +327,18 @@
   transform: scale(1.035);
 }
 
-/* Overlaid icon needs its own ground to stay legible on any photo. */
+/* This card has no header to hang an object off, so the object floats in the
+   corner the others reserve for it. */
 .ab-icon--float {
   position: absolute;
   top: clamp(0.7rem, 1.1vw, 1.1rem);
   right: clamp(0.7rem, 1.1vw, 1.1rem);
-  width: auto;
-  height: auto;
-  background: none;
-  box-shadow: none;
+  z-index: 2;
+}
+
+/* It lands on a photograph rather than on paper, so it carries more shadow. */
+.ab-icon--float .ab-mark {
+  filter: drop-shadow(0 10px 16px rgb(28 24 18 / 0.4));
 }
 
 /* Floating segmented bar over the photo, as on the reference. */
@@ -484,9 +455,12 @@
   color: color-mix(in oklch, var(--ink) 84%, transparent);
 }
 
+/* Artist credits take the mono role a project's stack line has. */
 .ab-uplist em {
   font-style: normal;
-  font-size: 11.5px;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
   text-align: right;
   color: color-mix(in oklch, var(--ink) 48%, transparent);
 }
@@ -526,12 +500,16 @@
   object-fit: cover;
 }
 
+/* This card has no .ab-label, so the note is its eyebrow and takes the eyebrow
+   treatment. */
 .ab-listen__note {
   flex: none;
   margin: 0;
-  font-size: 12px;
-  font-weight: 600;
-  color: color-mix(in oklch, var(--ink) 66%, transparent);
+  font-size: 0.72rem;
+  font-weight: 500;
+  font-variant: all-small-caps;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ink) 46%, transparent);
 }
 
 .ab-now {
@@ -541,9 +519,11 @@
   margin: 0;
 }
 
+/* A track title is a name, and names on this site are set in Palatino. */
 .ab-now strong {
-  font-size: clamp(15px, 1.3vw, 18px);
-  font-weight: 700;
+  font-family: Palatino, "Iowan Old Style", "Times New Roman", serif;
+  font-size: clamp(16px, 1.4vw, 20px);
+  font-weight: 600;
   letter-spacing: -0.022em;
   color: var(--ink);
 }
@@ -607,76 +587,6 @@
 
 .ab-transport__play:hover {
   background: color-mix(in oklch, var(--ink) 8%, transparent);
-}
-
-/* ---------- poem card ---------- */
-
-.ab-poem {
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.1rem;
-  margin: 0;
-  padding: 0;
-}
-
-.ab-poem cite {
-  margin-bottom: 0.4rem;
-  font-style: normal;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.012em;
-  color: var(--ink);
-}
-
-/* One line per span, so line breaks are the poet's rather than the layout's. */
-.ab-poem span {
-  display: block;
-  font-size: clamp(12.5px, 1vw, 14px);
-  line-height: 1.62;
-  color: color-mix(in oklch, var(--ink) 80%, transparent);
-  text-wrap: balance;
-}
-
-/* Visible pending state, same convention as the unset CV link. */
-.ab-poem__pending {
-  flex: 1 1 auto;
-  display: grid;
-  place-content: center;
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  text-align: center;
-  color: color-mix(in oklch, var(--ink) 42%, transparent);
-}
-
-.ab-poem__pending code {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
-  font-size: 11px;
-}
-
-.ab-poem__from {
-  flex: none;
-  margin: 0;
-  font-size: 11.5px;
-  color: color-mix(in oklch, var(--ink) 52%, transparent);
-}
-
-.ab-poem__from a {
-  color: inherit;
-  text-decoration: none;
-  transition: color 140ms ease;
-}
-
-.ab-poem__from a:hover,
-.ab-poem__from a:focus-visible {
-  color: var(--ink);
-}
-
-.ab-poem__from span {
-  font-size: 9px;
 }
 
 /* ---------- message thread ---------- */
@@ -769,57 +679,65 @@
 }
 
 /*
- * Bubble tails. Two pseudo-elements: one draws a rounded corner in the bubble's
- * own colour just outside its edge, the second masks the outer half of that
- * shape in the card colour. Without these the bubbles read as generic chips —
- * the tail is most of what makes the reference look like a real thread.
+ * Bubble tails. One pseudo-element each: a rounded corner in the bubble's own
+ * colour, reaching past its edge, with the concave bite carved out by a mask.
+ * Without these the bubbles read as generic chips — the tail is most of what
+ * makes this look like a real thread.
+ *
+ * The bite used to be a second pseudo-element painted in the card's colour. That
+ * only works while the card is opaque: against a translucent card the patch is a
+ * hard pale notch beside every bubble, because it is a solid rectangle sitting
+ * where the backdrop should be showing through. A mask removes the pixels
+ * instead of covering them, so the tail no longer has to know what is behind it.
+ *
+ * The mask circle is the one the old patch's rounded corner described: radius 12,
+ * centred 5px past the bubble's edge and 1px below the box's top.
  */
-.ab-bubble::before,
-.ab-bubble::after {
+.ab-bubble::before {
   content: "";
   position: absolute;
   bottom: 0;
   width: 20px;
-  height: 20px;
+  height: 13px;
 }
 
-.ab-bubble--her {
-  background: color-mix(in oklch, var(--ink) 9%, transparent);
-  color: color-mix(in oklch, var(--ink) 92%, transparent);
-}
-
-.ab-row:not(.ends-run) .ab-bubble::before,
-.ab-row:not(.ends-run) .ab-bubble::after {
+.ab-row:not(.ends-run) .ab-bubble::before {
   display: none;
+}
+
+/*
+ * Opaque, not an ink mix over whatever is behind. The tail overlaps the bubble
+ * by 13px to fill its rounded bottom corner, and two translucent layers of the
+ * same colour compound into a visibly darker wedge right where the tail meets
+ * the bubble. The card behind is translucent, which is where the backdrop
+ * shows; a bubble is a foreground object and reads better solid.
+ */
+.ab-bubble--her {
+  background: color-mix(in oklch, var(--ink) 8%, var(--paper));
+  color: color-mix(in oklch, var(--ink) 92%, transparent);
 }
 
 .ab-bubble--her::before {
   left: -7px;
-  background: color-mix(in oklch, var(--ink) 9%, transparent);
+  background: color-mix(in oklch, var(--ink) 8%, var(--paper));
   border-bottom-right-radius: 16px;
+  -webkit-mask-image: radial-gradient(circle 12px at -5px 1px, transparent 11.5px, #000 12.4px);
+  mask-image: radial-gradient(circle 12px at -5px 1px, transparent 11.5px, #000 12.4px);
 }
 
-.ab-bubble--her::after {
-  left: -20px;
-  background: color-mix(in oklch, var(--ink) 3%, var(--ab-card));
-  border-bottom-right-radius: 12px;
-}
-
+/* The page's own blue, not a one-off. --cobalt is a step darker than the literal
+   it replaces, which white text only benefits from. */
 .ab-bubble--you {
-  background: oklch(0.6 0.2 258);
+  background: var(--cobalt);
   color: #fff;
 }
 
 .ab-bubble--you::before {
   right: -7px;
-  background: oklch(0.6 0.2 258);
+  background: var(--cobalt);
   border-bottom-left-radius: 16px;
-}
-
-.ab-bubble--you::after {
-  right: -20px;
-  background: color-mix(in oklch, var(--ink) 3%, var(--ab-card));
-  border-bottom-left-radius: 12px;
+  -webkit-mask-image: radial-gradient(circle 12px at 25px 1px, transparent 11.5px, #000 12.4px);
+  mask-image: radial-gradient(circle 12px at 25px 1px, transparent 11.5px, #000 12.4px);
 }
 
 /* Typing indicator — her side, three dots, while a scripted reply is pending. */
@@ -903,7 +821,7 @@
 
 .ab-composer__input:focus {
   outline: none;
-  border-color: oklch(0.6 0.2 258);
+  border-color: var(--cobalt);
 }
 
 .ab-composer__send {
@@ -929,7 +847,7 @@
 
 /* Fills in once there is something to send. */
 .ab-composer__send:not(:disabled) {
-  background: oklch(0.6 0.2 258);
+  background: var(--cobalt);
 }
 
 .ab-composer__send:disabled {
@@ -944,7 +862,7 @@
   gap: 0.4rem;
   height: 40px;
   border-radius: 30px;
-  background: oklch(0.6 0.2 258);
+  background: var(--cobalt);
   font-size: 15px;
   font-weight: 600;
   color: #fff;
@@ -955,90 +873,18 @@
   font-size: 11px;
 }
 
+/* A footnote about how the page works, which is the site's mono voice. */
 .ab-composer__note {
   flex: none;
   margin: 0.5rem 0 0;
-  font-size: 11px;
-  line-height: 1.35;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 10.5px;
+  line-height: 1.4;
   color: color-mix(in oklch, var(--ink) 42%, transparent);
-}
-
-/* ---------- book strip ---------- */
-
-.ab-card--book {
-  grid-column: 1 / -1;
-  flex-direction: row;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: clamp(0.8rem, 1.6vw, 1.6rem);
-}
-
-.ab-card--book > .ab-label {
-  flex: none;
-}
-
-.ab-book {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0 0.5rem;
-  margin: 0;
-}
-
-.ab-book strong {
-  font-size: clamp(13px, 1.05vw, 15px);
-  font-weight: 600;
-  letter-spacing: -0.012em;
-  color: var(--ink);
-  white-space: nowrap;
-}
-
-.ab-book em {
-  font-style: italic;
-  font-size: 12.5px;
-  color: color-mix(in oklch, var(--ink) 62%, transparent);
-  white-space: nowrap;
-}
-
-.ab-book span {
-  font-size: 11.5px;
-  color: color-mix(in oklch, var(--ink) 48%, transparent);
-  white-space: nowrap;
-}
-
-.ab-booklinks {
-  flex: none;
-  display: flex;
-  gap: 0.85rem;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.ab-booklinks a {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: color-mix(in oklch, var(--ink) 62%, transparent);
-  text-decoration: none;
-  transition: color 140ms ease;
-}
-
-.ab-booklinks a:hover,
-.ab-booklinks a:focus-visible {
-  color: var(--ink);
-}
-
-.ab-booklinks span {
-  font-size: 9px;
 }
 
 /* ---------- focus ---------- */
 
-.ab-contact a:focus-visible,
-.ab-poem__from a:focus-visible,
-.ab-booklinks a:focus-visible,
 .ab-composer__input:focus-visible,
 .ab-composer__send:focus-visible,
 .ab-composer__done:focus-visible,
@@ -1061,9 +907,9 @@
  *
  * The trap here was `grid-template-rows: 1fr auto` — `auto` let the widget
  * stack claim 536 of 709px and starve the copy card to 163px while its content
- * needed ~355. Below 1180 the widget column is therefore cut to the two things
- * that can't live anywhere else on the site: the contact thread and the book.
- * Photos, listening and papers are all reachable elsewhere.
+ * needed ~355. Below 1180 the widget column is therefore cut to the one thing
+ * that cannot live anywhere else on the site: the contact thread. Photos and
+ * listening are decoration, and the writing is reachable from /research.
  */
 
 @media (max-width: 1180px) {
@@ -1074,7 +920,7 @@
 
   .ab-widgets {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
+    grid-template-rows: auto;
   }
 
   .ab-card--photos,
@@ -1130,18 +976,6 @@
   .ab-hint {
     display: none;
   }
-
-  .ab-card--book {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .ab-book strong,
-  .ab-book em,
-  .ab-book span {
-    white-space: normal;
-  }
 }
 
 /* Very short viewports (320x568 and similar): the enlarged thread leaves the
@@ -1169,25 +1003,24 @@
   }
 }
 
-/* Small phones (360x740 and under): the bio scrolls in its card either way, so
-   the room the book strip was taking is better spent on the copy. */
-@media (max-width: 767px) and (max-height: 800px) {
-  .ab-card--book {
-    display: none;
-  }
-}
-
 /* ---------- reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
   .ab-photo img,
-  .ab-compose {
+  .ab-card,
+  .ab-mark {
     transition: none !important;
   }
 
-  .is-playing .ab-eq i {
-    animation: none;
-    height: 7px;
+  /* The lift and the tilt are the whole gesture, so with motion off there is
+     nothing left to do but leave the card where it is. */
+  .ab-card:hover {
+    transform: none;
+  }
+
+  .ab-card:hover .ab-mark {
+    translate: 0;
+    rotate: var(--tilt, 0deg);
   }
 
   .ab-typing i,

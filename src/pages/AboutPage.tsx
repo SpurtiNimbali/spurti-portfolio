@@ -4,11 +4,10 @@ import { CornerMeta } from "../components/CornerMeta";
 import { DefinitionMark } from "../components/DefinitionMark";
 import { StickerBoard, type Pinned } from "../components/HeroOverlay";
 import { AboutThread } from "../components/AboutThread";
-import { MessagesTile, MusicTile, PhotosTile } from "../components/AppTiles";
+import { AboutMark } from "../components/AboutObjects";
 import { printsFor } from "../lib/stickers";
 import type { Definition } from "../content";
 import {
-  ABOUT_BOOK,
   ABOUT_LINKS,
   ABOUT_PARAGRAPHS,
   ENTITY_DEFS,
@@ -73,14 +72,15 @@ function renderBody(
 }
 
 /**
- * Card header, matching the reference's widget anatomy: an eyebrow on the left
- * and a rounded app-style icon tile in the top-right corner.
+ * Card header: an eyebrow on the left and the card's object in the top-right
+ * corner, where the reference puts an app icon and where every other page on
+ * this site puts an extruded object.
  */
-function CardHead({ label, tile }: { label: string; tile: ReactNode }) {
+function CardHead({ label, mark }: { label: string; mark: ReactNode }) {
   return (
     <header className="ab-cardhead">
       <h2 className="ab-label">{label}</h2>
-      {tile}
+      {mark}
     </header>
   );
 }
@@ -89,8 +89,8 @@ function CardHead({ label, tile }: { label: string; tile: ReactNode }) {
  * About page mockup.
  *
  * Layout is marco.fyi/about: a copy card on the left holding every section, and
- * a 2x2 widget grid on the right where each card carries an eyebrow, a rounded
- * icon tile in its corner, and a meta line or action pill at the bottom.
+ * a widget grid on the right where each card carries an eyebrow, an object in
+ * its corner, and a meta line or action pill at the bottom.
  *
  * The header is the site's standard one — BackLink over CornerMeta — so it
  * matches every other content page rather than inventing its own nav.
@@ -180,8 +180,8 @@ export function AboutPage() {
               <img src={PHOTO_TABS[photoTab].src} alt={PHOTO_TABS[photoTab].label} />
             </button>
 
-            <span className="ab-icon ab-icon--float">
-              <PhotosTile title="Photos" />
+            <span className="ab-icon--float">
+              <AboutMark kind="prints" />
             </span>
 
             <div className="ab-phototabs" role="tablist" aria-label="Photo sets">
@@ -221,7 +221,7 @@ export function AboutPage() {
                   />
                 ) : null}
               </span>
-              <MusicTile title="Music" />
+              <AboutMark kind="cassette" />
             </header>
 
             <p className="ab-listen__note">{NOW_PLAYING.note}</p>
@@ -289,25 +289,8 @@ export function AboutPage() {
           {/* Contact as a message thread. Not a form — nothing collects input.
               The compose bar is a mailto link. */}
           <article className="ab-card ab-card--thread">
-            <CardHead label="say hi" tile={<MessagesTile title="Messages" />} />
+            <CardHead label="say hi" mark={<AboutMark kind="envelope" />} />
             <AboutThread />
-          </article>
-
-          <article className="ab-card ab-card--book">
-            <h2 className="ab-label">poems</h2>
-            <p className="ab-book">
-              <strong>{ABOUT_BOOK.title}</strong>
-              <em>{ABOUT_BOOK.subtitle}</em>
-              <span>{ABOUT_BOOK.meta}</span>
-            </p>
-            <nav className="ab-booklinks" aria-label="Where to find the book">
-              {ABOUT_BOOK.links.map((l) => (
-                <a key={l.label} href={l.href} target="_blank" rel="noreferrer">
-                  {l.label}
-                  <span aria-hidden="true">↗</span>
-                </a>
-              ))}
-            </nav>
           </article>
         </div>
       </div>

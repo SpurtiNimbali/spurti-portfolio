@@ -28,12 +28,18 @@ export type AboutParagraph = {
   body: string;
 };
 
-export const ABOUT_CONTACT = [
-  { label: "Email Me", href: "mailto:snimbali@stanford.edu" },
-  { label: "GitHub", href: "https://github.com/SpurtiNimbali" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/in/spurti-nimbali/" },
-  { label: "CV", href: "TODO: add CV URL" },
-];
+/**
+ * Profiles the thread composer's icon row links out to.
+ *
+ * Same rule as ABOUT_LINKS below: an unset value renders nothing at all. An
+ * icon whose href is a placeholder is a dead link wearing a logo, and there is
+ * no plain-text fallback for a glyph the way there is for a phrase — so the
+ * icon simply does not exist until the URL does. Filling one in is a one-line
+ * change. Tracked as item 1.5 in CONTENT-TODO.md.
+ */
+export const ABOUT_PROFILES: Record<string, string | undefined> = {
+  linkedin: undefined,
+};
 
 /**
  * Links the bio is still waiting on.
@@ -80,23 +86,6 @@ export const ABOUT_PARAGRAPHS: AboutParagraph[] = [
     body: "I'm still figuring out what home means, but I've gotten pretty good at collecting little pieces of it wherever I go. Still working on learning to keep my shoelaces tied, though.",
   },
 ];
-
-/**
- * Her poetry collection. Links out only — the poems themselves belong in the
- * book, not pasted onto a portfolio page.
- */
-export const ABOUT_BOOK = {
-  title: "My Paperboats",
-  subtitle: "With Whirling Words",
-  meta: "40+ poems · OrangeBooks Publication",
-  links: [
-    { label: "Google Books", href: "https://books.google.com/books?id=yZQQEAAAQBAJ" },
-    {
-      label: "Flipkart",
-      href: "https://www.flipkart.com/my-paperboats/p/itm75a94e6ca6cfc?pid=9789390489596",
-    },
-  ],
-};
 
 /**
  * Now-playing block, after the reference's music card: art tile, title,

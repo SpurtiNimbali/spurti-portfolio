@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { THREAD_OPENING, THREAD_SCRIPT, THREAD_WHO } from "../content/aboutPage";
+import { ABOUT_PROFILES, THREAD_OPENING, THREAD_SCRIPT, THREAD_WHO } from "../content/aboutPage";
 
 type Line = { from: "her" | "you"; text: string };
 
@@ -185,6 +185,22 @@ export function AboutThread() {
             <path d="M8 .8a7.2 7.2 0 00-2.3 14c.36.07.5-.15.5-.35v-1.2c-2 .44-2.43-.97-2.43-.97-.33-.83-.8-1.06-.8-1.06-.66-.45.05-.44.05-.44.73.05 1.11.75 1.11.75.65 1.1 1.7.79 2.11.6.07-.47.25-.79.46-.97-1.6-.18-3.28-.8-3.28-3.56 0-.79.28-1.43.74-1.93-.07-.19-.32-.92.07-1.92 0 0 .6-.2 1.98.73a6.9 6.9 0 013.6 0c1.38-.93 1.98-.73 1.98-.73.39 1 .14 1.73.07 1.92.46.5.74 1.14.74 1.93 0 2.77-1.69 3.38-3.29 3.56.26.22.49.66.49 1.33v1.97c0 .2.13.43.5.35A7.2 7.2 0 008 .8z" />
           </svg>
         </a>
+        {/* Appears the moment ABOUT_PROFILES.linkedin holds a URL, and not one
+            moment before — see the note there. */}
+        {ABOUT_PROFILES.linkedin ? (
+          <a
+            className="ab-composer__icon"
+            href={ABOUT_PROFILES.linkedin}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="LinkedIn"
+            title="LinkedIn"
+          >
+            <svg viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M14.6 0H1.4A1.4 1.4 0 000 1.4v13.2A1.4 1.4 0 001.4 16h13.2a1.4 1.4 0 001.4-1.4V1.4A1.4 1.4 0 0014.6 0zM4.9 13.6H2.6V6h2.3v7.6zM3.7 5a1.34 1.34 0 110-2.7 1.34 1.34 0 010 2.7zm9.9 8.6h-2.3V9.5c0-1-.35-1.66-1.23-1.66-.67 0-1.07.45-1.25.89-.06.16-.08.37-.08.59v4.29H6.44s.03-6.96 0-7.6h2.3v1.08c.3-.47.85-1.14 2.07-1.14 1.51 0 2.64.99 2.64 3.11v4.55z" />
+            </svg>
+          </a>
+        ) : null}
 
         {done ? (
           <a className="ab-composer__done" href={mailto()}>

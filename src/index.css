@@ -427,116 +427,6 @@ a {
   color: color-mix(in oklch, var(--ink) 46%, transparent);
 }
 
-.about-page.content-page {
-  padding-inline: 2.4vw;
-}
-
-.about-index {
-  max-width: 40rem;
-  margin-top: 8vh;
-}
-
-.about-contact {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0;
-  margin: 0 0 5rem;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  color: var(--mute);
-}
-
-.about-index > .about-contact:last-child {
-  margin: 5rem 0 0;
-}
-
-.about-contact__item {
-  display: inline;
-}
-
-.about-contact a {
-  text-decoration: none;
-  color: inherit;
-}
-
-.about-contact a:hover,
-.about-contact a:focus-visible {
-  color: var(--ink);
-}
-
-.about-contact a:focus-visible {
-  outline: 2px solid color-mix(in oklch, var(--ink) 40%, transparent);
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-.about-blocks {
-  display: grid;
-  gap: 5rem;
-}
-
-.about-block {
-  display: grid;
-  gap: 1rem;
-}
-
-.about-block__label {
-  margin: 0;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: lowercase;
-  color: var(--mute);
-  opacity: 0.45;
-}
-
-.about-block__body {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 400;
-  line-height: 1.35;
-  max-width: 40rem;
-  color: var(--ink);
-}
-
-.about-block__body a {
-  color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 0.14em;
-}
-
-.about-block__body a:focus-visible {
-  outline: 2px solid color-mix(in oklch, var(--ink) 40%, transparent);
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-
-.about-block__body--todo {
-  color: var(--mute);
-}
-
-.bases-block {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.bases-block__title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.4;
-}
-
-.bases-block__body {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.55;
-  color: var(--ink);
-  opacity: 0.82;
-}
-
 .before-stanford {
   border: 0;
   margin: 0;
@@ -2253,18 +2143,6 @@ body:has(.nav-item:focus-visible) .sticker-layer {
   .research-page,
   .content-page {
     padding-inline: 6vw;
-  }
-
-  .about-page.content-page {
-    padding-inline: 6vw;
-  }
-
-  .about-index {
-    margin-top: 6vh;
-  }
-
-  .about-block__body {
-    font-size: clamp(1.35rem, 5.5vw, 1.75rem);
   }
 
   .projects-index,
