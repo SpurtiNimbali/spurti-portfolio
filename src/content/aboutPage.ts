@@ -4,17 +4,17 @@
 // section, a widget grid on the right, nav pill centred at the top.
 //
 // Type scale measured off that page with getComputedStyle:
-//   label  12px / w500 / uppercase / normal tracking
 //   body   18px / w400 / line-height 1.8
-// Ours runs body a little tighter (16px / 1.65) purely so the whole thing holds
-// one viewport — the label-to-body ratio, which is what the design actually is,
-// is unchanged.
+// Ours matches at full width and steps down to 14px on a phone.
 //
-// HARD CONSTRAINT: one viewport, no scrolling. Ceiling is ~34 words per answer.
-// If you add a sentence, cut one.
+// The copy card used to be six labelled answers. It is now one continuous bio
+// in her own words, so it carries no headings — the copy card's prose scrolls
+// inside its own box when a viewport is too short for all of it. The page
+// itself still never scrolls.
 //
 // {{Simba}}, {{Stanford}} and {{Slack}} render as squiggle marks that peel real
-// photos onto the page when clicked.
+// photos onto the page when clicked. The current bio uses none of them; the
+// mechanism stays because the photo card and any future mention still need it.
 
 import { ENTITY_DEFS } from "./aboutEntities";
 import spurtiAvatar from "../assets/spurti.png";
@@ -23,13 +23,10 @@ import simbaAlt from "../assets/sticker-simba-4.webp";
 import stanfordPhoto from "../assets/sticker-stanford.webp";
 import slackPhoto from "../assets/sticker-slack.webp";
 
-export type AboutSection = {
+export type AboutParagraph = {
   id: string;
-  label: string;
   body: string;
 };
-
-export const ABOUT_TITLE = "What I'm about.";
 
 export const ABOUT_CONTACT = [
   { label: "Email Me", href: "mailto:snimbali@stanford.edu" },
@@ -38,36 +35,49 @@ export const ABOUT_CONTACT = [
   { label: "CV", href: "TODO: add CV URL" },
 ];
 
-export const ABOUT_SECTIONS: AboutSection[] = [
+/**
+ * Links the bio is still waiting on.
+ *
+ * `[[phrase]]` in a paragraph below renders as plain text until a URL lands
+ * here; then, and only then, the phrase becomes a link. Filling one in is a
+ * one-line change — replace the `undefined` with the URL.
+ *
+ * PENDING, both from Spurti: a poem to sit behind "poems", and wherever her
+ * articles and papers live to sit behind "articles or papers". Tracked as item
+ * 1.3 in CONTENT-TODO.md.
+ *
+ * Do not put a placeholder here. A `TODO:` string or a bare `#` shipped as an
+ * href is a dead link on a live page; an unset value is just plain text.
+ */
+export const ABOUT_LINKS: Record<string, string | undefined> = {
+  poems: undefined,
+  "articles or papers": undefined,
+};
+
+/**
+ * The bio, in her words. One continuous piece rather than labelled answers, so
+ * paragraph order is the argument — don't reorder without reading it aloud.
+ */
+export const ABOUT_PARAGRAPHS: AboutParagraph[] = [
   {
-    id: "from",
-    label: "where i'm from",
-    body: "Delhi. I was head girl at DPS R.K. Puram and spent most of high school building things for science fairs, which is how I ended up doing research with CSIR before my first CS class.",
+    id: "where-from",
+    body: 'I grew up across India, so "where are you from?" has never had a very short answer.',
   },
   {
-    id: "used-to-do",
-    label: "what i used to do",
-    body: "Medical things, without much equipment. A dyslexia and dysgraphia screener for young kids. A pipeline that found oral cancer in slide images. An epilepsy app that calls for help on its own.",
+    id: "delhi",
+    body: "Delhi is the closest thing to home. I spent high school somewhere between neurodivergence research, science fairs, being head girl, and scribbling poetry in the margins of things I was supposed to be paying attention to.",
   },
   {
-    id: "do-now",
-    label: "what i do now",
-    body: "CS and data science at {{Stanford}}. Software engineering intern at {{Slack}}, undergraduate researcher at the AI Lab, and I teach — TA for CS 51/52, returning as instructor.",
+    id: "writing",
+    body: "I hate reading, but I do still write: mostly [[poems]], occasionally things that somehow turn into [[articles or papers]].",
   },
   {
-    id: "working-on",
-    label: "what i'm working on",
-    body: "Hackspace at BASES — Stanford's largest hackathon, weekly HackerHours with Microsoft's Founders Hub, and demo days. Plus two lab projects I can't talk about yet.",
+    id: "loves",
+    body: "I love food and, more recently, attempting to cook it (results vary), cities that aren't too big or too loud, long walks, people who care deeply about obscure things, dancing till I can't walk the next day, and eternal sunshine (officially consider this my petition to ban gloomy days).",
   },
   {
-    id: "at-now",
-    label: "where i'm at now",
-    body: "Stanford mostly, San Francisco midweek. When I'm not working I'm with {{Simba}}, who is a dog and is unmoved by everything on this page.",
-  },
-  {
-    id: "looking-for",
-    label: "what i'm looking for",
-    body: "Work where a model has to survive contact with an actual person — a patient, a clinician, a kid being screened. That's where the interesting failures live.",
+    id: "home",
+    body: "I'm still figuring out what home means, but I've gotten pretty good at collecting little pieces of it wherever I go. Still working on learning to keep my shoelaces tied, though.",
   },
 ];
 

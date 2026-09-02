@@ -18,6 +18,12 @@ thin or unverified · ⚪️ internal, invisible to visitors
 |---|---|---|---|
 | 1.1 | **CV link** | 🔴 | The `CV` link renders greyed out and unclickable. Give me a URL (Drive, personal site, wherever) → `ABOUT_CONTACT` |
 | 1.2 | **Message thread copy** | ⚪️ | You said the draft is fine — noting it only because it's my writing in her voice, not hers. Rewrite any time → `THREAD_OPENING`, `THREAD_SCRIPT` |
+| 1.3 | **A poem to link "poems" at** | ⚪️ | The bio says "mostly poems" — you wanted that linked to a poem. Give me a URL (or the poem itself and I'll host it) → `ABOUT_LINKS.poems` |
+| 1.4 | **Somewhere to link "articles or papers"** | ⚪️ | Same sentence, second half. A page, a Medium, a Drive folder — whatever collects the writing → `ABOUT_LINKS["articles or papers"]` |
+
+1.3 and 1.4 are ⚪️ rather than 🔴 on purpose: until a URL exists both phrases
+render as ordinary text, so nothing on the live page looks broken or dead. Each
+one is a one-line change when it arrives.
 
 Everything else on this page is filled: photos, playlist, album art, service
 logos, book strip.
@@ -97,13 +103,15 @@ Done and in place: album art, all four service logos, sticker photographs.
 
 ## 5. Quick wins
 
-If you only have ten minutes, these four are the highest value — each is a
-single URL that turns a dead placeholder into a working link:
+If you only have ten minutes, these are the highest value — each is a single URL
+that turns a placeholder, or a phrase that wants to be a link, into a real one:
 
 1. **CV link** (1.1) — currently greyed out on the about page
 2. **DysDiag paper URL** (3.1) — the only peer-reviewed publication on the site
-3. **Atria AI repo + demo** (2b)
-4. **SaySo marketplace URL** (2b)
+3. **A poem, and where the articles live** (1.3, 1.4) — the two links your bio
+   asks for
+4. **Atria AI repo + demo** (2b)
+5. **SaySo marketplace URL** (2b)
 
 ---
 

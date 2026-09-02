@@ -9,17 +9,25 @@ import { printsFor } from "../lib/stickers";
 import type { Definition } from "../content";
 import {
   ABOUT_BOOK,
-  ABOUT_SECTIONS,
-  ABOUT_TITLE,
+  ABOUT_LINKS,
+  ABOUT_PARAGRAPHS,
   ENTITY_DEFS,
   NOW_PLAYING,
   UP_NEXT,
   PHOTO_TABS,
 } from "../content/aboutPage";
 
-const TOKEN = /\{\{([A-Za-z]+)\}\}/g;
+const TOKEN = /\{\{([A-Za-z]+)\}\}|\[\[([^\]]+)\]\]/g;
 
-/** Splits a body string, turning {{Word}} into a squiggle mark that peels photos. */
+/**
+ * Splits a body string on its two markups: `{{Word}}` becomes a squiggle mark
+ * that peels photos, `[[phrase]]` becomes a link to whatever ABOUT_LINKS holds
+ * for it.
+ *
+ * A `[[phrase]]` with no URL yet renders as ordinary text, not as an anchor
+ * with a placeholder href — the phrase reads the same either way, and a link
+ * only exists once it can actually go somewhere.
+ */
 function renderBody(
   body: string,
   onSpawn: (definition: Definition, at: HTMLElement | null) => void,
@@ -32,14 +40,30 @@ function renderBody(
     if (i > last) out.push(body.slice(last, i));
     last = i + m[0].length;
 
-    const def = ENTITY_DEFS[m[1]];
+    const [, entity, phrase] = m;
+
+    if (phrase !== undefined) {
+      const href = ABOUT_LINKS[phrase];
+      out.push(
+        href ? (
+          <a key={`${i}-link`} className="ab-link" href={href} target="_blank" rel="noreferrer">
+            {phrase}
+          </a>
+        ) : (
+          phrase
+        ),
+      );
+      continue;
+    }
+
+    const def = ENTITY_DEFS[entity];
     if (!def) {
       out.push(m[0]);
       continue;
     }
     out.push(
-      <DefinitionMark key={`${i}-${m[1]}`} definition={def} onSpawn={onSpawn}>
-        <span className="ab-ent">{m[1]}</span>
+      <DefinitionMark key={`${i}-${entity}`} definition={def} onSpawn={onSpawn}>
+        <span className="ab-ent">{entity}</span>
       </DefinitionMark>,
     );
   }
@@ -126,15 +150,16 @@ export function AboutPage() {
       </p>
 
       <div className="ab-grid">
+        {/* No visible heading over the bio — the copy is the card. The h1 is
+            kept for screen readers so the page still has a document title
+            above the widget cards' h2s. */}
         <article className="ab-card ab-card--copy">
-          <h1 className="ab-h1">{ABOUT_TITLE}</h1>
-          <hr className="ab-rule" />
+          <h1 className="sr-only">About</h1>
           <div className="ab-secs">
-            {ABOUT_SECTIONS.map((section) => (
-              <section key={section.id} className="ab-sec">
-                <h2 className="ab-label">{section.label}</h2>
-                <p className="ab-body">{renderBody(section.body, handleSpawn)}</p>
-              </section>
+            {ABOUT_PARAGRAPHS.map((para) => (
+              <p key={para.id} className="ab-body">
+                {renderBody(para.body, handleSpawn)}
+              </p>
             ))}
           </div>
         </article>
