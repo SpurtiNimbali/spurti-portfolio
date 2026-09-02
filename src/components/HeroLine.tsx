@@ -83,7 +83,9 @@ function renderPart(
   );
 }
 
-const FIT_MIN_PX = 18;
+// Only a floor for the safety net below: the per-tone scale in CSS lands well
+// above this, and a size this small means the copy has outgrown its box.
+const FIT_MIN_PX = 13;
 const FIT_PASSES = 11;
 const FIT_MARGIN_PX = 3;
 
@@ -97,7 +99,9 @@ function shiftMs(el: HTMLElement | null) {
 
 /**
  * The sentence box is a fixed height, so changing intensity must never reflow the
- * page. Instead we binary-search a font size that fits the new copy into that box.
+ * page. CSS sizes each tone by hand; this is the backstop for the viewports that
+ * design can't enumerate, binary-searching down from the tone's own cap until the
+ * copy fits. At the designed sizes it finds the cap and does nothing.
  */
 function useFitToBox(deps: unknown[]) {
   const boxRef = useRef<HTMLHeadingElement>(null);
@@ -387,6 +391,8 @@ export function HeroLine() {
         className="hero-line"
         aria-live="polite"
         data-phase={phase}
+        data-tone={shown}
+        data-caps={level.caps ? "" : undefined}
         onPointerLeave={() => setNameHover(false)}
       >
         <span ref={textRef} className="hero-line__fit">

@@ -678,7 +678,10 @@ a {
 }
 
 .hero-sentence {
-  margin-top: 10vh;
+  /* Was 10vh against a much shorter sentence box. The box now reserves room for
+     the caps paragraph, so this gives back what the box took and the sentence
+     itself still sits where it always did. */
+  margin-top: clamp(28px, 6vh, 72px);
   flex-grow: 0;
   flex-shrink: 0;
   display: flex;
@@ -702,8 +705,8 @@ a {
 }
 
 /*
- * Fixed box, three lines tall at the cap size. The font scales to fit so the copy
- * can change length without the page moving.
+ * One reserved box, the same at every tone, with the type scaled per tone to fill
+ * it. See the `--hero-fs-cap` ladder below.
  */
 /*
  * Registered so the refit can interpolate: a plain custom property snaps, and a
@@ -722,22 +725,101 @@ a {
 }
 
 .hero-line {
-  --hero-fs-cap: clamp(32px, 4.6vw, 56px);
+  --hero-fs-cap: clamp(21px, 2.22vw, 32px);
   --hero-fs: var(--hero-fs-cap);
+  --hero-lh: 1.3;
+  --hero-track: -0.03em;
+  --hero-weight: 500;
+  --hero-measure: 820px;
+  --hero-wrap: pretty;
+  /*
+   * The reserved box. One height for every tone, because the tone control sits
+   * directly beneath it and moving the thing you are clicking is worse than any
+   * amount of unused paper. Each tone is then sized to very nearly fill this box,
+   * so the sentence is optically the same block of ink whichever end you are at.
+   */
+  --hero-box-h: clamp(210px, 30vh, 312px);
   position: relative;
   margin: 0;
-  width: min(760px, 100%);
-  height: calc(var(--hero-fs-cap) * 1.28 * 3);
+  width: min(var(--hero-measure), 100%);
+  height: var(--hero-box-h);
   display: grid;
   place-items: center;
   overflow: hidden;
   font-size: var(--hero-fs);
   transition: --hero-fs var(--hero-shift) var(--hero-ease);
-  font-weight: 500;
-  letter-spacing: -0.038em;
-  line-height: 1.28;
+  font-weight: var(--hero-weight);
+  letter-spacing: var(--hero-track);
+  line-height: var(--hero-lh);
+  text-wrap: var(--hero-wrap);
   color: var(--ink);
   text-align: center;
+}
+
+/*
+ * The tone axis runs from one line to a caps paragraph roughly six times as long,
+ * so a single size can only ever suit one end. Each step down in size buys a wider
+ * measure, looser leading and looser tracking — smaller copy needs more air between
+ * lines and letters to stay readable, and a longer line to keep the rag from going
+ * ragged. The clamps carry the same ladder from 390px up to 1440px.
+ */
+.hero-line[data-tone="0"] {
+  --hero-fs-cap: clamp(32px, 3.75vw, 54px);
+  --hero-lh: 1.2;
+  --hero-track: -0.042em;
+  --hero-measure: 760px;
+  /* Short enough to balance: three even lines beat two long ones and a stub. */
+  --hero-wrap: balance;
+}
+
+.hero-line[data-tone="1"] {
+  --hero-fs-cap: clamp(27px, 2.99vw, 43px);
+  --hero-lh: 1.24;
+  --hero-track: -0.038em;
+  --hero-measure: 780px;
+  --hero-wrap: balance;
+}
+
+.hero-line[data-tone="2"] {
+  --hero-fs-cap: clamp(21px, 2.22vw, 32px);
+  --hero-lh: 1.3;
+  --hero-track: -0.03em;
+  --hero-measure: 820px;
+}
+
+.hero-line[data-tone="3"] {
+  --hero-fs-cap: clamp(19px, 2.01vw, 29px);
+  --hero-lh: 1.34;
+  --hero-track: -0.024em;
+  --hero-measure: 840px;
+}
+
+.hero-line[data-tone="4"] {
+  --hero-fs-cap: clamp(15px, 1.6vw, 23px);
+  --hero-lh: 1.4;
+  --hero-track: -0.016em;
+  --hero-measure: 880px;
+}
+
+/* Caps have no ascender rhythm to read by, so they take positive tracking, the
+   loosest leading on the ladder, and a little more weight to earn the shouting. */
+.hero-line[data-tone="5"] {
+  --hero-fs-cap: clamp(14px, 1.53vw, 22px);
+  --hero-lh: 1.42;
+  --hero-track: 0.012em;
+  --hero-weight: 600;
+  --hero-measure: 880px;
+}
+
+/* Shouted here rather than written in caps, so the marks, the name link and the
+   announced text all stay in ordinary case. */
+.hero-line[data-caps] {
+  text-transform: uppercase;
+}
+
+/* The handle is set in mono as a literal username; leave it as typed. */
+.hero-line[data-caps] .hero-name__handle {
+  text-transform: none;
 }
 
 /* While the fit searches for a size it must measure real layout, not a size
@@ -869,29 +951,33 @@ a {
   }
 }
 
+/*
+ * The squiggle is the mark's own background, not a positioned pseudo-element. A
+ * pseudo hangs off a single line fragment, so a mark that happened to land at the
+ * end of a line lost its underline outright — which the long tone levels hit
+ * constantly. A background repeats over every fragment instead.
+ *
+ * Sized in em so it tracks the tone ladder, clamped at both ends: a fixed 22px
+ * wave is invisible under the display sizes and cartoonish under the caps
+ * paragraph, and below about 5px of amplitude the stroke stops reading as drawn.
+ */
 span.mark.squiggle {
   cursor: pointer;
   padding-bottom: 0.12em;
   position: relative;
   text-decoration: none;
-}
-
-span.mark.squiggle::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.02em;
-  height: 0.38em;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='8' viewBox='0 0 22 8' fill='none'><path d='M0 5 Q 5.5 1.6 11 5 T 22 5' stroke='%23b4ada4' stroke-width='1.7' fill='none' stroke-linecap='round'/></svg>");
   background-repeat: repeat-x;
-  background-position: 0 50%;
-  background-size: 22px 8px;
+  /* Tucked back up under the descender line, where the positioned version sat. */
+  background-position: 0 calc(100% - 0.07em);
+  background-size: clamp(15px, 0.52em, 24px) clamp(5.5px, 0.19em, 8.5px);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
 }
 
-span.mark.squiggle:hover::after,
-span.mark.squiggle:focus-visible::after {
-  filter: brightness(0.62);
+span.mark.squiggle:hover,
+span.mark.squiggle:focus-visible {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='8' viewBox='0 0 22 8' fill='none'><path d='M0 5 Q 5.5 1.6 11 5 T 22 5' stroke='%23736d64' stroke-width='1.7' fill='none' stroke-linecap='round'/></svg>");
 }
 
 span.mark.squiggle:focus-visible {
@@ -2131,11 +2217,14 @@ body:has(.nav-item:focus-visible) .sticker-layer {
   }
 
   .hero-sentence {
-    margin-top: 8vh;
+    margin-top: clamp(20px, 5vh, 48px);
     width: 100%;
   }
 
+  /* A phone has the width for barely half as many characters per line, so the
+     same copy needs a taller box; there is spare paper above the nav deck. */
   .hero-line {
+    --hero-box-h: clamp(232px, 34vh, 300px);
     width: 100%;
   }
 
@@ -2194,12 +2283,9 @@ body:has(.nav-item:focus-visible) .sticker-layer {
   }
 }
 
-@media (max-height: 760px) {
-  .hero-line {
-    --hero-fs-cap: clamp(26px, 4vw, 44px);
-  }
-}
-
+/* No type override for short windows: --hero-box-h already tracks vh, and the
+   fit backstop scales the tone's own size down by the same ratio. Leading and
+   tracking are relative, so the proportions of the ladder survive intact. */
 @media (max-height: 700px) {
   .hero-sentence {
     margin-top: 6vh;
