@@ -293,38 +293,66 @@
 /* ---------- photos card ---------- */
 
 /* The photograph fills the card completely — any inset left visible gaps at
-   some widths, and the image is the whole point of this card. Icon and tab bar
-   float over it. */
+   some widths, and the image is the whole point of this card. The object and
+   the dots float over it. */
 .ab-card--photos {
   position: relative;
   padding: 0;
   overflow: hidden;
 }
 
+/*
+ * The frame. One box for all four photographs, sized by the grid rather than by
+ * any one image, which is what keeps the card from changing height as the
+ * carousel turns.
+ */
 .ab-photo {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
-  display: block;
   width: 100%;
-  padding: 0;
-  border: 0;
+  overflow: hidden;
   background: color-mix(in oklch, var(--ink) 4%, transparent);
-  cursor: pointer;
 }
 
+/*
+ * Stacked, and cross-faded on opacity. The frame is near-square and the photos
+ * run from a 3:5 portrait to a 5:4 landscape, so every one of them is cropped
+ * here rather than on disk — each says which part it cannot afford to lose via
+ * `object-position`, set per photo in ABOUT_PHOTOS.
+ */
 .ab-photo img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   display: block;
   object-fit: cover;
-  /* His head sits at the top of the frame — anchor there so a short card crops
-     the body rather than decapitating him. */
-  object-position: center top;
-  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0;
+  transition:
+    opacity 520ms var(--hero-ease),
+    transform 300ms var(--hero-ease);
 }
 
-.ab-photo:hover img,
-.ab-photo:focus-visible img {
+.ab-photo img.is-current {
+  opacity: 1;
+}
+
+/* Invisible, and the size of the frame: the whole photograph is the control for
+   the next one. Sits over the images and under the dots. */
+.ab-photo__advance {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.ab-card--photos:hover .ab-photo img.is-current,
+.ab-photo:has(.ab-photo__advance:focus-visible) img.is-current {
   transform: scale(1.035);
 }
 
@@ -342,51 +370,48 @@
   filter: drop-shadow(0 10px 16px rgb(28 24 18 / 0.4));
 }
 
-/* Floating segmented bar over the photo, as on the reference. */
-.ab-phototabs {
+/*
+ * Position dots, in the frosted pill the tab bar used to occupy — that glass
+ * over the photograph is the one part of the old bar worth keeping, and four
+ * dots need a tenth of the room four labelled tabs did.
+ */
+.ab-photodots {
   position: absolute;
   left: 50%;
   bottom: clamp(0.6rem, 1.1vw, 1rem);
   transform: translateX(-50%);
+  z-index: 3;
   display: flex;
-  gap: 2px;
-  padding: 4px;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
   border-radius: 30px;
   background: rgb(255 255 255 / 0.34);
   backdrop-filter: blur(14px);
   box-shadow: 0 2px 10px rgb(40 36 32 / 0.16);
 }
 
-.ab-phototab {
-  display: grid;
-  place-items: center;
-  width: clamp(34px, 3.2vw, 44px);
-  height: clamp(28px, 2.6vw, 34px);
+.ab-photodot {
+  width: 7px;
+  height: 7px;
   padding: 0;
   border: 0;
-  border-radius: 30px;
-  background: none;
-  color: rgb(30 26 22 / 0.72);
+  border-radius: 50%;
+  background: rgb(30 26 22 / 0.32);
   cursor: pointer;
-  transition: background-color 180ms ease, color 180ms ease;
+  transition:
+    background-color 200ms ease,
+    scale 260ms var(--hero-ease);
 }
 
-.ab-phototab svg {
-  width: 17px;
-  height: 17px;
-  fill: currentColor;
+.ab-photodot:hover:not(.is-current) {
+  background: rgb(30 26 22 / 0.55);
 }
 
-.ab-phototab:hover:not(.is-active) {
-  background: rgb(255 255 255 / 0.45);
-  color: rgb(20 18 16 / 0.9);
-}
-
-/* Active tab is a solid white pill, as on the reference. */
-.ab-phototab.is-active {
+.ab-photodot.is-current {
   background: #fff;
-  color: rgb(20 18 16 / 0.9);
-  box-shadow: 0 1px 3px rgb(40 36 32 / 0.18);
+  scale: 1.3;
+  box-shadow: 0 1px 3px rgb(40 36 32 / 0.32);
 }
 
 /* ---------- now playing card ---------- */
@@ -892,13 +917,21 @@
 .ab-composer__send:focus-visible,
 .ab-composer__done:focus-visible,
 .ab-composer__icon:focus-visible,
-.ab-phototab:focus-visible,
+.ab-photodot:focus-visible,
 .ab-uplist a:focus-visible,
-.ab-photo:focus-visible,
+.ab-photo__advance:focus-visible,
 .ab-transport__play:focus-visible {
   outline: 2px solid color-mix(in oklch, var(--ink) 40%, transparent);
   outline-offset: 3px;
   border-radius: 10px;
+}
+
+/* This one is the size of its card, and the card clips: an outline sitting 3px
+   outside it would be cropped away on all four sides. */
+.ab-photo__advance:focus-visible {
+  outline-color: rgb(255 255 255 / 0.9);
+  outline-offset: -6px;
+  border-radius: 18px;
 }
 
 /* ---------- responsive ---------- */
@@ -1011,8 +1044,17 @@
 @media (prefers-reduced-motion: reduce) {
   .ab-photo img,
   .ab-card,
-  .ab-mark {
+  .ab-mark,
+  .ab-photodot {
     transition: none !important;
+  }
+
+  /* No zoom on the photograph either, to match the card that stops lifting
+     under it. The carousel also stops advancing — that part is in AboutPhotos,
+     since not scheduling the change is better than cutting to it. */
+  .ab-card--photos:hover .ab-photo img.is-current,
+  .ab-photo:has(.ab-photo__advance:focus-visible) img.is-current {
+    transform: none;
   }
 
   /* The lift and the tilt are the whole gesture, so with motion off there is

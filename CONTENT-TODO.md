@@ -32,6 +32,14 @@ strip has been removed at your request, and the card corners now carry drawn
 objects instead of the four service logos, so those four files in
 `public/icons/` are no longer used by anything.
 
+The photos card now carries your four photographs on a carousel rather than the
+sticker photos on tabs. Two notes on the files: the card uses
+`about-photo-childhood-cropped.webp`, and `about-photo-childhood.webp` is kept
+only as the uncropped source — nothing references it, because the crop is what
+loses the stray cursor and the burned-in timestamp. Send more photographs any
+time; each is one entry in `ABOUT_PHOTOS`, and the carousel takes as many as
+you give it.
+
 ---
 
 ## 2. Projects — `src/projects.ts`

@@ -13,15 +13,19 @@
 // itself still never scrolls.
 //
 // {{Simba}}, {{Stanford}} and {{Slack}} render as squiggle marks that peel real
-// photos onto the page when clicked. The current bio uses none of them; the
-// mechanism stays because the photo card and any future mention still need it.
+// photos onto the page when clicked. The current bio uses none of them, and the
+// photos card no longer spawns them either now that it carries her own
+// photographs rather than the stickers; the mechanism stays wired for whenever
+// the bio mentions one of the three again.
 
 import { ENTITY_DEFS } from "./aboutEntities";
 import spurtiAvatar from "../assets/spurti.png";
-import simbaPhoto from "../assets/sticker-simba-2.webp";
-import simbaAlt from "../assets/sticker-simba-4.webp";
-import stanfordPhoto from "../assets/sticker-stanford.webp";
-import slackPhoto from "../assets/sticker-slack.webp";
+import paraglidersPhoto from "../assets/about-photo-paragliders.webp";
+import highTeaPhoto from "../assets/about-photo-hightea.webp";
+import friendsPhoto from "../assets/about-photo-friends.webp";
+/* The cropped version, always. The original has a stray mouse cursor and a
+   burned-in timestamp along its edges; the crop is what removes them. */
+import childhoodPhoto from "../assets/about-photo-childhood-cropped.webp";
 
 export type AboutParagraph = {
   id: string;
@@ -165,14 +169,43 @@ export const THREAD_SCRIPT: { ask: string; placeholder: string; reply?: string }
 ];
 
 /**
- * Photo tabs, after the reference's floating segmented bar.
- * Add a tab by adding an entry; `src` must be an imported asset.
+ * The photos carousel. Four of her own photographs, cycling — no tabs and no
+ * captions, because these are not four categories of anything, they are four
+ * photographs. Add one by adding an entry; `src` must be an imported asset.
+ *
+ * `focus` is the `object-position` the frame crops around. The card's frame is
+ * roughly square and these range from a 3:5 portrait to a 5:4 landscape, so
+ * every one of them loses something to `object-fit: cover` — this is where each
+ * photo says which part it cannot afford to lose. Nothing is cropped on disk.
+ *
+ * `alt` describes the photograph, not the file. Someone who cannot see these
+ * should get the same four moments everyone else does.
  */
-export const PHOTO_TABS: { id: string; label: string; src: string }[] = [
-  { id: "all", label: "All", src: simbaPhoto },
-  { id: "stanford", label: "Stanford", src: stanfordPhoto },
-  { id: "work", label: "Work", src: slackPhoto },
-  { id: "simba", label: "Simba", src: simbaAlt },
+export const ABOUT_PHOTOS: { id: string; src: string; alt: string; focus: string }[] = [
+  {
+    id: "paragliders",
+    src: paraglidersPhoto,
+    alt: "Four paragliders lifting off a grassy coastal bluff above the sea, under a wide sky of scattered cloud.",
+    focus: "center 55%",
+  },
+  {
+    id: "hightea",
+    src: highTeaPhoto,
+    alt: "A tiered afternoon-tea stand crowded with scones, little cakes and s'mores on a marble table, beside a cup of milky tea.",
+    focus: "center 48%",
+  },
+  {
+    id: "friends",
+    src: friendsPhoto,
+    alt: "Four friends piled against one another, laughing, for a mirror selfie in a panelled hallway.",
+    focus: "center 38%",
+  },
+  {
+    id: "childhood",
+    src: childhoodPhoto,
+    alt: "Spurti as a small child in a red pinafore and a wide headband, grinning with one arm around a cream teddy bear.",
+    focus: "center 45%",
+  },
 ];
 
 export { ENTITY_DEFS };

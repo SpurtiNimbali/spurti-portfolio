@@ -5,6 +5,7 @@ import { DefinitionMark } from "../components/DefinitionMark";
 import { StickerBoard, type Pinned } from "../components/HeroOverlay";
 import { AboutThread } from "../components/AboutThread";
 import { AboutMark } from "../components/AboutObjects";
+import { AboutPhotos } from "../components/AboutPhotos";
 import { printsFor } from "../lib/stickers";
 import type { Definition } from "../content";
 import {
@@ -13,7 +14,6 @@ import {
   ENTITY_DEFS,
   NOW_PLAYING,
   UP_NEXT,
-  PHOTO_TABS,
 } from "../content/aboutPage";
 
 const TOKEN = /\{\{([A-Za-z]+)\}\}|\[\[([^\]]+)\]\]/g;
@@ -100,19 +100,9 @@ function CardHead({ label, mark }: { label: string; mark: ReactNode }) {
  *
  * One viewport, no scrolling — see styles/about.css for the width budget.
  */
-/** Tab glyphs, in PHOTO_TABS order: grid, place, heart, paw. */
-const PHOTO_ICONS = [
-  <path key="grid" d="M3 3h6v6H3zM11 3h6v6h-6zM3 11h6v6H3zM11 11h6v6h-6z" />,
-  <path key="place" d="M10 2a5 5 0 015 5c0 3.6-5 11-5 11S5 10.6 5 7a5 5 0 015-5zm0 3a2 2 0 100 4 2 2 0 000-4z" />,
-  <path key="heart" d="M10 17S3 12.6 3 7.9A3.9 3.9 0 0110 5.6 3.9 3.9 0 0117 7.9C17 12.6 10 17 10 17z" />,
-  <path key="paw" d="M6 4.6a1.7 2.2 0 110 4.4 1.7 2.2 0 010-4.4zm8 0a1.7 2.2 0 110 4.4 1.7 2.2 0 010-4.4zM3.4 9.6a1.5 1.9 0 110 3.8 1.5 1.9 0 010-3.8zm13.2 0a1.5 1.9 0 110 3.8 1.5 1.9 0 010-3.8zM10 10.4c2.4 0 4.3 1.9 4.3 3.6 0 1.3-1 2-2.3 2-.8 0-1.4-.3-2-.3s-1.2.3-2 .3c-1.3 0-2.3-.7-2.3-2 0-1.7 1.9-3.6 4.3-3.6z" />,
-];
-
 export function AboutPage() {
   const [pinned, setPinned] = useState<Pinned[]>([]);
-  const [photoTab, setPhotoTab] = useState(0);
   const nextId = useRef(1);
-  const peelRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   const handleSpawn = (definition: Definition, at: HTMLElement | null) => {
     const key = definition.sticker;
@@ -165,43 +155,14 @@ export function AboutPage() {
         </article>
 
         <div className="ab-widgets">
-          {/* Photos: the image is the card, with the reference's floating
-              segmented bar over it. Clicking the photo still peels stickers. */}
+          {/* Photos: the photograph is the card. The object and the dots float
+              over it; see AboutPhotos for why there are no longer any tabs. */}
           <article className="ab-card ab-card--photos">
-            <button
-              type="button"
-              className="ab-photo"
-              ref={(el) => {
-                peelRefs.current.Simba = el;
-              }}
-              onClick={() => handleSpawn(ENTITY_DEFS.Simba, peelRefs.current.Simba)}
-              aria-label="Click to scatter more photos"
-            >
-              <img src={PHOTO_TABS[photoTab].src} alt={PHOTO_TABS[photoTab].label} />
-            </button>
+            <AboutPhotos />
 
             <span className="ab-icon--float">
               <AboutMark kind="prints" />
             </span>
-
-            <div className="ab-phototabs" role="tablist" aria-label="Photo sets">
-              {PHOTO_TABS.map((tab, i) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={i === photoTab}
-                  aria-label={tab.label}
-                  title={tab.label}
-                  className={`ab-phototab${i === photoTab ? " is-active" : ""}`}
-                  onClick={() => setPhotoTab(i)}
-                >
-                  <svg viewBox="0 0 20 20" aria-hidden="true">
-                    {PHOTO_ICONS[i]}
-                  </svg>
-                </button>
-              ))}
-            </div>
           </article>
 
           {/* Now playing, after the reference's music card. */}
