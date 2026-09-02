@@ -60,34 +60,36 @@ function PrintsObject() {
       </defs>
 
       <rect
-        x="19"
+        x="14"
         y="20"
         width="54"
         height="64"
         rx="4.5"
-        fill="#E4DAC4"
+        fill="#EFE6D2"
         stroke="#135F3B"
-        strokeWidth="1.5"
-        transform="rotate(-15 46 52)"
+        strokeWidth="1.6"
+        transform="rotate(-19 46 52)"
       />
       <rect
-        x="22"
+        x="20"
         y="19"
         width="54"
         height="64"
         rx="4.5"
-        fill="#F1E9D7"
+        fill="#FBF4E4"
         stroke="#135F3B"
-        strokeWidth="1.5"
-        transform="rotate(-7 46 52)"
+        strokeWidth="1.6"
+        transform="rotate(-9 46 52)"
       />
 
       <rect x="30" y="24" width="54" height="64" rx="4.5" fill="#2F5C46" stroke="#135F3B" strokeWidth="1.8" />
       <rect x="26" y="20" width="54" height="64" rx="4.5" fill="#FFFDF4" stroke="#135F3B" strokeWidth="1.8" />
 
       <rect x="31" y="25" width="44" height="45" rx="2.5" fill="url(#abo-shot)" stroke="#135F3B" strokeWidth="1.3" />
-      <path d="M31.5 69.5 42 53l8.5 9L57 55l17.5 14.5z" fill="#FFF6DC" />
-      <circle cx="65" cy="35" r="5" fill="#FFD166" stroke="#135F3B" strokeWidth="1.2" />
+      {/* One rolling hill rather than two peaks: two peaks and a disc is the
+          broken-image glyph, and this is meant to be a photograph. */}
+      <path d="M31.5 69.5V60c7-9 12-11.5 17-7 6 5.4 14 9.6 26 8.8v7.7z" fill="#FFF6DC" />
+      <circle cx="63" cy="37" r="5.4" fill="#FFD166" stroke="#135F3B" strokeWidth="1.2" />
       <path d="M38 77h30" stroke="#2F9E67" strokeWidth="2.4" strokeLinecap="round" opacity=".5" />
     </svg>
   );

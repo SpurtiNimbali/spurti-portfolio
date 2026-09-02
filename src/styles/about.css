@@ -107,9 +107,10 @@
      and two lines. */
   grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
   /* Two rows, not three: the book strip used to hold the bottom one, and an
-     empty third track still costs a gap. The thread takes the space it left —
-     it earns it, being the only interactive block on the page. */
-  grid-template-rows: minmax(0, 0.94fr) minmax(0, 1.06fr);
+     empty third track still costs a gap. Its room is split evenly rather than
+     handed to either row — both cards were laid out against a ~400px track, and
+     giving one of them all 90 reclaimed pixels showed up as slack inside it. */
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--ab-gap);
   min-height: 0;
 }
@@ -400,14 +401,16 @@
   margin-bottom: 0.35rem;
 }
 
-/* Up next. This is what closes the gap that used to sit under the subtitle. */
+/* Up next. This is what closes the gap that used to sit under the subtitle.
+   Bottom-aligned, so the list groups with the transport under it and the card's
+   slack falls in one place instead of splitting into two gaps around it. */
 .ab-uplist {
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 0.05rem;
   margin: 0.35rem 0 0;
   padding: 0;
