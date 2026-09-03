@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { NAV } from "../content";
-import { withIntensityPath } from "../lib/intensityUrl";
 import { navigate } from "../lib/navigate";
-import { useIntensity } from "./IntensityContext";
 import { ProjectsMark, ReadMeMark, ResearchMark } from "./PixelMarks";
 
 const PARALLAX_PX = [8, 13, 18];
@@ -16,7 +14,6 @@ function Mark({ id }: { id: (typeof NAV)[number]["id"] }) {
 }
 
 export function NavDeck() {
-  const { intensity } = useIntensity();
   const rowRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLElement>(null);
   const [focus, setFocus] = useState<string | null>(null);
@@ -105,7 +102,7 @@ export function NavDeck() {
             style={{ "--enter-y": `${ENTER_OFFSET_PX}px` } as CSSProperties}
           >
             <a
-              href={withIntensityPath(item.href, intensity)}
+              href={item.href}
               className={`nav-item${focus === item.id ? " is-focus" : ""}`}
               aria-label={item.title}
               style={
@@ -122,7 +119,7 @@ export function NavDeck() {
                 if (!item.href.startsWith("/")) return;
                 if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
                 e.preventDefault();
-                navigate(withIntensityPath(item.href, intensity));
+                navigate(item.href);
               }}
             >
               <div className="orb">

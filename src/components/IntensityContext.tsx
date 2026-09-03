@@ -14,6 +14,13 @@ type IntensityContextValue = {
 
 const IntensityContext = createContext<IntensityContextValue | null>(null);
 
+/*
+ * The tone used to travel in the URL as ?v=, so scrubbing the bar left a query
+ * string in the address bar and in everything copied out of it. It is in-page
+ * state now — a soft navigation keeps this provider mounted, so nothing has to
+ * carry it between pages — and the only remaining job for ?v= is to honour the
+ * links shared while it was written, then tidy itself away.
+ */
 function readIntensityFromUrl(): number | null {
   const raw = new URLSearchParams(window.location.search).get("v");
   if (raw === null) return null;
@@ -22,15 +29,13 @@ function readIntensityFromUrl(): number | null {
   return n;
 }
 
-function writeIntensityToUrl(value: number) {
+function stripIntensityFromUrl() {
   const url = new URL(window.location.href);
-  // The default tone is implied, so it stays out of the URL and only a
-  // deliberate change leaves something to share.
-  if (value === DEFAULT_INTENSITY) {
-    url.searchParams.delete("v");
-  } else {
-    url.searchParams.set("v", String(value));
-  }
+  if (!url.searchParams.has("v")) return;
+  url.searchParams.delete("v");
+  // Anything else the URL was carrying — other params, the hash a research
+  // link lands on — survives, and the path is untouched so the router sees
+  // nothing happen.
   window.history.replaceState(null, "", url);
 }
 
@@ -38,25 +43,21 @@ export function IntensityProvider({ children }: { children: ReactNode }) {
   const [intensity, setIntensityState] = useState(() => readIntensityFromUrl() ?? DEFAULT_INTENSITY);
 
   const setIntensity = (value: number) => {
-    const clamped = Math.min(INTENSITY_MAX, Math.max(INTENSITY_MIN, value));
-    setIntensityState(clamped);
-    writeIntensityToUrl(clamped);
+    setIntensityState(Math.min(INTENSITY_MAX, Math.max(INTENSITY_MIN, value)));
   };
 
   useEffect(() => {
-    // Clears the redundant param from links shared while it was always written.
-    if (readIntensityFromUrl() === DEFAULT_INTENSITY) {
-      writeIntensityToUrl(DEFAULT_INTENSITY);
-    }
-  }, []);
-
-  useEffect(() => {
-    const onPopState = () => {
+    // On a back button as well as on load: a tab open from before the param
+    // stopped being written can still walk back onto an entry that has one.
+    const adopt = () => {
       const fromUrl = readIntensityFromUrl();
       if (fromUrl !== null) setIntensityState(fromUrl);
+      stripIntensityFromUrl();
     };
-    window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+
+    adopt();
+    window.addEventListener("popstate", adopt);
+    return () => window.removeEventListener("popstate", adopt);
   }, []);
 
   const label = INTENSITY_LEVELS[intensity]?.label ?? "confident";

@@ -33,8 +33,8 @@ export function IntensityAxis() {
   const trackRef = useRef<HTMLSpanElement>(null);
   const banked = useRef(0);
 
-  // Any change — including one made from elsewhere, such as a shared ?v= link
-  // moving under a back button — retires the idle hint for good.
+  // Any change retires the idle hint for good, including one that did not come
+  // from a hand on this bar.
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;

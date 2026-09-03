@@ -5,9 +5,7 @@ import { artFor } from "../lib/projectArt";
 import { useReveal } from "../lib/useReveal";
 import { isTodo, realList, realOr } from "../lib/todo";
 import { withEmphasis } from "../lib/emphasis";
-import { withIntensityPath } from "../lib/intensityUrl";
 import { navigate } from "../lib/navigate";
-import { useIntensity } from "./IntensityContext";
 import { PaperWave } from "./PaperWave";
 import { ProjectArt } from "./ProjectArt";
 
@@ -69,7 +67,6 @@ function Tier({ open, className, children }: { open: boolean; className?: string
 
 /** A project that gets its own sheet of paper. */
 export function ProjectBand({ entry, axisTier, index }: Props) {
-  const { intensity } = useIntensity();
   const { ref, revealed } = useReveal<HTMLElement>();
   const [expanded, setExpanded] = useState(false);
   const panelId = useId();
@@ -100,7 +97,7 @@ export function ProjectBand({ entry, axisTier, index }: Props) {
   const hasArt = Boolean(art.shots?.length);
 
   if (entry.crossRef) {
-    const href = withIntensityPath(entry.crossRef.href, intensity);
+    const href = entry.crossRef.href;
     return (
       <section
         ref={ref}
