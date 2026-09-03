@@ -859,21 +859,12 @@ a {
  * sentence's own ink, and the marks earn their interactivity from the squiggle
  * rather than from hue — so hue is free to mean "this is an address". It is the
  * handle's own colour, so the swap reads as one word continuing into its
- * username rather than a second word arriving.
- *
- * The rule is the redundant signal for anyone who cannot separate the hue, and
- * it is straight where the marks are wavy, so the two affordances stay legible
- * as different things. Both sit on the word rather than the link box, so they
- * collapse with it on hover; neither costs layout, so the swap still cannot
- * shift the line.
+ * username rather than a second word arriving. Colour costs no layout, so it
+ * cannot shift the line the swap runs inside.
  */
 .hero-name__word {
   overflow: visible;
   color: var(--git-ink);
-  text-decoration: underline;
-  text-decoration-thickness: max(1px, 0.035em);
-  text-decoration-color: color-mix(in oklch, var(--git-ink) 32%, transparent);
-  text-underline-offset: 0.16em;
 }
 
 .hero-name__handle {
