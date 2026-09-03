@@ -70,7 +70,7 @@ const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
- * The tone control: one bar you scrub, nonchalant at one end and try hard at
+ * The tone control: one bar you scrub, soft sell at one end and hard sell at
  * the other.
  *
  * It is a native range input under the paint, which is most of why this file is
@@ -302,7 +302,7 @@ export function IntensityAxis() {
     >
       {/* Both ends stay legible; the one you are nearer carries more ink, so the
           pair reads as a position rather than as two buttons. */}
-      <span className="tone-axis__end tone-axis__end--down">nonchalant</span>
+      <span className="tone-axis__end tone-axis__end--down">soft sell</span>
 
       <span className="tone-axis__track" ref={trackRef}>
         <span className="tone-axis__notches" aria-hidden="true">
@@ -347,7 +347,7 @@ export function IntensityAxis() {
         />
       </span>
 
-      <span className="tone-axis__end tone-axis__end--up">try hard</span>
+      <span className="tone-axis__end tone-axis__end--up">hard sell</span>
     </aside>
   );
 }

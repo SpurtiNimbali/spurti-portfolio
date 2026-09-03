@@ -134,8 +134,12 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
   },
 ];
 
-/** Mid-range on purpose: the tone reads as a starting point you can push either way. */
-export const DEFAULT_INTENSITY = 2;
+/**
+ * A starting point you can push either way, sat one notch above the middle: the
+ * quiet end reads as underselling on first landing, and this is the first level
+ * that names Slack as well as Stanford.
+ */
+export const DEFAULT_INTENSITY = 3;
 export const INTENSITY_MIN = 0;
 export const INTENSITY_MAX = INTENSITY_LEVELS.length - 1;
 

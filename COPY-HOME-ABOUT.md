@@ -65,7 +65,7 @@ A handwritten tag floats out beside the swapped handle — *`src/components/Hero
 *`src/content.ts: INTENSITY_LEVELS`. Each level is an array of `parts`; the sentence below is
 those parts joined, reading after the name.*
 
-The axis has six levels, `0`–`5`. The page opens at **level 2** (`DEFAULT_INTENSITY = 2`).
+The axis has six levels, `0`–`5`. The page opens at **level 3** (`DEFAULT_INTENSITY = 3`).
 In every variant the words **Stanford**, **Slack**, **SAIL** and **Simba** are the underlined
 squiggle marks that peel photos when clicked.
 
@@ -129,30 +129,27 @@ Handy if you want to see the four marks and their five levels of context at a gl
 
 *`src/components/IntensityAxis.tsx`*
 
-Two labels with hairline arrows, left and right of a gap. Visible text:
+One bar you scrub, with a label at either end of it. Visible text:
 
-> nonchalant
+> soft sell
 
-> try hard
+> hard sell
 
-**[a11y]** the group and the two buttons:
+**[a11y]** the control itself:
 
 > Tone of the sentence above
 
-> Say it more nonchalantly
-
-> Try harder
-
 ### State readout
 
-**[a11y, dynamic]** *`src/components/IntensityAxis.tsx` — visually hidden (`.tone-axis__status`),
+**[a11y, dynamic]** *`src/components/IntensityAxis.tsx` — the bar's `aria-valuetext`,
 announced to screen readers only.* Built as
-`` `Tone ${intensity + 1} of ${INTENSITY_MAX + 1} — ${simbaAriaText(intensity)}` ``, so the
-editable part is the word "Tone", the word "of", and the pose phrases below:
+`` `${intensity + 1} of ${INTENSITY_MAX + 1} — ${label}` ``, where the label is the
+per-level name from the table in section 3, so the editable part is the word "of":
 
-> Tone 3 of 6 — warm — sitting
+> 4 of 6 — confident
 
-*(example at the default level; the numbers and the trailing phrase change with the axis)*
+*(example at the default level, which is level 3; the numbers and the trailing word
+change with the bar)*
 
 **Simba pose phrases** — *`src/lib/simba.ts: SIMBA_POSES`*, one per tone level, rendered as
 `` `${label} — ${pose}` ``:
