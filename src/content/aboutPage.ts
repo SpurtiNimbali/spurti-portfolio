@@ -188,31 +188,45 @@ export const THREAD_SCRIPT: { ask: string; placeholder: string; reply?: string }
  *
  * `alt` describes the photograph, not the file. Someone who cannot see these
  * should get the same four moments everyone else does.
+ *
+ * `label` names the photo for its icon in the carousel's control bar — the
+ * accessible name and the tooltip, never drawn as text. The matching glyph is
+ * keyed by `id` in AboutPhotos, so adding a photo needs an icon there too.
  */
-export const ABOUT_PHOTOS: { id: string; src: string; alt: string; focus: string }[] = [
+export const ABOUT_PHOTOS: {
+  id: string;
+  src: string;
+  alt: string;
+  focus: string;
+  label: string;
+}[] = [
   {
     id: "paragliders",
     src: paraglidersPhoto,
     alt: "Four paragliders lifting off a grassy coastal bluff above the sea, under a wide sky of scattered cloud.",
     focus: "center 55%",
+    label: "Paragliding",
   },
   {
     id: "hightea",
     src: highTeaPhoto,
     alt: "A tiered afternoon-tea stand crowded with scones, little cakes and s'mores on a marble table, beside a cup of milky tea.",
     focus: "center 48%",
+    label: "High tea",
   },
   {
     id: "friends",
     src: friendsPhoto,
     alt: "Four friends piled against one another, laughing, for a mirror selfie in a panelled hallway.",
     focus: "center 38%",
+    label: "Friends",
   },
   {
     id: "childhood",
     src: childhoodPhoto,
     alt: "Spurti as a small child in a red pinafore and a wide headband, grinning with one arm around a cream teddy bear.",
     focus: "center 45%",
+    label: "Small Spurti",
   },
 ];
 
