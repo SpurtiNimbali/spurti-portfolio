@@ -620,7 +620,12 @@ a {
   --hero-lh: 1.3;
   --hero-track: -0.03em;
   --hero-weight: 500;
-  --hero-measure: 820px;
+  /*
+   * One column for every tone. Sized so the line stays trackable at the small
+   * end (about 45-70 characters at tones 2-5) and the vw term carries it down
+   * to the phone, where the page margin takes over anyway.
+   */
+  --hero-measure: clamp(340px, 56.6vw, 820px);
   --hero-wrap: pretty;
   /*
    * The reserved box. One height for every tone, because the tone control sits
@@ -647,58 +652,59 @@ a {
 }
 
 /*
- * The tone axis runs from one line to a caps paragraph roughly six times as long,
- * so a single size can only ever suit one end. Each step down in size buys a wider
- * measure, looser leading and looser tracking — smaller copy needs more air between
- * lines and letters to stay readable, and a longer line to keep the rag from going
- * ragged. The clamps carry the same ladder from 390px up to 1440px.
+ * The tone axis runs from one line to a caps paragraph roughly six times as
+ * long, so a single size can only ever suit one end. Only the size moves: the
+ * measure above is shared by all six levels, because the tone is stepped in
+ * place and a column that changes width under the cursor is as unsettling as
+ * one that changes height. Leading and tracking then open up as the size comes
+ * down, since smaller copy needs more air between lines and letters to stay
+ * readable. The clamps carry the same ladder from 390px up to 1440px.
+ *
+ * The sizes are not hand-picked. Each level was measured at 1440, 1180, 1024
+ * and 390 across the whole size range, and the ladder is the one that fills the
+ * reserved box to roughly 0.85 at every level and width without leaving a last
+ * line short enough to read as a stub. Changing the copy invalidates them.
  */
 .hero-line[data-tone="0"] {
-  --hero-fs-cap: clamp(32px, 3.75vw, 54px);
-  --hero-lh: 1.2;
-  --hero-track: -0.042em;
-  --hero-measure: 760px;
+  --hero-fs-cap: clamp(41px, 4.9vw, 63px);
+  --hero-lh: 1.16;
+  --hero-track: -0.044em;
   /* Short enough to balance: three even lines beat two long ones and a stub. */
   --hero-wrap: balance;
 }
 
 .hero-line[data-tone="1"] {
-  --hero-fs-cap: clamp(27px, 2.99vw, 43px);
-  --hero-lh: 1.24;
+  --hero-fs-cap: clamp(30.5px, 3.55vw, 45.5px);
+  --hero-lh: 1.22;
   --hero-track: -0.038em;
-  --hero-measure: 780px;
   --hero-wrap: balance;
 }
 
 .hero-line[data-tone="2"] {
-  --hero-fs-cap: clamp(21px, 2.22vw, 32px);
+  --hero-fs-cap: clamp(21.5px, 2.45vw, 34.5px);
   --hero-lh: 1.3;
-  --hero-track: -0.03em;
-  --hero-measure: 820px;
+  --hero-track: -0.028em;
 }
 
 .hero-line[data-tone="3"] {
-  --hero-fs-cap: clamp(19px, 2.01vw, 29px);
+  --hero-fs-cap: clamp(19.5px, 2.15vw, 29px);
   --hero-lh: 1.34;
-  --hero-track: -0.024em;
-  --hero-measure: 840px;
+  --hero-track: -0.022em;
 }
 
 .hero-line[data-tone="4"] {
-  --hero-fs-cap: clamp(15px, 1.6vw, 23px);
-  --hero-lh: 1.4;
-  --hero-track: -0.016em;
-  --hero-measure: 880px;
+  --hero-fs-cap: clamp(14.5px, 1.75vw, 23px);
+  --hero-lh: 1.42;
+  --hero-track: -0.012em;
 }
 
 /* Caps have no ascender rhythm to read by, so they take positive tracking, the
    loosest leading on the ladder, and a little more weight to earn the shouting. */
 .hero-line[data-tone="5"] {
-  --hero-fs-cap: clamp(14px, 1.53vw, 22px);
-  --hero-lh: 1.42;
-  --hero-track: 0.012em;
+  --hero-fs-cap: clamp(13.5px, 1.6vw, 21.5px);
+  --hero-lh: 1.48;
+  --hero-track: 0.022em;
   --hero-weight: 600;
-  --hero-measure: 880px;
 }
 
 /* Shouted here rather than written in caps, so the marks, the name link and the
