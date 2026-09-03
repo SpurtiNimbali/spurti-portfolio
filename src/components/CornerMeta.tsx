@@ -22,8 +22,9 @@ export function CornerMeta() {
 
   return (
     <header className="hero-header">
+      {/* The clock alone. It reads as Pacific time without being labelled,
+          which is what the place name was doing here. */}
       <p className="meta meta-left">
-        <span>Stanford</span>
         <span>{now}</span>
       </p>
       <p className="meta meta-right">
