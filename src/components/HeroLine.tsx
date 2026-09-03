@@ -428,7 +428,7 @@ export function HeroLine() {
       </h1>
       <StickerBoard pinned={pinned} onClear={() => setPinned([])} />
       <GitTag target={nameHover ? nameRef.current : null} />
-      <IntensityAxis inline />
+      <IntensityAxis />
     </div>
   );
 }
