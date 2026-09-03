@@ -21,7 +21,7 @@ thin or unverified · ⚪️ internal, invisible to visitors
 | 1.2 | **Message thread copy** | ⚪️ | You said the draft is fine — noting it only because it's my writing in her voice, not hers. Rewrite any time → `THREAD_OPENING`, `THREAD_SCRIPT` |
 | 1.3 | **A poem to link "poems" at** | ⚪️ | The bio says "mostly poems" — you wanted that linked to a poem. Give me a URL (or the poem itself and I'll host it) → `ABOUT_LINKS.poems` |
 | 1.4 | **Somewhere to link "articles or papers"** | ⚪️ | Same sentence, second half. A page, a Medium, a Drive folder — whatever collects the writing → `ABOUT_LINKS["articles or papers"]` |
-| 1.5 | **LinkedIn URL** | 🔴 | The icon row is GitHub and LinkedIn now that the mail icon is gone, so with LinkedIn unset the row is a single icon. Built and waiting on the address → `ABOUT_PROFILES.linkedin` |
+| 1.5 | **LinkedIn URL** | ✅ | Done — `linkedin.com/in/spurti-nimbali`, live in the composer's icon row beside GitHub |
 
 1.1 and 1.3–1.4 are ⚪️ rather than 🔴 on purpose: until a URL exists, the two
 phrases render as ordinary text and the icon simply isn't drawn, so nothing on

@@ -38,11 +38,10 @@ export type AboutParagraph = {
  * Same rule as ABOUT_LINKS below: an unset value renders nothing at all. An
  * icon whose href is a placeholder is a dead link wearing a logo, and there is
  * no plain-text fallback for a glyph the way there is for a phrase — so the
- * icon simply does not exist until the URL does. Filling one in is a one-line
- * change. Tracked as item 1.5 in CONTENT-TODO.md.
+ * icon simply does not exist until the URL does.
  */
 export const ABOUT_PROFILES: Record<string, string | undefined> = {
-  linkedin: undefined,
+  linkedin: "https://www.linkedin.com/in/spurti-nimbali/",
 };
 
 /**
