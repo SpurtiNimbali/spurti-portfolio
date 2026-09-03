@@ -852,26 +852,60 @@ a {
  * paragraph, and below about 5px of amplitude the stroke stops reading as drawn.
  */
 span.mark.squiggle {
+  /*
+   * A grey wave under grey ink was too quiet to read as an invitation, so the
+   * word itself carries the accent. Flame is the warmest thing in the palette and
+   * the one accent no link on the page already claims — the name link is
+   * cobalt-derived — so a marked word can never be mistaken for a href.
+   *
+   * Not the whole way there, though. This is body copy at every tone, and tone 5
+   * is 14px on a phone, so the accent has to clear 4.5:1 against this paper.
+   * Flame itself measures 3.4:1 and a third of the way to it reads brown rather
+   * than warm; seven tenths measures 5.7:1 and is unmistakably orange.
+   */
+  --mark-ink: color-mix(in oklch, var(--flame) 70%, var(--ink));
+  /*
+   * Two washes. The pale one is always drawn, because a mark nobody can see
+   * until they hover it is exactly the problem here — the photos behind these
+   * words went undiscovered. The strong one is what the cursor pulls across.
+   */
+  --mark-swash: color-mix(in oklch, var(--butter) 30%, transparent);
+  --mark-swash-lit: color-mix(in oklch, var(--butter) 82%, transparent);
+  /* Two clamps used by both states, so rest and hover cannot drift apart. */
+  --mark-wave: clamp(15px, 0.52em, 24px) clamp(5.5px, 0.19em, 8.5px);
+  --mark-swash-h: clamp(10px, 0.82em, 34px);
   cursor: pointer;
   padding-bottom: 0.12em;
   position: relative;
+  color: var(--mark-ink);
   text-decoration: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='8' viewBox='0 0 22 8' fill='none'><path d='M0 5 Q 5.5 1.6 11 5 T 22 5' stroke='%23b4ada4' stroke-width='1.7' fill='none' stroke-linecap='round'/></svg>");
-  background-repeat: repeat-x;
+  /*
+   * Layer one is the wave. Layer two is the highlighter the cursor pulls across,
+   * held at zero width until hover; layer three is the pale wash under it, always
+   * at full width. Backgrounds cost no layout, so neither the sweep nor the
+   * reserved band can move the sentence inside its fixed box.
+   */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='8' viewBox='0 0 22 8' fill='none'><path d='M0 5 Q 5.5 1.6 11 5 T 22 5' stroke='%23736d64' stroke-width='2.1' fill='none' stroke-linecap='round'/></svg>"),
+    linear-gradient(var(--mark-swash-lit), var(--mark-swash-lit)),
+    linear-gradient(var(--mark-swash), var(--mark-swash));
+  background-repeat: repeat-x, no-repeat, no-repeat;
   /* Tucked back up under the descender line, where the positioned version sat. */
-  background-position: 0 calc(100% - 0.07em);
-  background-size: clamp(15px, 0.52em, 24px) clamp(5.5px, 0.19em, 8.5px);
+  background-position: 0 calc(100% - 0.07em), 0 100%, 0 100%;
+  background-size: var(--mark-wave), 0 var(--mark-swash-h), 100% var(--mark-swash-h);
+  transition: background-size var(--hero-shift) var(--hero-ease);
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
 }
 
+/* The marker pulls across the word rather than fading in, which is the gesture a
+   highlighter actually makes. Reduced motion drops the sweep, not the mark. */
 span.mark.squiggle:hover,
 span.mark.squiggle:focus-visible {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='22' height='8' viewBox='0 0 22 8' fill='none'><path d='M0 5 Q 5.5 1.6 11 5 T 22 5' stroke='%23736d64' stroke-width='1.7' fill='none' stroke-linecap='round'/></svg>");
+  background-size: var(--mark-wave), 100% var(--mark-swash-h), 100% var(--mark-swash-h);
 }
 
 span.mark.squiggle:focus-visible {
-  outline: 2px solid color-mix(in oklch, var(--ink) 35%, transparent);
+  outline: 2px solid color-mix(in oklch, var(--flame) 55%, transparent);
   outline-offset: 3px;
   border-radius: 2px;
 }
