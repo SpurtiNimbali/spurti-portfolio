@@ -352,12 +352,6 @@ export function AboutThread() {
           </>
         )}
       </form>
-
-      <p className="ab-composer__note">
-        {ACCESS_KEY
-          ? "Goes straight to my inbox. I only ever use your address to reply."
-          : "Nothing is sent from here — the last step opens your own mail app."}
-      </p>
     </>
   );
 }
