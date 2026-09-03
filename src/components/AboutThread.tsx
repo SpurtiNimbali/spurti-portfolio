@@ -46,6 +46,27 @@ const typingTime = (text: string) =>
 const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@.]+\.[^\s@]+$/.test(value);
 
 /**
+ * The body of the mail, written here rather than left to the relay.
+ *
+ * Web3Forms renders whatever fields it is handed as a table of labels and
+ * values, and a field it considers empty simply does not appear — which is how
+ * mail arrived carrying a name and an address but nothing about why anyone had
+ * written. Composing the body ourselves makes the message one piece of text
+ * that cannot be reordered, relabelled or dropped, and every answer has a
+ * fallback, so no line can go missing even if a step somehow arrives blank.
+ *
+ * Both delivery paths use it, so the mail reads the same whether it came
+ * through the relay or the visitor's own client.
+ */
+const compose = (final: Answers) =>
+  [
+    final.about?.trim() || "(they didn't say what about)",
+    "",
+    `— ${final.name?.trim() || "someone"}`,
+    `reply to: ${final.email?.trim() || "(no address given)"}`,
+  ].join("\n");
+
+/**
  * Contact as a message thread.
  *
  * Her replies arrive the way a real one does: your message posts immediately,
@@ -116,15 +137,7 @@ export function AboutThread() {
 
   const mailto = (final: Answers) => {
     const subject = final.name ? `hello from ${final.name}` : "hello";
-    const body = [
-      final.about,
-      "",
-      final.name ? `— ${final.name}` : "",
-      final.email ? `reach me at ${final.email}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
-    return `mailto:${THREAD_INBOX}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    return `mailto:${THREAD_INBOX}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(compose(final))}`;
   };
 
   /**
@@ -145,11 +158,19 @@ export function AboutThread() {
             headers: { "Content-Type": "application/json", Accept: "application/json" },
             body: JSON.stringify({
               access_key: ACCESS_KEY,
-              subject: `spurtinimbali.com — ${final.name ?? "someone"} said hi`,
-              from_name: final.name,
-              name: final.name,
+              subject: `spurtinimbali.com — ${final.name?.trim() || "someone"} said hi`,
+              /*
+               * The site, not the visitor. This only sets the display name on
+               * the From line, and putting the visitor's there made the mail
+               * look as though it came from their account — which is also why
+               * a thread with a visitor called Spurti listed its participants
+               * as "you, spurti". Who wrote in is in the subject and signed at
+               * the foot of the message.
+               */
+              from_name: "spurtinimbali.com",
+              /* The relay makes this the Reply-To, so replying just works. */
               email: final.email,
-              message: final.about,
+              message: compose(final),
               /*
                * Web3Forms treats a filled botcheck as spam. Sent empty to hold
                * up our end of that contract — it is not doing much work here,
