@@ -981,6 +981,24 @@
   font-size: 11px;
 }
 
+/* Same footprint as the input it replaces, but stated rather than offered: no
+   fill, no pointer, since there is nothing left to do here. */
+.ab-composer__sent {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  height: 40px;
+  margin: 0;
+  border: 1px dashed color-mix(in oklch, var(--ink) 16%, transparent);
+  border-radius: 30px;
+  font-size: 14px;
+  font-variant: all-small-caps;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ink) 46%, transparent);
+}
+
 /* A footnote about how the page works, which is the site's mono voice. */
 .ab-composer__note {
   flex: none;
@@ -1113,7 +1131,8 @@
   }
 
   .ab-composer__input,
-  .ab-composer__done {
+  .ab-composer__done,
+  .ab-composer__sent {
     height: 34px;
     font-size: 14px;
   }

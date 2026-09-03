@@ -16,16 +16,17 @@ thin or unverified · ⚪️ internal, invisible to visitors
 
 | # | Item | Status | What's needed |
 |---|---|---|---|
-| 1.1 | **CV link** | ⚪️ | No longer renders anywhere — the contact list that held it is gone, and its href was the literal string `TODO: add CV URL`. Send a URL and it goes in the composer's icon row beside mail, GitHub and LinkedIn |
+| 1.0 | **Web3Forms access key** | 🔴 | The thread now sends to `spurtinimbali@gmail.com` for real, but only once this exists. Enter that address at web3forms.com and they mail a key back; put it in `.env.local` as `VITE_WEB3FORMS_KEY` and add the same name and value in Vercel → Settings → Environment Variables, then redeploy. Until then the thread falls back to opening your own mail app, which is what it did before |
+| 1.1 | **CV link** | ⚪️ | No longer renders anywhere — the contact list that held it is gone, and its href was the literal string `TODO: add CV URL`. Send a URL and it goes in the composer's icon row beside GitHub and LinkedIn |
 | 1.2 | **Message thread copy** | ⚪️ | You said the draft is fine — noting it only because it's my writing in her voice, not hers. Rewrite any time → `THREAD_OPENING`, `THREAD_SCRIPT` |
 | 1.3 | **A poem to link "poems" at** | ⚪️ | The bio says "mostly poems" — you wanted that linked to a poem. Give me a URL (or the poem itself and I'll host it) → `ABOUT_LINKS.poems` |
 | 1.4 | **Somewhere to link "articles or papers"** | ⚪️ | Same sentence, second half. A page, a Medium, a Drive folder — whatever collects the writing → `ABOUT_LINKS["articles or papers"]` |
-| 1.5 | **LinkedIn URL** | ⚪️ | The say-hi card's icon row has mail and GitHub; LinkedIn is built and waiting on the address → `ABOUT_PROFILES.linkedin` |
+| 1.5 | **LinkedIn URL** | 🔴 | The icon row is GitHub and LinkedIn now that the mail icon is gone, so with LinkedIn unset the row is a single icon. Built and waiting on the address → `ABOUT_PROFILES.linkedin` |
 
-1.1 and 1.3–1.5 are ⚪️ rather than 🔴 on purpose: until a URL exists, the two
-phrases render as ordinary text and the LinkedIn icon simply isn't drawn, so
-nothing on the live page looks broken or dead. Each one is a one-line change
-when it arrives.
+1.1 and 1.3–1.4 are ⚪️ rather than 🔴 on purpose: until a URL exists, the two
+phrases render as ordinary text and the icon simply isn't drawn, so nothing on
+the live page looks broken or dead. Each one is a one-line change when it
+arrives.
 
 Everything else on this page is filled: photos, playlist, album art. The poems
 strip has been removed at your request, and the card corners now carry drawn

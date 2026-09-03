@@ -1,9 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ABOUT_PROFILES, THREAD_OPENING, THREAD_SCRIPT, THREAD_WHO } from "../content/aboutPage";
+import {
+  ABOUT_PROFILES,
+  THREAD_BAD_EMAIL,
+  THREAD_FAILED,
+  THREAD_INBOX,
+  THREAD_OPENING,
+  THREAD_SCRIPT,
+  THREAD_SENT,
+  THREAD_WHO,
+} from "../content/aboutPage";
 
 type Line = { from: "her" | "you"; text: string };
+type Answers = Partial<Record<"name" | "about" | "email", string>>;
 
-const EMAIL = "snimbali@stanford.edu";
+/**
+ * Web3Forms relays the thread to THREAD_INBOX. The access key is public by
+ * design — it only authorises posting to one fixed address, so there is nothing
+ * to leak and no server of our own to run.
+ *
+ * When it is unset the thread still works and simply falls back to a prefilled
+ * mailto, which is what a fork of this repo gets. Set it in `.env.local` as
+ * VITE_WEB3FORMS_KEY, and in Vercel's environment variables to ship it.
+ */
+const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_KEY;
+const ENDPOINT = "https://api.web3forms.com/submit";
 
 /** Pause before she starts typing, and how long a reply takes to write. */
 const BEAT = 420;
@@ -19,6 +39,13 @@ const typingTime = (text: string) =>
   Math.min(MAX_TYPE, Math.max(MIN_TYPE, text.length * PER_CHAR));
 
 /**
+ * Deliberately permissive. This guards against a typo like a missing @, not
+ * against a determined liar, and the strict patterns reject addresses that are
+ * perfectly valid — the cost of a false rejection here is someone giving up.
+ */
+const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@.]+\.[^\s@]+$/.test(value);
+
+/**
  * Contact as a message thread.
  *
  * Her replies arrive the way a real one does: your message posts immediately,
@@ -26,9 +53,11 @@ const typingTime = (text: string) =>
  * take to write, then the message. Replies used to appear in the same frame as
  * the send, which read as a form submitting rather than a conversation.
  *
- * Still no server and nothing stored: your text lives in component state, and
- * the last step hands the exchange to your own mail client as a prefilled
- * mailto. If you never press that, nothing leaves the tab.
+ * The last answer posts the exchange to Spurti's inbox and her final message is
+ * the send's own result, so "sent" is something that happened rather than
+ * something the script claims. If the post fails — or if no access key is
+ * configured — she says so and the composer offers the same exchange as a
+ * prefilled mailto, so the conversation is never a dead end.
  */
 export function AboutThread() {
   const [lines, setLines] = useState<Line[]>([
@@ -39,7 +68,8 @@ export function AboutThread() {
   const [draft, setDraft] = useState("");
   const [typing, setTyping] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [answers, setAnswers] = useState<string[]>([]);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [failed, setFailed] = useState(false);
   const listRef = useRef<HTMLOListElement>(null);
   const timers = useRef<number[]>([]);
 
@@ -84,34 +114,101 @@ export function AboutThread() {
     [after],
   );
 
-  const mailto = () => {
-    const [name = "", about = ""] = answers;
-    const subject = name ? `hello from ${name}` : "hello";
-    const body = [about, "", name ? `— ${name}` : ""].filter(Boolean).join("\n");
-    return `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const mailto = (final: Answers) => {
+    const subject = final.name ? `hello from ${final.name}` : "hello";
+    const body = [
+      final.about,
+      "",
+      final.name ? `— ${final.name}` : "",
+      final.email ? `reach me at ${final.email}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    return `mailto:${THREAD_INBOX}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
+
+  /**
+   * Posts the finished exchange, then says what actually happened. The typing
+   * indicator covers the request, so a slow network reads as her writing back
+   * rather than as the card having stalled.
+   */
+  const send = useCallback(
+    async (final: Answers) => {
+      setBusy(true);
+      if (!reduced()) setTyping(true);
+
+      let ok = false;
+      if (ACCESS_KEY) {
+        try {
+          const res = await fetch(ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+            body: JSON.stringify({
+              access_key: ACCESS_KEY,
+              subject: `spurtinimbali.com — ${final.name ?? "someone"} said hi`,
+              from_name: final.name,
+              name: final.name,
+              email: final.email,
+              message: final.about,
+              /*
+               * Web3Forms treats a filled botcheck as spam. Sent empty to hold
+               * up our end of that contract — it is not doing much work here,
+               * since there is no rendered field for a form-scraping bot to
+               * find and anything posting to the API directly would omit it
+               * too.
+               */
+              botcheck: "",
+            }),
+          });
+          ok = res.ok && (await res.json().catch(() => ({ success: false }))).success === true;
+        } catch {
+          ok = false;
+        }
+      }
+
+      setTyping(false);
+      setFailed(!ok);
+      setLines((prev) => [...prev, { from: "her", text: ok ? THREAD_SENT : THREAD_FAILED }]);
+      setBusy(false);
+    },
+    [],
+  );
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     const text = draft.trim();
     if (!text || busy || step >= THREAD_SCRIPT.length) return;
 
+    const active = THREAD_SCRIPT[step];
+
     // Your message posts straight away — only her side waits.
     setLines((prev) => [...prev, { from: "you", text }]);
-    setAnswers((prev) => [...prev, text]);
     setDraft("");
-    setBusy(true);
 
-    const replies = [THREAD_SCRIPT[step].reply, THREAD_SCRIPT[step + 1]?.ask].filter(
-      Boolean,
-    ) as string[];
+    // A bad address is re-asked in place: the step does not advance, so the
+    // same question comes round again rather than the thread moving on without
+    // anywhere to send the reply.
+    if (active.field === "email" && !looksLikeEmail(text)) {
+      setBusy(true);
+      say([THREAD_BAD_EMAIL, active.ask]);
+      return;
+    }
 
+    const final = { ...answers, [active.field]: text };
+    setAnswers(final);
     setStep(step + 1);
-    if (replies.length) say(replies);
-    else setBusy(false);
+
+    const replies = [active.reply, THREAD_SCRIPT[step + 1]?.ask].filter(Boolean) as string[];
+
+    if (replies.length) {
+      setBusy(true);
+      say(replies);
+    } else {
+      void send(final);
+    }
   };
 
-  const active = THREAD_SCRIPT[Math.min(step, THREAD_SCRIPT.length - 1)];
+  const current = THREAD_SCRIPT[Math.min(step, THREAD_SCRIPT.length - 1)];
 
   return (
     <>
@@ -163,16 +260,9 @@ export function AboutThread() {
       </ol>
 
       <form className="ab-composer" onSubmit={submit}>
-        <a
-          className="ab-composer__icon"
-          href={`mailto:${EMAIL}`}
-          aria-label="Email instead"
-          title="Email instead"
-        >
-          <svg viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M1.5 3h13v10h-13zM2 3.6l6 4.2 6-4.2" fill="none" stroke="currentColor" strokeWidth="1.4" />
-          </svg>
-        </a>
+        {/* GitHub and LinkedIn only. The thread itself is the way to reach her
+            by mail now that it delivers, so an email icon beside it was two
+            controls for one job. */}
         <a
           className="ab-composer__icon"
           href="https://github.com/SpurtiNimbali"
@@ -202,24 +292,45 @@ export function AboutThread() {
           </a>
         ) : null}
 
-        {done ? (
-          <a className="ab-composer__done" href={mailto()}>
+        {/* Only offered when the send failed. On success there is nothing left
+            to do, and a mail button under a delivered message would suggest
+            otherwise. */}
+        {done && failed ? (
+          <a className="ab-composer__done" href={mailto(answers)}>
             Open this in your mail app
             <span aria-hidden="true">↗</span>
           </a>
+        ) : done ? (
+          /* Holds the row's height once the input goes, so the card doesn't end
+             on a lone icon in a collapsed strip. Her message above is the real
+             confirmation; this is just the composer at rest. */
+          <p className="ab-composer__sent">
+            <span aria-hidden="true">✓</span>
+            sent
+          </p>
         ) : (
           <>
             <label className="sr-only" htmlFor="ab-msg">
-              {active.ask}
+              {current.ask}
             </label>
             <input
               id="ab-msg"
               className="ab-composer__input"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder={busy ? "…" : active.placeholder}
+              placeholder={busy ? "…" : current.placeholder}
               disabled={busy}
               autoComplete="off"
+              /*
+               * Deliberately not type="email". That hands validation to the
+               * browser, which blocks the submit and answers with a native
+               * tooltip — and a validation bubble is exactly the "form
+               * submitting" feel this card exists to avoid. The address is
+               * checked in submit instead, so a typo comes back as her asking
+               * again. inputMode still gets the @ keyboard on a phone.
+               */
+              inputMode={current.field === "email" ? "email" : undefined}
+              autoCapitalize={current.field === "email" ? "off" : undefined}
             />
             <button
               type="submit"
@@ -243,7 +354,9 @@ export function AboutThread() {
       </form>
 
       <p className="ab-composer__note">
-        Nothing is sent from here — the last step opens your own mail app.
+        {ACCESS_KEY
+          ? "Goes straight to my inbox. I only ever use your address to reply."
+          : "Nothing is sent from here — the last step opens your own mail app."}
       </p>
     </>
   );

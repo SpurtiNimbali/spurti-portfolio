@@ -150,35 +150,75 @@ export const UP_NEXT: { title: string; artist: string }[] = [
 /**
  * Contact thread.
  *
- * Her side is scripted; the visitor's answers live in component state only and
- * end up in a prefilled mailto. Nothing is posted anywhere.
+ * Her side is scripted; the visitor's three answers are posted to Web3Forms,
+ * which forwards them to her inbox. See THREAD_INBOX and the send path in
+ * AboutThread — including what happens when no access key is configured.
  */
 export const THREAD_WHO = {
   name: "Spurti",
   avatar: spurtiAvatar,
 };
 
+/** Where the thread delivers. Also the address the mailto fallback opens. */
+export const THREAD_INBOX = "spurtinimbali@gmail.com";
+
 /** Shown before the visitor types, so the card opens as a conversation. */
 export const THREAD_OPENING = [
   "want to work together? just want to chat? message me here.",
 ];
 
-export const THREAD_SCRIPT: { ask: string; placeholder: string; reply?: string }[] = [
+/**
+ * The three questions, in the order a person would actually ask them.
+ *
+ * `field` is what the answer becomes in the email, so the order here is the
+ * order of the conversation and nothing else depends on it. The email is asked
+ * last because it is the close — "where do I reach you" only makes sense once
+ * there is something to reply about.
+ *
+ * The last step carries no `reply`: what she says next depends on whether the
+ * message actually sent, so it comes from THREAD_SENT or THREAD_FAILED instead.
+ */
+export const THREAD_SCRIPT: {
+  field: "name" | "about" | "email";
+  ask: string;
+  placeholder: string;
+  reply?: string;
+}[] = [
   {
+    field: "name",
     ask: "who am I talking to?",
     placeholder: "iMessage",
     reply: "nice to meet you",
   },
   {
+    field: "about",
     ask: "what did you want to talk about?",
     placeholder: "a sentence is plenty",
-    reply: "got it — I read everything, usually same day.",
+    reply: "got it",
+  },
+  {
+    field: "email",
+    ask: "and where do I reach you?",
+    placeholder: "you@somewhere.com",
   },
 ];
 
+/** Re-ask rather than advance, so a typo can't cost someone their reply. */
+export const THREAD_BAD_EMAIL = "hmm, that doesn't look like an email — try again?";
+
+/** Her reply once the message is actually in her inbox. */
+export const THREAD_SENT = "that's with me — I read everything, usually same day.";
+
 /**
- * The photos carousel. Four of her own photographs, cycling — no tabs and no
- * captions, because these are not four categories of anything, they are four
+ * Shown when the send fails, or when no access key is configured. The composer
+ * falls back to a prefilled mailto underneath this, so the exchange is never a
+ * dead end: the visitor still leaves with a way to reach her.
+ */
+export const THREAD_FAILED = "that didn't send, sorry — mind sending it directly instead?";
+
+/**
+ * The photos carousel. Four of her own photographs, cycling — no captions,
+ * because these are not four categories of anything, they are four
  * photographs. Add one by adding an entry; `src` must be an imported asset.
  *
  * `focus` is the `object-position` the frame crops around. The card's frame is
