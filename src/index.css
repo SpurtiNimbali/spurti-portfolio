@@ -259,12 +259,34 @@ a {
   text-underline-offset: 0.14em;
 }
 
+/*
+ * A paper row carries more air than a project row does, and only here — the
+ * spacing below is scoped to .research-row so the projects page, which shares
+ * every .project-row rule, keeps its tighter rhythm.
+ *
+ * The reason they differ: a project row is a line you scan past, while an
+ * opened paper is a paragraph, a credit and a pair of buttons that you stop and
+ * read. At the projects page's spacing those three ran together into one block.
+ */
 .research-row {
   scroll-margin-top: 6vh;
+  gap: 0.85rem;
+}
+
+/* Separates the question from the title above it, which the tighter grid had
+   sitting almost on the baseline. */
+.research-row .project-row__main {
+  gap: 0.5rem;
 }
 
 .research-row__question {
   font-style: normal;
+}
+
+/* Paper to paper. Rows open and close in place, so this gap is what keeps an
+   expanded row from reading as though it belongs to the one beneath it. */
+.research-index__sections .project-section__rows {
+  gap: 2.4rem;
 }
 
 /*
@@ -273,21 +295,38 @@ a {
  */
 .research-row__summary p {
   font-size: 1rem;
-  line-height: 1.6;
+  line-height: 1.68;
   color: var(--ink);
 }
 
 .research-row__meta-line {
-  margin-top: 0.78rem;
   font-size: 0.88rem;
+  line-height: 1.55;
   color: var(--mute);
 }
 
 .research-row__cta {
-  margin-top: 1.25rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.7rem;
+  gap: 0.85rem;
+}
+
+/*
+ * Both of these are <p> inside .project-row__body, which zeroes every margin on
+ * its paragraphs — and that rule is more specific than a lone class, so the
+ * margins have to be set from the body down or they simply don't land. The
+ * earlier values here were dead for exactly that reason.
+ *
+ * The buttons take room on both sides, not just above: the bottom margin is
+ * what stops them butting into the next paper's year and title.
+ */
+.research-row__body .research-row__meta-line {
+  margin-top: 1rem;
+}
+
+.research-row__body .research-row__cta {
+  margin-top: 1.6rem;
+  margin-bottom: 0.4rem;
 }
 
 /*
