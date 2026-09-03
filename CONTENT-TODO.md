@@ -16,7 +16,7 @@ thin or unverified · ⚪️ internal, invisible to visitors
 
 | # | Item | Status | What's needed |
 |---|---|---|---|
-| 1.0 | **Web3Forms access key** | ✅ | Done — in `.env.local` and in Vercel → Production as `VITE_WEB3FORMS_KEY`. It was saved there once as `VITE_WEB3FORMS_KE`, missing the `Y`, which is why the deployed thread still fell back to your mail app; that stray entry is harmless but can be deleted. **Only takes effect on the next deploy**, since Vite bakes the value into the bundle at build time rather than reading it at runtime |
+| 1.0 | **Web3Forms access key** | ✅ | Done — in `.env.local` and in Vercel → Production as `VITE_WEB3FORMS_KEY`. It was saved there once as `VITE_WEB3FORMS_KE`, missing the `Y`, which is why the deployed thread still fell back to your mail app; that stray entry has since been deleted. **Only takes effect on the next deploy**, since Vite bakes the value into the bundle at build time rather than reading it at runtime |
 | 1.1 | **CV link** | ⚪️ | No longer renders anywhere — the contact list that held it is gone, and its href was the literal string `TODO: add CV URL`. Send a URL and it goes in the composer's icon row beside GitHub and LinkedIn |
 | 1.2 | **Message thread copy** | ⚪️ | You said the draft is fine — noting it only because it's my writing in her voice, not hers. Rewrite any time → `THREAD_OPENING`, `THREAD_SCRIPT` |
 | 1.3 | **A poem to link "poems" at** | ⚪️ | The bio says "mostly poems" — you wanted that linked to a poem. Give me a URL (or the poem itself and I'll host it) → `ABOUT_LINKS.poems` |
