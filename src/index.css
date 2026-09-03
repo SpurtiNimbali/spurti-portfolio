@@ -615,7 +615,7 @@ a {
 }
 
 .hero-line {
-  --hero-fs-cap: clamp(21px, 2.22vw, 32px);
+  --hero-fs-cap: clamp(19.5px, 2.04vw, 29.5px);
   --hero-fs: var(--hero-fs-cap);
   --hero-lh: 1.3;
   --hero-track: -0.03em;
@@ -661,12 +661,14 @@ a {
  * readable. The clamps carry the same ladder from 390px up to 1440px.
  *
  * The sizes are not hand-picked. Each level was measured at 1440, 1180, 1024
- * and 390 across the whole size range, and the ladder is the one that fills the
- * reserved box to roughly 0.85 at every level and width without leaving a last
- * line short enough to read as a stub. Changing the copy invalidates them.
+ * and 390 across the whole size range, and the ladder that filled the reserved
+ * box to roughly 0.85 is the one below stepped down about 8% — the fitted
+ * version read as slightly too loud for a bio, and the box now carries a little
+ * more air at every level. The proportions between levels are preserved, so the
+ * ladder still holds; changing the copy invalidates the sizes.
  */
 .hero-line[data-tone="0"] {
-  --hero-fs-cap: clamp(41px, 4.9vw, 63px);
+  --hero-fs-cap: clamp(38px, 4.5vw, 58px);
   --hero-lh: 1.16;
   --hero-track: -0.044em;
   /* Short enough to balance: three even lines beat two long ones and a stub. */
@@ -674,26 +676,28 @@ a {
 }
 
 .hero-line[data-tone="1"] {
-  --hero-fs-cap: clamp(30.5px, 3.55vw, 45.5px);
+  --hero-fs-cap: clamp(28px, 3.27vw, 42px);
   --hero-lh: 1.22;
   --hero-track: -0.038em;
   --hero-wrap: balance;
 }
 
 .hero-line[data-tone="2"] {
-  --hero-fs-cap: clamp(21.5px, 2.45vw, 34.5px);
+  --hero-fs-cap: clamp(20px, 2.26vw, 31.5px);
   --hero-lh: 1.3;
   --hero-track: -0.028em;
 }
 
 .hero-line[data-tone="3"] {
-  --hero-fs-cap: clamp(19.5px, 2.15vw, 29px);
+  --hero-fs-cap: clamp(18px, 1.98vw, 26.5px);
   --hero-lh: 1.34;
   --hero-track: -0.022em;
 }
 
+/* The two smallest levels take a shallower cut than the rest of the ladder:
+   their minimums are already at the floor of comfortable reading on a phone. */
 .hero-line[data-tone="4"] {
-  --hero-fs-cap: clamp(14.5px, 1.75vw, 23px);
+  --hero-fs-cap: clamp(14px, 1.61vw, 21px);
   --hero-lh: 1.42;
   --hero-track: -0.012em;
 }
@@ -701,7 +705,7 @@ a {
 /* Caps have no ascender rhythm to read by, so they take positive tracking, the
    loosest leading on the ladder, and a little more weight to earn the shouting. */
 .hero-line[data-tone="5"] {
-  --hero-fs-cap: clamp(13.5px, 1.6vw, 21.5px);
+  --hero-fs-cap: clamp(13px, 1.47vw, 19.5px);
   --hero-lh: 1.48;
   --hero-track: 0.022em;
   --hero-weight: 600;
@@ -859,17 +863,11 @@ a {
  */
 span.mark.squiggle {
   /*
-   * A grey wave under grey ink was too quiet to read as an invitation, so the
-   * word itself carries the accent. Flame is the warmest thing in the palette and
-   * the one accent no link on the page already claims — the name link is
-   * cobalt-derived — so a marked word can never be mistaken for a href.
-   *
-   * Not the whole way there, though. This is body copy at every tone, and tone 5
-   * is 14px on a phone, so the accent has to clear 4.5:1 against this paper.
-   * Flame itself measures 3.4:1 and a third of the way to it reads brown rather
-   * than warm; seven tenths measures 5.7:1 and is unmistakably orange.
+   * The word stays in the sentence's own ink. Colouring it read as a second
+   * kind of link competing with the body copy, and the washes below already do
+   * the work of saying it is interactive.
    */
-  --mark-ink: color-mix(in oklch, var(--flame) 70%, var(--ink));
+  --mark-ink: var(--ink);
   /*
    * Two washes. The pale one is always drawn, because a mark nobody can see
    * until they hover it is exactly the problem here — the photos behind these
@@ -911,7 +909,7 @@ span.mark.squiggle:focus-visible {
 }
 
 span.mark.squiggle:focus-visible {
-  outline: 2px solid color-mix(in oklch, var(--flame) 55%, transparent);
+  outline: 2px solid color-mix(in oklch, var(--ink) 55%, transparent);
   outline-offset: 3px;
   border-radius: 2px;
 }
