@@ -100,24 +100,28 @@ export const PRINTS: Record<StickerKey, Print[]> = {
       tilt: 6,
       frame: "ink",
     },
+    /*
+     * These three are portrait. They are narrower than the landscape prints so
+     * the taller frame still occupies about the same patch of margin.
+     */
     {
       src: slackLobby,
-      width: 148,
-      photoAspect: 4284 / 5712,
+      width: 132,
+      photoAspect: 5712 / 4284,
       tilt: -5,
       frame: "polaroid",
     },
     {
       src: slackEntry,
-      width: 186,
-      photoAspect: 4284 / 5712,
+      width: 156,
+      photoAspect: 5712 / 4284,
       tilt: 4,
       frame: "tape",
     },
     {
       src: slackTower,
-      width: 132,
-      photoAspect: 4284 / 5712,
+      width: 118,
+      photoAspect: 5712 / 4284,
       tilt: -7,
       frame: "torn",
     },
