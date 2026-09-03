@@ -1431,7 +1431,12 @@ body:has(.nav-item:focus-visible) .sticker-layer {
 
 /* The rail, and the distance travelled along it: the same hairline twice, the
    second a few percent darker. A colour here would make the caption louder than
-   the sentence it captions. */
+   the sentence it captions.
+
+   Both are transparent to the pointer, and the fill in particular has to be:
+   ::after is the track's last child, so it paints over the input laid across
+   it, and every press landing on the stretch of rail behind the marker was
+   being eaten before it could start a drag. */
 .tone-axis__track::before,
 .tone-axis__track::after {
   content: "";
@@ -1440,6 +1445,7 @@ body:has(.nav-item:focus-visible) .sticker-layer {
   height: var(--tone-rail);
   border-radius: var(--tone-rail);
   translate: 0 -50%;
+  pointer-events: none;
 }
 
 .tone-axis__track::before {
@@ -1460,9 +1466,23 @@ body:has(.nav-item:focus-visible) .sticker-layer {
   transition: width 340ms var(--pw-spring);
 }
 
+/*
+ * A click, a keypress or a wheel step is a jump between two tones and should
+ * land with some spring in it, which is what the transition above is for. A
+ * drag is not a jump: the marker is already following the pointer frame by
+ * frame, and easing the fill towards it only means the paint trailing the thing
+ * under your finger. The attribute is held through the settle as well, because
+ * that is animated a frame at a time in the component and a transition on top
+ * of it would fight for the same property.
+ */
+.tone-axis[data-scrubbing="true"] .tone-axis__track::after {
+  transition: none;
+}
+
 .tone-axis__notches {
   position: absolute;
   inset: 0;
+  pointer-events: none;
 }
 
 /* One per tone, on the same inset travel as the fill, so each sits exactly
