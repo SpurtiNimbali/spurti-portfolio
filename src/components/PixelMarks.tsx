@@ -369,45 +369,6 @@ function IndiaObject({ style }: { style: CSSProperties }) {
   );
 }
 
-function BobaObject({ style }: { style: CSSProperties }) {
-  return (
-    <svg className="pw-obj pw-obj--boba" viewBox="0 0 72 108" fill="none" style={style}>
-      <defs>
-        <linearGradient id="bb-cup" x1="16" y1="44" x2="58" y2="98" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#F2D3AC" />
-          <stop offset=".5" stopColor="#D9A473" />
-          <stop offset="1" stopColor="#B87C48" />
-        </linearGradient>
-      </defs>
-
-      {/* straw first so the lid overlaps its base */}
-      <g transform="rotate(15 48 26)">
-        <rect x="43" y="4" width="10" height="40" rx="5" fill="#FF7FA8" stroke="#8E2E52" strokeWidth="1.7" />
-      </g>
-
-      <path
-        d="M17 42h38l-4.6 50a7 7 0 0 1-7 6.4H28.6a7 7 0 0 1-7-6.4z"
-        fill="url(#bb-cup)"
-        stroke="#5A3A1C"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-      <path d="M24 46h5l-3.4 47h-3z" fill="#fff" opacity=".3" />
-
-      <g fill="#3B2415">
-        <circle cx="28" cy="86" r="4.2" />
-        <circle cx="37" cy="89" r="4.2" />
-        <circle cx="45" cy="85" r="4" />
-        <circle cx="33" cy="79" r="3.8" />
-        <circle cx="42" cy="78" r="3.6" />
-      </g>
-
-      <rect x="11" y="32" width="50" height="13" rx="5" fill="#FFF6E8" stroke="#5A3A1C" strokeWidth="1.8" />
-      <ellipse cx="36" cy="32" rx="25" ry="7" fill="#FFFCF4" stroke="#5A3A1C" strokeWidth="1.8" />
-    </svg>
-  );
-}
-
 /**
  * Read Me scatters actual artifacts rather than a generic icon set — the things
  * the hero sentence already claims.
@@ -416,16 +377,14 @@ export function ReadMeMark() {
   return (
     <div className="pw-stage pw-stage--me" aria-hidden="true">
       {/*
-       * Three objects, so each one is large: the terminal carries the dominant
-       * weight at the mass of a Projects card, India is a strong second, and the
-       * cup is the one accent. The terminal fans up to her left and India up to
-       * her right so the two heavy pieces flank the cutout; the cup sits bottom
-       * left, tucked into her contour, rather than stacking under India.
+       * Two objects, so each one is large: the terminal carries the dominant
+       * weight at the mass of a Projects card and India is a strong second. The
+       * terminal fans up to her left and India up to her right, so the pair
+       * flanks the cutout.
        *
-       * Overlaps are real: India lies over the terminal, the cup under her
-       * lower-left edge, and the terminal under her hair. DOM order is the
-       * z-order and is chosen for that; the stagger index is passed separately
-       * so the big pieces still arrive first.
+       * Overlaps are real: India lies over the terminal, and the terminal under
+       * her hair. DOM order is the z-order and is chosen for that; the stagger
+       * index is passed separately so the heavier piece still arrives first.
        *
        * The anchor is a cutout rather than a framed square, so its top corners
        * are empty and objects nestle into the contour there, while anything
@@ -459,14 +418,6 @@ export function ReadMeMark() {
         </div>
 
         <IndiaObject style={bloom(1, 118, -46, 11)} />
-        {/*
-         * Bottom left, tucked into her lower-left contour rather than free in
-         * the corner: the terminal's lower edge climbs away to the right, so the
-         * far corner has nothing to sit against. Rotation is mirrored (+10 vs
-         * the terminal's -8) so the two do not read as parallel. Kept above the
-         * caption ink (y 79) — a naive mirror of the old 98,72 would collide.
-         */}
-        <BobaObject style={bloom(2, -100, 28, 10)} />
       </div>
 
       <div className="pw-icon-wrap">

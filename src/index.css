@@ -2150,12 +2150,6 @@ body:has(.nav-item:focus-visible) .sticker-layer {
   height: 217px;
 }
 
-/* The one accent, so it can be bigger than a chip without crowding anything. */
-.pw-obj--boba {
-  width: 62px;
-  height: 93px;
-}
-
 /* Caption swaps a resting pill for the title/description/CTA block on hover. */
 .nav-item__caption {
   position: relative;
