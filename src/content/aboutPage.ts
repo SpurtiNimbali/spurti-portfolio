@@ -129,6 +129,14 @@ export const NOW_PLAYING: {
 };
 
 /**
+ * Eyebrow over the queue. Deliberately a continuation of `NOW_PLAYING.note`
+ * rather than a heading of its own: read straight down the card and the two
+ * make one sentence, which is what says the queue belongs to the track above
+ * it rather than being a second list that wandered in.
+ */
+export const UP_NEXT_NOTE = "then";
+
+/**
  * Rest of the playlist, shown under the now-playing line. Titles and artists
  * confirmed by Spurti.
  */

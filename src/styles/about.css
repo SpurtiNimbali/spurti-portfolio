@@ -426,50 +426,85 @@
   margin-bottom: 0.35rem;
 }
 
-/* Up next. This is what closes the gap that used to sit under the subtitle.
-   Bottom-aligned, so the list groups with the transport under it and the card's
-   slack falls in one place instead of splitting into two gaps around it. */
-.ab-uplist {
-  flex: 1 1 auto;
+/*
+ * Up next, as a track listing on the back of a sleeve rather than as a queue
+ * widget. The old version read as Spotify chrome pasted in, and each of its
+ * tells had the same cause — it was built as rows of UI:
+ *
+ *   a rule under every track       one rule for the whole group, as .pj-small
+ *                                  does: the group is bracketed, not tabled
+ *   a flush-right second column    the credit set inline after the title, so
+ *                                  the two read as one line, not two fields
+ *   titles clipped to an ellipsis  smaller, fluid type that fits whole
+ *   a hover ground on every row    the underline a link takes in her bio
+ *   nothing saying what it was     an eyebrow, in the page's label treatment
+ *
+ * One line per track and not two, incidentally, because two does not fit: at
+ * 1280 the card is 338px tall, and eight lines of type plus this label clipped
+ * the last track clean off.
+ *
+ * `margin-top: auto` puts the card's slack above the rule, where it becomes the
+ * separation between two labelled groups. Letting the list stretch to absorb it
+ * instead was the other option and it read worse — four lines set a line and a
+ * half apart stop being a list and go back to being four stray tracks, which is
+ * the complaint. On a tall window the separation grows, which is this page's
+ * existing behaviour rather than something this list introduces: the card is
+ * sized by a grid row, and four short lines cannot fill 100px of extra height
+ * without becoming loose again.
+ */
+.ab-next {
+  flex: 0 1 auto;
   min-height: 0;
+  margin-top: auto;
+  padding-top: 0.5rem;
   overflow: hidden;
+  border-top: 1px solid color-mix(in oklch, var(--ink) 11%, transparent);
+}
+
+/* The page's eyebrow, a step quieter than the one over the now-playing track:
+   two labels at one weight would read as two headings of equal rank. */
+.ab-next__label {
+  flex: none;
+  margin: 0 0 0.3rem;
+  font-size: 0.66rem;
+  font-weight: 500;
+  line-height: 1;
+  font-variant: all-small-caps;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ink) 36%, transparent);
+}
+
+/* One rhythm at every card height, rather than leading that stretches with the
+   card: a fixed interval is what makes four lines read as one list. */
+.ab-uplist {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 0.05rem;
-  margin: 0.35rem 0 0;
+  gap: clamp(0.3rem, 0.42vw, 0.46rem);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.ab-uplist li {
-  border-top: 1px solid color-mix(in oklch, var(--ink) 8%, transparent);
-}
-
+/* Title and credit on one baseline, the credit trailing the name the way a
+   byline does. Ragged right on purpose: an aligned right edge is what made
+   the old version read as a table of durations. */
 .ab-uplist a {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  display: flex;
   align-items: baseline;
   gap: 0.4rem;
-  /* Negative inline margin lets the hover ground extend past the text without
-     widening the list or pushing the row heights around. */
-  margin-inline: -0.4rem;
-  padding: 0.06rem 0.4rem;
-  border-radius: 7px;
-  line-height: 1.28;
+  overflow: hidden;
   text-decoration: none;
-  transition: background-color 140ms ease;
 }
 
-.ab-uplist a:hover,
-.ab-uplist a:focus-visible {
-  background: color-mix(in oklch, var(--butter) 42%, transparent);
-}
-
-.ab-uplist a:hover span {
-  color: var(--ink);
-}
-
+/*
+ * Nothing in UP_NEXT reaches this at any width the card appears at — the
+ * longest row, Sunflower's, needs 182 of the 190px it gets at the narrowest.
+ * It is a floor for a longer entry added later, and a clipped line is better
+ * than a wrap, which would push the last track out of the card entirely.
+ *
+ * The credit gives way first and the title never shrinks: losing the tail of
+ * "Post Malone & Swae Lee" costs far less than losing the name of the track.
+ */
 .ab-uplist span,
 .ab-uplist em {
   overflow: hidden;
@@ -477,20 +512,42 @@
   white-space: nowrap;
 }
 
+/* A track title is a name, so it takes the same Palatino the now-playing title
+   does — a third of the size, which is the whole hierarchy. */
 .ab-uplist span {
-  font-size: 12.5px;
+  flex: 0 0 auto;
+  font-family: Palatino, "Iowan Old Style", "Times New Roman", serif;
+  font-size: clamp(12.5px, 1.02vw, 14.5px);
   font-weight: 500;
-  color: color-mix(in oklch, var(--ink) 84%, transparent);
+  letter-spacing: -0.014em;
+  line-height: 1.3;
+  color: color-mix(in oklch, var(--ink) 78%, transparent);
+  /* The same underline her bio's links take, so a track reads as prose that
+     happens to be a link rather than as a row that happens to be clickable. */
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  text-decoration-color: transparent;
+  transition:
+    color 140ms ease,
+    text-decoration-color 140ms ease;
+}
+
+.ab-uplist a:hover span,
+.ab-uplist a:focus-visible span {
+  color: var(--ink);
+  text-decoration-color: color-mix(in oklch, var(--ink) 35%, transparent);
 }
 
 /* Artist credits take the mono role a project's stack line has. */
 .ab-uplist em {
+  flex: 0 1 auto;
+  min-width: 0;
   font-style: normal;
   font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
-  font-size: 10.5px;
+  font-size: clamp(9px, 0.73vw, 10.5px);
   letter-spacing: 0.01em;
-  text-align: right;
-  color: color-mix(in oklch, var(--ink) 48%, transparent);
+  color: color-mix(in oklch, var(--ink) 44%, transparent);
 }
 
 /* Art tile, in the reference's white-framed sleeve. A colour rather than a
@@ -563,9 +620,11 @@
 
 /* Transport pill, as on the reference: five evenly spaced controls in a
    rounded outline that spans the card. */
+/* A set gap rather than `margin-top: auto`: the track listing above now takes
+   the card's slack, so there is none left for an auto margin to collect. */
 .ab-transport {
   flex: none;
-  margin-top: auto;
+  margin-top: 0.55rem;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   align-items: center;

@@ -14,6 +14,7 @@ import {
   ENTITY_DEFS,
   NOW_PLAYING,
   UP_NEXT,
+  UP_NEXT_NOTE,
 } from "../content/aboutPage";
 
 const TOKEN = /\{\{([A-Za-z]+)\}\}|\[\[([^\]]+)\]\]/g;
@@ -194,23 +195,30 @@ export function AboutPage() {
               </span>
             </p>
 
-            <ol className="ab-uplist" aria-label="Up next">
-              {UP_NEXT.map((track) => (
-                <li key={track.title}>
-                  <a
-                    href={`https://open.spotify.com/search/${encodeURIComponent(
-                      `${track.title} ${track.artist}`,
-                    )}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    title={`Find ${track.title} on Spotify`}
-                  >
-                    <span>{track.title}</span>
-                    <em>{track.artist}</em>
-                  </a>
-                </li>
-              ))}
-            </ol>
+            {/* The queue, as a track listing rather than as rows of UI: one
+                rule for the whole group instead of one per track, and a name
+                trailed by its credit instead of two aligned columns. */}
+            <div className="ab-next">
+              <p className="ab-next__label">{UP_NEXT_NOTE}</p>
+
+              <ol className="ab-uplist" aria-label="Up next">
+                {UP_NEXT.map((track) => (
+                  <li key={track.title}>
+                    <a
+                      href={`https://open.spotify.com/search/${encodeURIComponent(
+                        `${track.title} ${track.artist}`,
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={`Find ${track.title} on Spotify`}
+                    >
+                      <span>{track.title}</span>
+                      <em>{track.artist}</em>
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </div>
 
             <div className="ab-transport" role="group" aria-label="Playback">
               <button type="button" disabled title="No queue on this page" aria-label="Queue">
