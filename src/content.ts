@@ -81,12 +81,12 @@ function line(text: string): PredicatePart[] {
 export const INTENSITY_LEVELS: IntensityLevel[] = [
   {
     label: "quiet",
-    parts: line("builds software that is obsessed with people, like she is with Simba."),
+    parts: line("builds product that is obsessed with people, like she is with Simba."),
   },
   {
     label: "modest",
     parts: line(
-      "studies CS and AI at Stanford and likes building software around how people " +
+      "studies CS and AI at Stanford and likes building product around how people " +
         "actually think and work. Simba mostly thinks about treats.",
     ),
   },
@@ -95,7 +95,7 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
     parts: line(
       "builds AI at Stanford and thinks a lot about how people understand, trust, and " +
         "use technology. She spent the summer at Slack seeing what that looks like when " +
-        "the software is used by millions. Simba is better than her at the " +
+        "the product is used by millions. Simba is better than her at the " +
         "human-understanding bit.",
     ),
   },
@@ -105,7 +105,7 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
       "works on AI and does computational neuroscience research at Stanford, mostly " +
         "because she wants to understand people well enough to build technology that " +
         "feels obvious, useful, and actually worth using. This summer at Slack, she got " +
-        "to do that on software people live in every day. Simba slept through most of it.",
+        "to do that on a product people live in every day. Simba slept through most of it.",
     ),
   },
   {
@@ -124,7 +124,7 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
     label: "undeniable",
     caps: true,
     parts: line(
-      "studies AI at Stanford, is a published researcher, builds software at Slack, and " +
+      "studies AI at Stanford, is a published researcher, builds product at Slack, and " +
         "studies how people think and behave so she can build technology that actually " +
         "works for them. She understands the user need, does the research and builds the " +
         "thing, which is apparently enough of a novel concept that we have to put this " +
