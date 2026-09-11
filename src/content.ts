@@ -81,12 +81,12 @@ function line(text: string): PredicatePart[] {
 export const INTENSITY_LEVELS: IntensityLevel[] = [
   {
     label: "quiet",
-    parts: line("builds product that is obsessed with people, like she is with Simba."),
+    parts: line("builds systems that are obsessed with people, like she is with Simba."),
   },
   {
     label: "modest",
     parts: line(
-      "studies CS and AI at Stanford and likes building product around how people " +
+      "studies CS and AI at Stanford and likes building products around how people " +
         "actually think and work. Simba mostly thinks about treats.",
     ),
   },
@@ -124,7 +124,7 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
     label: "undeniable",
     caps: true,
     parts: line(
-      "studies AI at Stanford, is a published researcher, builds product at Slack, and " +
+      "studies AI at Stanford, is a published researcher, builds products at Slack, and " +
         "studies how people think and behave so she can build technology that actually " +
         "works for them. She understands the user need, does the research and builds the " +
         "thing, which is apparently enough of a novel concept that we have to put this " +
