@@ -124,12 +124,12 @@ export const INTENSITY_LEVELS: IntensityLevel[] = [
     label: "undeniable",
     caps: true,
     parts: line(
-      "studies AI at Stanford, is a published researcher, builds products at Slack, and " +
-        "studies how people think and behave so she can build technology that actually " +
-        "works for them. She understands the user need, does the research and builds the " +
-        "thing, which is apparently enough of a novel concept that we have to put this " +
-        "in all caps. Get her before everyone else figures this out. Simba vouches. His " +
-        "standards are extremely high.",
+      "studies AI at Stanford, is a published researcher, works on 3rd party agent " +
+        "integration in Slack, and studies how people think and behave so she can build " +
+        "technology that actually works for them. She understands the user need, does the " +
+        "research and builds the thing, which is apparently enough of a novel concept " +
+        "that we have to put this in all caps. Get her before everyone else figures this " +
+        "out. Simba vouches. His standards are extremely high.",
     ),
   },
 ];
